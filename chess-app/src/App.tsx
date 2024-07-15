@@ -1,9 +1,10 @@
 import './App.css';
+import Chessboard from './components/Chessboard';
 
 function App() {
   return (
-    <div>
-      Chess board!
+    <div id="app">
+      <Chessboard/>
     </div>
   );
 }
