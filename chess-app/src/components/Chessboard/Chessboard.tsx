@@ -1,6 +1,7 @@
-import { MouseEvent, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
+import Rules from "../../rules/Rules";
 
 const yAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -8,31 +9,45 @@ const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const tileSize = 100;
 
 interface Piece {
-    image: string
-    x: number
-    y: number
+    image: string;
+    x: number;
+    y: number;
+    type: PieceType;
+    color: PieceColor;
 }
 
+export enum PieceType {
+    PAWN,
+    BSHP,
+    NGHT,
+    ROOK,
+    QUEN,
+    KING,
+}
+
+export enum PieceColor {
+    WHITE,
+    BLACK,
+}
 const parent = "assets/images/";
 
 const initialBoardState: Piece[] = [];
 
 for (let color = 0; color < 2; color++) {
-    const cF = (color === 0) ? "b" : "w"; // cF is colorFlag
-    const y = (color === 0) ? 7 : 0; //flip from 8th rank to 1st rank
-    const child = "_" + cF + ".png"
+    const [pieceColor, colorFlag, y] = (!(color)) ? [PieceColor.BLACK, "b", 7] : [PieceColor.WHITE, "w", 0];
+    const child = "_" + colorFlag + ".png"
     
-    initialBoardState.push({ image: `${parent}rook${child}`,   x: 0, y})
-    initialBoardState.push({ image: `${parent}knight${child}`, x: 1, y})
-    initialBoardState.push({ image: `${parent}bishop${child}`, x: 2, y})
-    initialBoardState.push({ image: `${parent}queen${child}`,  x: 3, y})
-    initialBoardState.push({ image: `${parent}king${child}`,   x: 4, y})
-    initialBoardState.push({ image: `${parent}bishop${child}`, x: 5, y})
-    initialBoardState.push({ image: `${parent}knight${child}`, x: 6, y})
-    initialBoardState.push({ image: `${parent}rook${child}`,   x: 7, y})
+    initialBoardState.push({ image: `${parent}rook${child}`,   x: 0, y, type: PieceType.ROOK, color: pieceColor})
+    initialBoardState.push({ image: `${parent}knight${child}`, x: 1, y, type: PieceType.NGHT, color: pieceColor})
+    initialBoardState.push({ image: `${parent}bishop${child}`, x: 2, y, type: PieceType.BSHP, color: pieceColor})
+    initialBoardState.push({ image: `${parent}queen${child}`,  x: 3, y, type: PieceType.QUEN, color: pieceColor})
+    initialBoardState.push({ image: `${parent}king${child}`,   x: 4, y, type: PieceType.KING, color: pieceColor})
+    initialBoardState.push({ image: `${parent}bishop${child}`, x: 5, y, type: PieceType.BSHP, color: pieceColor})
+    initialBoardState.push({ image: `${parent}knight${child}`, x: 6, y, type: PieceType.NGHT, color: pieceColor})
+    initialBoardState.push({ image: `${parent}rook${child}`,   x: 7, y, type: PieceType.ROOK, color: pieceColor})
     for (let rank = -1; rank <= 1; rank+=2) {
         for (let file = 0; file < 8; file++) {
-            initialBoardState.push({ image: `${parent}pawn${child}`, x: file, y: y+rank})
+            initialBoardState.push({ image: `${parent}pawn${child}`, x: file, y: y+rank, type: PieceType.PAWN, color: pieceColor})
         }
     }
 }
@@ -43,6 +58,7 @@ export default function Chessboard() {
     const [gridY, setGridY] = useState(0);
     const [pieces, setPieces] = useState<Piece[]>(initialBoardState)
     const chessboardRef = useRef<HTMLDivElement>(null);
+    const rules = new Rules;
     
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;
@@ -98,8 +114,15 @@ export default function Chessboard() {
             setPieces((value) => {
                 const pieces = value.map((p) => {
                     if (p.x === gridX && p.y === gridY) {
-                        p.x = x;
-                        p.y = y;
+                        const validMove = rules.isValidMove(gridX, gridY, x, y, p.type, p.color);
+                        if (validMove) {
+                            p.x = x;
+                            p.y = y;
+                        } else {
+                            activePiece.style.position = 'relative';
+                            activePiece.style.removeProperty('top');
+                            activePiece.style.removeProperty('left');
+                        }
                     }
                     return p;
                 });
