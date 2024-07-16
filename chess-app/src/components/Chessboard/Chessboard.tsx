@@ -8,7 +8,7 @@ const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 //look at viewport | responsive design
 const tileSize = 100;
 
-interface Piece {
+export interface Piece {
     image: string;
     x: number;
     y: number;
@@ -56,9 +56,9 @@ export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
     const [gridX, setGridX] = useState(0);
     const [gridY, setGridY] = useState(0);
-    const [pieces, setPieces] = useState<Piece[]>(initialBoardState)
+    const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
     const chessboardRef = useRef<HTMLDivElement>(null);
-    const rules = new Rules;
+    const rules = new Rules();
     
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;
@@ -81,8 +81,8 @@ export default function Chessboard() {
         if (activePiece && chessboard) {
             const minX = chessboard.offsetLeft - tileSize/4;
             const minY = chessboard.offsetTop  - tileSize/4;
-            const maxX = chessboard.offsetLeft - tileSize/4*3 + chessboard.clientHeight;
-            const maxY = chessboard.offsetTop  - tileSize/4*3 + chessboard.clientWidth;
+            const maxX = chessboard.offsetLeft - tileSize/4*3 + chessboard.clientWidth;
+            const maxY = chessboard.offsetTop  - tileSize/4*3 + chessboard.clientHeight;
             const x = e.clientX - tileSize/2; //fix this when flex scaling
             const y = e.clientY - tileSize/2;
             activePiece.style.position = "absolute";
@@ -111,20 +111,42 @@ export default function Chessboard() {
             const x = Math.floor((e.clientX - chessboard.offsetLeft) / tileSize);
             const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - tileSize*8) / tileSize));
             
+            const movePiece = pieces.find(p => p.x === gridX && p.y === gridY);
+            const gonePiece = pieces.find(p => p.x ===     x && p.y ===     y);
+            if (movePiece) {
+                const validMove = rules.isValidMove(
+                    gridX, 
+                    gridY, 
+                    x, 
+                    y, 
+                    movePiece.type, 
+                    movePiece.color, 
+                    pieces,
+                );
+                setPieces((value =>))
+            } 
+            if (validMove)
             setPieces((value) => {
-                const pieces = value.map((p) => {
-                    if (p.x === gridX && p.y === gridY) {
-                        const validMove = rules.isValidMove(gridX, gridY, x, y, p.type, p.color);
-                        if (validMove) {
-                            p.x = x;
-                            p.y = y;
-                        } else {
-                            activePiece.style.position = 'relative';
-                            activePiece.style.removeProperty('top');
-                            activePiece.style.removeProperty('left');
-                        }
+                const pieces = value.reduce((results, piece) => {
+                    if (piece.x === movePiece.x && piece.y === movePiece.y) {
+                        p.x = x;
+                        p.y = y;
+                        results.push(piece);
+                    } else if (!(piece.x === x && piece.y === y)) {
+                        results.push(piece);
                     }
-                    return p;
+                    return results;
+                }, [] as Piece[]);
+
+                if (validMove) {
+                    
+                } else {
+                    activePiece.style.position = "relative";
+                    activePiece.style.removeProperty("top");
+                    activePiece.style.removeProperty("left");
+                }
+            }
+            return p;
                 });
                 return pieces;
             })
@@ -141,7 +163,7 @@ export default function Chessboard() {
                 if (p.x === i && p.y === j) {
                     image = p.image;
                 }
-            })
+            });
             board.push(<Tile key={`${i}${j}`} image={image} number={number}/>)
         }
     }
