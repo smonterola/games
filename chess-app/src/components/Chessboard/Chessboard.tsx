@@ -2,55 +2,15 @@ import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
-
-const yAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
-const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
-//look at viewport | responsive design
-const tileSize = 100;
-
-export interface Piece {
-    image: string;
-    x: number;
-    y: number;
-    type: PieceType;
-    color: PieceColor;
-}
-
-export enum PieceType {
-    PAWN,
-    BSHP,
-    NGHT,
-    ROOK,
-    QUEN,
-    KING,
-}
-
-export enum PieceColor {
-    WHITE,
-    BLACK,
-}
-const parent = "assets/images/";
-
-const initialBoardState: Piece[] = [];
-
-for (let color = 0; color < 2; color++) {
-    const [pieceColor, colorFlag, y] = (!(color)) ? [PieceColor.BLACK, "b", 7] : [PieceColor.WHITE, "w", 0];
-    const child = "_" + colorFlag + ".png"
-    
-    initialBoardState.push({ image: `${parent}rook${child}`,   x: 0, y, type: PieceType.ROOK, color: pieceColor})
-    initialBoardState.push({ image: `${parent}knight${child}`, x: 1, y, type: PieceType.NGHT, color: pieceColor})
-    initialBoardState.push({ image: `${parent}bishop${child}`, x: 2, y, type: PieceType.BSHP, color: pieceColor})
-    initialBoardState.push({ image: `${parent}queen${child}`,  x: 3, y, type: PieceType.QUEN, color: pieceColor})
-    initialBoardState.push({ image: `${parent}king${child}`,   x: 4, y, type: PieceType.KING, color: pieceColor})
-    initialBoardState.push({ image: `${parent}bishop${child}`, x: 5, y, type: PieceType.BSHP, color: pieceColor})
-    initialBoardState.push({ image: `${parent}knight${child}`, x: 6, y, type: PieceType.NGHT, color: pieceColor})
-    initialBoardState.push({ image: `${parent}rook${child}`,   x: 7, y, type: PieceType.ROOK, color: pieceColor})
-    for (let rank = -1; rank <= 1; rank+=2) {
-        for (let file = 0; file < 8; file++) {
-            initialBoardState.push({ image: `${parent}pawn${child}`, x: file, y: y+rank, type: PieceType.PAWN, color: pieceColor})
-        }
-    }
-}
+import { 
+    xAxis, 
+    yAxis, 
+    tileSize, 
+    Piece, 
+    PieceType, 
+    PieceColor,
+} from "../../Constants";
+import { initialBoardState } from "./initChessboard";
 
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
@@ -59,6 +19,7 @@ export default function Chessboard() {
     const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();
+    
     
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;
@@ -111,8 +72,8 @@ export default function Chessboard() {
             const x = Math.floor((e.clientX - chessboard.offsetLeft) / tileSize);
             const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - tileSize*8) / tileSize));
             
-            const movePiece = pieces.find(p => p.x === gridX && p.y === gridY);
-            const gonePiece = pieces.find(p => p.x ===     x && p.y ===     y);
+            const movePiece = pieces.find(p => p.position.x === gridX && p.position.y === gridY);
+            const gonePiece = pieces.find(p => p.position.x ===     x && p.position.y ===     y);
             if (movePiece) {
                 const validMove = rules.isValidMove(
                     gridX, 
@@ -125,21 +86,21 @@ export default function Chessboard() {
                 );
                 if (validMove) {
                     const newPieces = pieces.reduce((results, piece) => {
-                        if (piece.x === movePiece.x && piece.y === movePiece.y) {
-                            piece.x = x;
-                            piece.y = y;
+                        if (piece.position.x === gridX && piece.position.y === gridY) {
+                            piece.position.x = x;
+                            piece.position.y = y;
                             results.push(piece);
-                        } else if (!(piece.x === x && piece.y === y)) {
+                        } else if (!(piece.position.x === x && piece.position.y === y)) {
                             results.push(piece);
                         }
                         return results;
                     }, [] as Piece[]);
                     setPieces(newPieces);
-                }
-            } else {
+                } else {
                 activePiece.style.position = "relative";
                 activePiece.style.removeProperty("top");
                 activePiece.style.removeProperty("left");
+                }
             }
             setActivePiece(null);
         }
@@ -151,7 +112,7 @@ export default function Chessboard() {
             let image = undefined;
 
             pieces.forEach((p) => {
-                if (p.x === i && p.y === j) {
+                if (p.position.x === i && p.position.y === j) {
                     image = p.image;
                 }
             });

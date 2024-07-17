@@ -1,4 +1,4 @@
-import { Piece, PieceType, PieceColor } from "../components/Chessboard/Chessboard";
+import { Piece, PieceType, PieceColor } from "../Constants";
 
 export default class Rules {
     isOccupied(
@@ -6,7 +6,7 @@ export default class Rules {
         y: number,
         boardState: Piece[],
     ): boolean {
-        const piece = boardState.find((p) => p.x === x && p.y === y);
+        const piece = boardState.find((p) => p.position.x === x && p.position.y === y);
         return (piece) ? true : false; 
     }
 
@@ -16,7 +16,7 @@ export default class Rules {
         boardState: Piece[],
         color: PieceColor,
     ): boolean {
-        const piece = boardState.find((p) => p.x === x && p.y === y && p.color !== color); 
+        const piece = boardState.find((p) => p.position.x === x && p.position.y === y && p.color !== color); 
         return (piece) ? true : false;
     }
     
