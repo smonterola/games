@@ -5,7 +5,7 @@ import Rules from "../../rules/Rules";
 import { 
     xAxis, 
     yAxis, 
-    tileSize, 
+    TILESIZE, 
     Piece,
     Position,
     samePosition,
@@ -23,11 +23,11 @@ export default function Chessboard() {
         const element = e.target as HTMLElement;
         const chessboard = chessboardRef.current;
         if (element.classList.contains("chess-piece") && chessboard) {
-            const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / tileSize));
-            const getY = (Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - tileSize*8) / tileSize)));
+            const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE));
+            const getY = (Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE)));
             setPosition({x: getX, y: getY});
-            const x = e.clientX - tileSize/2; //fix this when flex scaling
-            const y = e.clientY - tileSize/2;
+            const x = e.clientX - TILESIZE/2; //fix this when flex scaling
+            const y = e.clientY - TILESIZE/2;
             element.style.position = "absolute";
             element.style.left = `${x}px`;
             element.style.top = `${y}px`;
@@ -39,12 +39,12 @@ export default function Chessboard() {
     function movePiece(e: React.MouseEvent) {
         const chessboard = chessboardRef.current;
         if (activePiece && chessboard) {
-            const minX = chessboard.offsetLeft - tileSize/4;
-            const minY = chessboard.offsetTop  - tileSize/4;
-            const maxX = chessboard.offsetLeft - tileSize/4*3 + chessboard.clientWidth;
-            const maxY = chessboard.offsetTop  - tileSize/4*3 + chessboard.clientHeight;
-            const x = e.clientX - tileSize/2; //fix this when flex scaling
-            const y = e.clientY - tileSize/2;
+            const minX = chessboard.offsetLeft - TILESIZE/4;
+            const minY = chessboard.offsetTop  - TILESIZE/4;
+            const maxX = chessboard.offsetLeft - TILESIZE/4*3 + chessboard.clientWidth;
+            const maxY = chessboard.offsetTop  - TILESIZE/4*3 + chessboard.clientHeight;
+            const x = e.clientX - TILESIZE/2; //fix this when flex scaling
+            const y = e.clientY - TILESIZE/2;
             activePiece.style.position = "absolute";
             //controls the boundaries
             if (x < minX) {
@@ -69,11 +69,11 @@ export default function Chessboard() {
         const chessboard = chessboardRef.current;
         if (activePiece && chessboard) {
             const x = Math.floor(
-                (e.clientX - chessboard.offsetLeft) / tileSize
+                (e.clientX - chessboard.offsetLeft) / TILESIZE
             );
             const y = Math.abs(
                 Math.ceil(
-                    (e.clientY - chessboard.offsetTop - tileSize*8) / tileSize
+                    (e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE
                 )
             );
             const cursorP: Position = {x, y};
@@ -110,12 +110,8 @@ export default function Chessboard() {
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;
-            let image = undefined;
-            pieces.forEach((p) => {
-                if (samePosition(p.position, {x: i, y: j})) {
-                    image = p.image;
-                }
-            });
+            const piece = pieces.find(p => (samePosition(p.position, {x: i, y: j})));
+            let image = piece ? piece.image : undefined;
             board.push(<Tile key={`${i}${j}`} image={image} number={number}/>)
         }
     }
