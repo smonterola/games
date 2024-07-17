@@ -15,6 +15,14 @@ export interface Position {
     y: number;
 }
 
+export function samePosition(p0: Position, p1: Position) {
+    return p0.x === p1.x && p0.y === p1.y;
+}
+
+export function convertCoordinates(p0: Position, p1: Position) {
+    return [p0.x, p0.y, p1.x, p1.y];
+}
+
 export enum PieceType {
     PAWN,
     BSHP,

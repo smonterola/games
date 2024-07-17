@@ -6,9 +6,9 @@ import {
     xAxis, 
     yAxis, 
     tileSize, 
-    Piece, 
-    PieceType, 
-    PieceColor,
+    Piece,
+    Position,
+    samePosition,
 } from "../../Constants";
 import { initialBoardState } from "./initChessboard";
 
@@ -19,7 +19,8 @@ export default function Chessboard() {
     const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();
-    
+
+    const gridP: Position = {x: gridX, y: gridY};
     
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;
@@ -72,25 +73,24 @@ export default function Chessboard() {
             const x = Math.floor((e.clientX - chessboard.offsetLeft) / tileSize);
             const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - tileSize*8) / tileSize));
             
-            const movePiece = pieces.find(p => p.position.x === gridX && p.position.y === gridY);
-            const gonePiece = pieces.find(p => p.position.x ===     x && p.position.y ===     y);
+            const movePiece = pieces.find(p => samePosition(p.position, gridP));
+            const gonePiece = pieces.find(p => samePosition(p.position, {x, y}));
+
             if (movePiece) {
                 const validMove = rules.isValidMove(
-                    gridX, 
-                    gridY, 
-                    x, 
-                    y, 
+                    gridP, 
+                    {x, y}, 
                     movePiece.type, 
                     movePiece.color, 
                     pieces,
                 );
                 if (validMove) {
                     const newPieces = pieces.reduce((results, piece) => {
-                        if (piece.position.x === gridX && piece.position.y === gridY) {
+                        if (samePosition(piece.position, gridP)) {
                             piece.position.x = x;
                             piece.position.y = y;
                             results.push(piece);
-                        } else if (!(piece.position.x === x && piece.position.y === y)) {
+                        } else if (!(samePosition(piece.position, {x, y}))) {
                             results.push(piece);
                         }
                         return results;
