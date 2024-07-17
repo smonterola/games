@@ -27,7 +27,7 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ) {
-        //if (x < 0 || x > 7 || y < 0 || y > 7) return false; //do not move out of bounds
+        if (p1.x < 0 || p1.x > 7 || p1.y < 0 || p1.y > 7) return false; //do not move out of bounds
         switch (type) {
             case PieceType.PAWN: 
                 return this.movePawn(p0, p1, color, boardState);

@@ -14,20 +14,18 @@ import { initialBoardState } from "./initChessboard";
 
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
-    const [gridX, setGridX] = useState(0);
-    const [gridY, setGridY] = useState(0);
+    const [getPosition, setPosition] = useState<Position>({x: -1, y: -1})
     const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();
-
-    const gridP: Position = {x: gridX, y: gridY};
     
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;
         const chessboard = chessboardRef.current;
         if (element.classList.contains("chess-piece") && chessboard) {
-            setGridX(Math.floor((e.clientX - chessboard.offsetLeft) / tileSize));
-            setGridY(Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - tileSize*8) / tileSize)));
+            const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / tileSize));
+            const getY = (Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - tileSize*8) / tileSize)));
+            setPosition({x: getX, y: getY});
             const x = e.clientX - tileSize/2; //fix this when flex scaling
             const y = e.clientY - tileSize/2;
             element.style.position = "absolute";
@@ -48,7 +46,7 @@ export default function Chessboard() {
             const x = e.clientX - tileSize/2; //fix this when flex scaling
             const y = e.clientY - tileSize/2;
             activePiece.style.position = "absolute";
-            
+            //controls the boundaries
             if (x < minX) {
                 activePiece.style.left = `${minX}px`;
             } else if (x > maxX) {
@@ -70,36 +68,39 @@ export default function Chessboard() {
     function dropPiece(e: React.MouseEvent) {
         const chessboard = chessboardRef.current;
         if (activePiece && chessboard) {
-            const x = Math.floor((e.clientX - chessboard.offsetLeft) / tileSize);
-            const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - tileSize*8) / tileSize));
-            
-            const movePiece = pieces.find(p => samePosition(p.position, gridP));
-            const gonePiece = pieces.find(p => samePosition(p.position, {x, y}));
-
+            const x = Math.floor(
+                (e.clientX - chessboard.offsetLeft) / tileSize
+            );
+            const y = Math.abs(
+                Math.ceil(
+                    (e.clientY - chessboard.offsetTop - tileSize*8) / tileSize
+                )
+            );
+            const cursorP: Position = {x, y};
+            const movePiece = pieces.find(p => samePosition(p.position, getPosition));
             if (movePiece) {
                 const validMove = rules.isValidMove(
-                    gridP, 
-                    {x, y}, 
+                    getPosition, 
+                    cursorP,
                     movePiece.type, 
                     movePiece.color, 
                     pieces,
                 );
                 if (validMove) {
                     const newPieces = pieces.reduce((results, piece) => {
-                        if (samePosition(piece.position, gridP)) {
-                            piece.position.x = x;
-                            piece.position.y = y;
+                        if (samePosition(piece.position, getPosition)) {
+                            piece.position = cursorP;
                             results.push(piece);
-                        } else if (!(samePosition(piece.position, {x, y}))) {
+                        } else if (!(samePosition(piece.position, cursorP))) {
                             results.push(piece);
                         }
                         return results;
                     }, [] as Piece[]);
                     setPieces(newPieces);
                 } else {
-                activePiece.style.position = "relative";
-                activePiece.style.removeProperty("top");
-                activePiece.style.removeProperty("left");
+                    activePiece.style.position = "relative";
+                    activePiece.style.removeProperty("top");
+                    activePiece.style.removeProperty("left");
                 }
             }
             setActivePiece(null);
@@ -110,9 +111,8 @@ export default function Chessboard() {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;
             let image = undefined;
-
             pieces.forEach((p) => {
-                if (p.position.x === i && p.position.y === j) {
+                if (samePosition(p.position, {x: i, y: j})) {
                     image = p.image;
                 }
             });
