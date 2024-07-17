@@ -123,33 +123,24 @@ export default function Chessboard() {
                     movePiece.color, 
                     pieces,
                 );
-                setPieces((value =>))
-            } 
-            if (validMove)
-            setPieces((value) => {
-                const pieces = value.reduce((results, piece) => {
-                    if (piece.x === movePiece.x && piece.y === movePiece.y) {
-                        p.x = x;
-                        p.y = y;
-                        results.push(piece);
-                    } else if (!(piece.x === x && piece.y === y)) {
-                        results.push(piece);
-                    }
-                    return results;
-                }, [] as Piece[]);
-
                 if (validMove) {
-                    
-                } else {
-                    activePiece.style.position = "relative";
-                    activePiece.style.removeProperty("top");
-                    activePiece.style.removeProperty("left");
+                    const newPieces = pieces.reduce((results, piece) => {
+                        if (piece.x === movePiece.x && piece.y === movePiece.y) {
+                            piece.x = x;
+                            piece.y = y;
+                            results.push(piece);
+                        } else if (!(piece.x === x && piece.y === y)) {
+                            results.push(piece);
+                        }
+                        return results;
+                    }, [] as Piece[]);
+                    setPieces(newPieces);
                 }
+            } else {
+                activePiece.style.position = "relative";
+                activePiece.style.removeProperty("top");
+                activePiece.style.removeProperty("left");
             }
-            return p;
-                });
-                return pieces;
-            })
             setActivePiece(null);
         }
     }

@@ -67,8 +67,10 @@ export default class Rules {
                 default:
                     return false;
             }
+        //pawn capture
         } else if (Math.abs(x - x0) * (y - y0) * POV === 1) {
             return this.canCapture(x, y, boardState, color);
+        //need to add en passant
         } else {
             return false;
         }
