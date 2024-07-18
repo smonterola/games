@@ -58,3 +58,17 @@ export const bishopDirections: Position[] = [
     {x:-1, y: 1}, // 7pi/4
 ];
 
+export const knightDirections: Position[] = [
+    {x: 2, y: 1},
+    {x: 2, y:-1},
+    {x:-2, y:-1},
+    {x:-2, y: 1},
+    {x: 1, y: 2},
+    {x: 1, y:-2},
+    {x:-1, y:-2},
+    {x:-1, y: 2},
+]
+
+export const queenDirections: Position[] = 
+    rookDirections.concat(bishopDirections);
+

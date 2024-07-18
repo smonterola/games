@@ -115,6 +115,7 @@ export default function Chessboard() {
             board.push(<Tile key={`${i}${j}`} image={image} number={number}/>)
         }
     }
+    //console.log("returning")
     return (
         <div 
             onMouseMove={(e) => movePiece(e)}

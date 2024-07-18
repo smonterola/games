@@ -5,31 +5,16 @@ import {
     PieceColor, 
     samePosition, 
     convertCoordinates, 
-    checkBounds,
     rookDirections,
     bishopDirections,
+    knightDirections,
+    queenDirections
 } from "../Constants";
 
-export default class Rules {
-    isOccupied(
-        coordinate: Position,
-        boardState: Piece[],
-    ): boolean {
-        const piece = boardState.find((p) => 
-            samePosition(coordinate, p.position));
-        return (piece) ? true : false; 
-    }
+import { isOccupied, canCapture } from "./pieceLogic/TileAttributes";
+import { mapMoves } from "./pieceLogic/MapMoves";
 
-    canCapture(
-        coordinate: Position,
-        boardState: Piece[],
-        color: PieceColor,
-    ): boolean {
-        const piece = boardState.find((p) => 
-            samePosition(coordinate, p.position) && p.color !== color); 
-        return (piece) ? true : false;
-    }
-    
+export default class Rules {
     isValidMove(
         p0: Position,
         p1: Position,
@@ -70,18 +55,18 @@ export default class Rules {
                 case 2:
                     if (
                         (y0 !== OG) ||
-                        (this.isOccupied({x, y: y - POV}, boardState))
+                        (isOccupied({x, y: y - POV}, boardState))
                     ) {
                         return false;
                     }
                 case 1:
-                    return !this.isOccupied(p1, boardState);
+                    return !isOccupied(p1, boardState);
                 default:
                     return false;
             }
         //pawn capture
         } else if (Math.abs(x - x0) * (y - y0) * POV === 1) {
-            return this.canCapture(p1, boardState, color);
+            return canCapture(p1, boardState, color);
         //need to add en passant
         } else {
             return false;
@@ -93,11 +78,8 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ) {
-        const [x0, y0, x, y] = convertCoordinates(p0, p1);
-        if (Math.abs((x - x0) * (y - y0)) === 2) {
-            return !this.isOccupied(p1, boardState)|| this.canCapture(p1, boardState, color);
-        }
-        return false;
+        const knightMoves: Position[] = mapMoves(p0, color, boardState, knightDirections, true);
+        return (knightMoves.find(p => samePosition(p, p1))) ? true : false;
     }
     moveBishop(
         p0: Position, //old
@@ -105,7 +87,7 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ) {
-        const bishopMoves: Position[] = this.mapMoves(p0, color, boardState, bishopDirections, false);
+        const bishopMoves: Position[] = mapMoves(p0, color, boardState, bishopDirections, false);
         return (bishopMoves.find(p => samePosition(p, p1))) ? true : false;
     }
     moveRook(
@@ -114,7 +96,7 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ) {
-        const rookMoves: Position[] = this.mapMoves(p0, color, boardState, rookDirections, false);
+        const rookMoves: Position[] = mapMoves(p0, color, boardState, rookDirections, false);
         return (rookMoves.find(p => samePosition(p, p1))) ? true : false;
     }
     moveQueen(
@@ -123,8 +105,7 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ) {
-        const queenDirections: Position[] = bishopDirections.concat(rookDirections);
-        const queenMoves: Position[] = this.mapMoves(p0, color, boardState, queenDirections, false);
+        const queenMoves: Position[] = mapMoves(p0, color, boardState, queenDirections, false);
         return (queenMoves.find(p => samePosition(p, p1))) ? true : false;
     }
     moveKing(
@@ -133,38 +114,7 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ) {
-        const kingDirections: Position[] = bishopDirections.concat(rookDirections);
-        const kingMoves: Position[] = this.mapMoves(p0, color, boardState, kingDirections, true);
+        const kingMoves: Position[] = mapMoves(p0, color, boardState, queenDirections, true);
         return (kingMoves.find(p => samePosition(p, p1))) ? true : false;
-    }
-    mapMoves(
-        p0: Position,
-        color: PieceColor,
-        boardState: Piece[],
-        movement: Position[],
-        king: boolean,
-    ): Position[]  {
-        const moves: Position[] = [];
-        for (var direction of movement) {
-            const tempPosition: Position = {x: p0.x, y: p0.y};
-            tempPosition.x += direction.x;
-            tempPosition.y += direction.y;
-            while (checkBounds(tempPosition)) {
-                if (!this.isOccupied(tempPosition, boardState)) {
-                    moves.push({x: tempPosition.x, y: tempPosition.y});
-                    tempPosition.x += direction.x;
-                    tempPosition.y += direction.y;
-                } else if (this.canCapture(tempPosition, boardState, color)) {
-                    moves.push({x: tempPosition.x, y: tempPosition.y});
-                    break;
-                } else {
-                    break;
-                }
-                if (king) { //limits king to only one move
-                    break; 
-                }
-            }
-        }
-        return moves;
     }
 }
