@@ -2,11 +2,10 @@ import { Position, PieceColor, Piece, samePosition, addPositions } from "../../C
 import { isOccupied, canCapture } from "./TileAttributes";
 
 export const movePawn = (
-    p0: Position, //old
-    p1: Position, //new
+    p0: Position,
     color: PieceColor,
     boardState: Piece[],
-): boolean => {
+): Position[] => {
     const pawnMoves: Position[] = [];
     const [POV, OG, leftFile, rightFile, promotion] = 
         (color === PieceColor.WHITE) ? 
@@ -17,7 +16,7 @@ export const movePawn = (
         {x: 1*POV, y: 1*POV},
         {x: 0    , y: 1*POV},
         {x: 0    , y: 2*POV},
-    ]
+    ];
     let i = 0;
     const [upperLeft, upperRight, upOne, upTwo] = [
         addPositions(p0, pawnDirections[i++]),
@@ -37,5 +36,7 @@ export const movePawn = (
             pawnMoves.push(upTwo);
         }
     }
-    return (pawnMoves.find(p => samePosition(p, p1))) ? true : false;
+    //console.log(pawnMoves)
+    return pawnMoves;
+    //(pawnMoves.find(p => samePosition(p, p1))) ? true : false;
 }

@@ -29,7 +29,9 @@ export function checkBounds(p: Position): boolean {
         p.y >= 0 && p.y <= 7
     )
 }
-
+export function stringPosition(p: Position): string {
+    return `${p.x},${p.y}`;
+}
 export enum PieceType {
     PAWN,
     BSHP,

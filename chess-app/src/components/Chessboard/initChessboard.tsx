@@ -9,7 +9,7 @@ export const initialBoardState: Piece[] = [];
 const parent = "assets/images/";
 
 for (let color = 0; color < 2; color++) {
-    const [pieceColor, colorFlag, y] = (!(color)) ? [PieceColor.BLACK, "b", 7] : [PieceColor.WHITE, "w", 0];
+    const [pieceColor, colorFlag, y, POV] = (!(color)) ? [PieceColor.BLACK, "b", 7, -1] : [PieceColor.WHITE, "w", 0, 1];
     const child = "_" + colorFlag + ".png"
     
     initialBoardState.push({ image: `${parent}rook${child}`,   position: {x: 0, y}, type: PieceType.ROOK, color: pieceColor});
@@ -20,9 +20,7 @@ for (let color = 0; color < 2; color++) {
     initialBoardState.push({ image: `${parent}bishop${child}`, position: {x: 5, y}, type: PieceType.BSHP, color: pieceColor});
     initialBoardState.push({ image: `${parent}knight${child}`, position: {x: 6, y}, type: PieceType.NGHT, color: pieceColor});
     initialBoardState.push({ image: `${parent}rook${child}`,   position: {x: 7, y}, type: PieceType.ROOK, color: pieceColor});
-    for (let rank = -1; rank <= 1; rank+=2) {
-        for (let file = 0; file < 8; file++) {
-            initialBoardState.push({ image: `${parent}pawn${child}`, position: {x: file, y: y+rank}, type: PieceType.PAWN, color: pieceColor});
-        }
+    for (let file = 0; file < 8; file++) {
+        initialBoardState.push({ image: `${parent}pawn${child}`, position: {x: file, y: y+POV}, type: PieceType.PAWN, color: pieceColor});
     }
 }
