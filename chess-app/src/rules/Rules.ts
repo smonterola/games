@@ -4,6 +4,7 @@ import {
     PieceType, 
     PieceColor, 
     samePosition, 
+    addPositions,
     convertCoordinates,
     checkBounds, 
 } from "../Constants";
@@ -49,32 +50,37 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ) {
-        const [x0, y0, x, y] = convertCoordinates(p0, p1);
-        //pawns are not symmetrical
-        const [POV, OG] = (color === PieceColor.WHITE) ? [1, 1] : [-1, 6];
-        //pawn push
-        if (x === x0) {
-            switch((y - y0) * POV) {
-                //@ts-ignore
-                case 2:
-                    if (
-                        (y0 !== OG) ||
-                        (isOccupied({x, y: y - POV}, boardState))
-                    ) {
-                        return false;
-                    }
-                case 1:
-                    return !isOccupied(p1, boardState);
-                default:
-                    return false;
-            }
-        //pawn capture
-        } else if (Math.abs(x - x0) * (y - y0) * POV === 1) {
-            return canCapture(p1, boardState, color);
-        //need to add en passant
-        } else {
-            return false;
+        const pawnMoves: Position[] = [];
+        const [POV, OG, leftFile, rightFile, promotion] = 
+            (color === PieceColor.WHITE) ? 
+            [1, 1, 0, 7, 7] : 
+            [-1, 6, 7, 0, 0];
+        const pawnDirections: Position[] = [
+            {x:-1*POV, y: 1*POV},
+            {x: 1*POV, y: 1*POV},
+            {x: 0    , y: 1*POV},
+            {x: 0    , y: 2*POV},
+        ]
+        let i = 0;
+        const [upperLeft, upperRight, upOne, upTwo] = [
+            addPositions(p0, pawnDirections[i++]),
+            addPositions(p0, pawnDirections[i++]),
+            addPositions(p0, pawnDirections[i++]),
+            addPositions(p0, pawnDirections[i++]),
+        ];
+        if (p0.x !== leftFile  && canCapture(upperLeft, boardState, color)) {
+            pawnMoves.push(upperLeft);
         }
+        if (p0.x !== rightFile && canCapture(upperRight, boardState, color)) {
+            pawnMoves.push(upperRight);
+        }
+        if (p0.y + 1*POV !== promotion && !isOccupied(upOne, boardState)) {
+            pawnMoves.push(upOne);
+            if (p0.y + 2*POV !== promotion && !isOccupied(upTwo, boardState) && p0.y === OG) {
+                pawnMoves.push(upTwo);
+            }
+        }
+        return (pawnMoves.find(p => samePosition(p, p1))) ? true : false;
     }
     moveKnight(
         p0: Position, //old
