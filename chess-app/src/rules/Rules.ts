@@ -50,8 +50,9 @@ export default class Rules {
             case PieceType.QUEN:
                 return this.moveQueen(p0, p1, color, boardState);
             case PieceType.KING:
+                return this.moveKing(p0, p1, color, boardState);
         }
-        return true;
+        return false;
     }
     movePawn(
         p0: Position, //old
@@ -108,13 +109,13 @@ export default class Rules {
         return (bishopMoves.find(p => samePosition(p, p1))) ? true : false;
     }
     moveRook(
-            p0: Position, //old
-            p1: Position, //new
-            color: PieceColor,
-            boardState: Piece[],
-        ) {
-            const rookMoves: Position[] = this.mapMoves(p0, color, boardState, rookDirections, false);
-            return (rookMoves.find(p => samePosition(p, p1))) ? true : false;
+        p0: Position, //old
+        p1: Position, //new
+        color: PieceColor,
+        boardState: Piece[],
+    ) {
+        const rookMoves: Position[] = this.mapMoves(p0, color, boardState, rookDirections, false);
+        return (rookMoves.find(p => samePosition(p, p1))) ? true : false;
     }
     moveQueen(
         p0: Position, //old
@@ -123,8 +124,18 @@ export default class Rules {
         boardState: Piece[],
     ) {
         const queenDirections: Position[] = bishopDirections.concat(rookDirections);
-        const rookMoves: Position[] = this.mapMoves(p0, color, boardState, queenDirections, false);
-        return (rookMoves.find(p => samePosition(p, p1))) ? true : false;
+        const queenMoves: Position[] = this.mapMoves(p0, color, boardState, queenDirections, false);
+        return (queenMoves.find(p => samePosition(p, p1))) ? true : false;
+    }
+    moveKing(
+        p0: Position, //old
+        p1: Position, //new
+        color: PieceColor,
+        boardState: Piece[],
+    ) {
+        const kingDirections: Position[] = bishopDirections.concat(rookDirections);
+        const kingMoves: Position[] = this.mapMoves(p0, color, boardState, kingDirections, true);
+        return (kingMoves.find(p => samePosition(p, p1))) ? true : false;
     }
     mapMoves(
         p0: Position,
