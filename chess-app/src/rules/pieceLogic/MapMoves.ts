@@ -10,15 +10,11 @@ export const mapMoves = (
 ): Position[] => {
     const moves: Position[] = [];
     for (var direction of movement) {
-        const tempPosition: Position = addPositions(p0, direction);
-        //{x: p0.x, y: p0.y};
-        //tempPosition.x += direction.x;
-        //tempPosition.y += direction.y;
+        let tempPosition: Position = addPositions(p0, direction);
         while (checkBounds(tempPosition)) {
             if (!isOccupied(tempPosition, boardState)) {
                 moves.push({x: tempPosition.x, y: tempPosition.y});
-                tempPosition.x += direction.x;
-                tempPosition.y += direction.y;
+                tempPosition = addPositions(tempPosition, direction);
             } else if (canCapture(tempPosition, boardState, color)) {
                 moves.push({x: tempPosition.x, y: tempPosition.y});
                 break;
