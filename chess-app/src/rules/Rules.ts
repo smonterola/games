@@ -52,4 +52,12 @@ export default class Rules {
         const moves: Position[] = mapMoves(p0, color, boardState, directions, once);
         return (moves.find(p => samePosition(p, p1))) ? true : false;
     }
+    validMoves(
+        p0: Position,
+        color: PieceColor,
+        boardState: Piece[],
+        movement: Position[],
+    ) {
+        const colorPieces: Piece[] = boardState.filter((boardState) => boardState.color <= color);
+    }
 }
