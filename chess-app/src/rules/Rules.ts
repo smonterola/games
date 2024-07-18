@@ -1,4 +1,14 @@
-import { Piece, Position, PieceType, PieceColor, samePosition, convertCoordinates, checkBounds } from "../Constants";
+import { 
+    Piece, 
+    Position, 
+    PieceType, 
+    PieceColor, 
+    samePosition, 
+    convertCoordinates, 
+    checkBounds,
+    rookDirections,
+    bishopDirections,
+} from "../Constants";
 
 export default class Rules {
     isOccupied(
@@ -26,17 +36,19 @@ export default class Rules {
         type: PieceType, 
         color: PieceColor,
         boardState: Piece[],
-    ) {
+    ): boolean {
         if (p1.x < 0 || p1.x > 7 || p1.y < 0 || p1.y > 7) return false; //do not move out of bounds
         switch (type) {
             case PieceType.PAWN: 
                 return this.movePawn(p0, p1, color, boardState);
             case PieceType.BSHP:
-                return this.moveBishop(p0, p1, color, boardState)
+                return this.moveBishop(p0, p1, color, boardState);
             case PieceType.NGHT:
                 return this.moveKnight(p0, p1, color, boardState);
             case PieceType.ROOK:
+                return this.moveRook(p0, p1, color, boardState);
             case PieceType.QUEN:
+                return this.moveQueen(p0, p1, color, boardState);
             case PieceType.KING:
         }
         return true;
@@ -92,39 +104,56 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ) {
-        //const [x0, y0, x, y] = convertCoordinates(p0, p1);
-        const bishopMoves: Position[] = []
-        const directions: Position[] = [
-            {x: 1, y: 1}, //  pi/4
-            {x: 1, y:-1}, // 3pi/4
-            {x:-1, y:-1}, // 5pi/4
-            {x:-1, y: 1}, // 7pi/4
-        ];
-        for (var direction of directions) {
-            //console.log(direction);
+        const bishopMoves: Position[] = this.mapMoves(p0, color, boardState, bishopDirections, false);
+        return (bishopMoves.find(p => samePosition(p, p1))) ? true : false;
+    }
+    moveRook(
+            p0: Position, //old
+            p1: Position, //new
+            color: PieceColor,
+            boardState: Piece[],
+        ) {
+            const rookMoves: Position[] = this.mapMoves(p0, color, boardState, rookDirections, false);
+            return (rookMoves.find(p => samePosition(p, p1))) ? true : false;
+    }
+    moveQueen(
+        p0: Position, //old
+        p1: Position, //new
+        color: PieceColor,
+        boardState: Piece[],
+    ) {
+        const queenDirections: Position[] = bishopDirections.concat(rookDirections);
+        const rookMoves: Position[] = this.mapMoves(p0, color, boardState, queenDirections, false);
+        return (rookMoves.find(p => samePosition(p, p1))) ? true : false;
+    }
+    mapMoves(
+        p0: Position,
+        color: PieceColor,
+        boardState: Piece[],
+        movement: Position[],
+        king: boolean,
+    ): Position[]  {
+        const moves: Position[] = [];
+        for (var direction of movement) {
             const tempPosition: Position = {x: p0.x, y: p0.y};
-            //console.log("new direction")
-            //console.log(tempPosition)
             tempPosition.x += direction.x;
             tempPosition.y += direction.y;
             while (checkBounds(tempPosition)) {
-                //console.log(tempPosition);
                 if (!this.isOccupied(tempPosition, boardState)) {
-                    bishopMoves.push({x: tempPosition.x, y: tempPosition.y});
-                    //console.log("pushing")
-                    //console.log(tempPosition)
+                    moves.push({x: tempPosition.x, y: tempPosition.y});
                     tempPosition.x += direction.x;
                     tempPosition.y += direction.y;
                 } else if (this.canCapture(tempPosition, boardState, color)) {
-                    //console.log("pushing")
-                    //console.log(tempPosition)
-                    bishopMoves.push({x: tempPosition.x, y: tempPosition.y});
+                    moves.push({x: tempPosition.x, y: tempPosition.y});
                     break;
                 } else {
                     break;
                 }
+                if (king) { //limits king to only one move
+                    break; 
+                }
             }
         }
-        return (bishopMoves.find(p => samePosition(p, p1))) ? true : false;
+        return moves;
     }
 }
