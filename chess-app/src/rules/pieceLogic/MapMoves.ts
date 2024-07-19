@@ -1,5 +1,5 @@
 import { Piece, PieceColor, Position} from "../../Constants";
-import { isOccupied, canCapture, addPositions, checkBounds } from "./Position"
+import { isOccupied, canCapture, addPositions, checkBounds, getPosition } from "./Position"
 
 export const mapMoves = (
     p0: Position,
@@ -13,10 +13,10 @@ export const mapMoves = (
         let tempPosition: Position = addPositions(p0, direction);
         while (checkBounds(tempPosition)) {
             if (!isOccupied(tempPosition, boardState)) {
-                moves.push({x: tempPosition.x, y: tempPosition.y});
+                moves.push(getPosition(tempPosition));
                 tempPosition = addPositions(tempPosition, direction);
             } else if (canCapture(tempPosition, boardState, color)) {
-                moves.push({x: tempPosition.x, y: tempPosition.y});
+                moves.push(getPosition(tempPosition));
                 break;
             } else {
                 break;

@@ -19,6 +19,10 @@ export const canCapture = (
     return (piece) ? true : false;
 }
 
+export function getPosition(p: Position): Position {
+    return {x: p.x, y: p.y};
+}
+
 export function samePosition(p0: Position, p1: Position): boolean {
     return p0.x === p1.x && p0.y === p1.y;
 }

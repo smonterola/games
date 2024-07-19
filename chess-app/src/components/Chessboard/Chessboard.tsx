@@ -119,6 +119,7 @@ export default function Chessboard() {
             setActivePiece(null);
         }
     }
+    //rendering board
     let board = [];
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
