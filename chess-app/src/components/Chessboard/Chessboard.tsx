@@ -9,15 +9,13 @@ import {
     Piece,
     Position,
     samePosition,
-    stringPosition,
     PieceColor,
-    pieceInitial,
-    nextTurn,
 } from "../../Constants";
 import { initialBoardState } from "./initChessboard";
+import { nextTurn, pgnToString } from "../History/Pgn";
 
 let moveCounter = 1;
-const history = new Map<number, string>();
+const pgn = new Map<number, string>();
 let turn: PieceColor = PieceColor.WHITE;
 //let currMoves: string = ""
 
@@ -99,32 +97,18 @@ export default function Chessboard() {
                         if (samePosition(piece.position, getPosition)) {
                             piece.position = cursorP;
                             results.push(piece);
-                            if (turn === PieceColor.WHITE) {
-                                history.set(
-                                    moveCounter,
-                                    pieceInitial(piece.type) + 
-                                    stringPosition(piece.position)
-                                );
-                                console.log(history.get(moveCounter));
-                            } else {
-                                history.set(
-                                    moveCounter,
-                                    history.get(moveCounter++) +
-                                    " " +
-                                    pieceInitial(piece.type) + 
-                                    stringPosition(piece.position)
-                                );
-                                console.log(history.get(moveCounter));
-                                //turn = PieceColor.WHITE;
-                            }
-                            console.log(history)
+                            const previous: string = 
+                                (pgn.has(moveCounter)) 
+                                    ? pgn.get(moveCounter)!: `${moveCounter}.`;
+                            pgn.set(moveCounter, pgnToString(moveCounter, piece, previous));
+                            moveCounter += piece.color; //WHITE = 0, BLACK = 1
+                            console.log(pgn)
                         } else if (!(samePosition(piece.position, cursorP))) {
                             results.push(piece);
                         }
                         return results;
                     }, [] as Piece[]);
                     setPieces(newPieces);
-                    console.log(turn)
                     turn = nextTurn(turn);
                 } else {
                     activePiece.style.position = "relative";

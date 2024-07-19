@@ -54,15 +54,3 @@ export function checkBounds(p: Position): boolean {
         p.y >= 0 && p.y <= 7
     )
 }
-export function stringPosition(p: Position): string {
-    return `${xAxis[p.x]}${yAxis[p.y]}`;
-}
-
-export function pieceInitial(type: PieceType): string {
-    const char = symbols.get(type);
-    return (char) ? char : ""
-}
-
-export function nextTurn(pieceColor: PieceColor): PieceColor {
-    return (pieceColor === PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
-}
