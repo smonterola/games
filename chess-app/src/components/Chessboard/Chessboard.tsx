@@ -9,8 +9,17 @@ import {
     Piece,
     Position,
     samePosition,
+    stringPosition,
+    PieceColor,
+    pieceInitial,
+    nextTurn,
 } from "../../Constants";
 import { initialBoardState } from "./initChessboard";
+
+let moveCounter = 1;
+const history = new Map<number, string>();
+let turn: PieceColor = PieceColor.WHITE;
+//let currMoves: string = ""
 
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
@@ -82,8 +91,7 @@ export default function Chessboard() {
                 const validMove = rules.isValidMove(
                     getPosition, 
                     cursorP,
-                    movePiece.type, 
-                    movePiece.color, 
+                    turn, 
                     pieces,
                 );
                 if (validMove) {
@@ -91,12 +99,33 @@ export default function Chessboard() {
                         if (samePosition(piece.position, getPosition)) {
                             piece.position = cursorP;
                             results.push(piece);
+                            if (turn === PieceColor.WHITE) {
+                                history.set(
+                                    moveCounter,
+                                    pieceInitial(piece.type) + 
+                                    stringPosition(piece.position)
+                                );
+                                console.log(history.get(moveCounter));
+                            } else {
+                                history.set(
+                                    moveCounter,
+                                    history.get(moveCounter++) +
+                                    " " +
+                                    pieceInitial(piece.type) + 
+                                    stringPosition(piece.position)
+                                );
+                                console.log(history.get(moveCounter));
+                                //turn = PieceColor.WHITE;
+                            }
+                            console.log(history)
                         } else if (!(samePosition(piece.position, cursorP))) {
                             results.push(piece);
                         }
                         return results;
                     }, [] as Piece[]);
                     setPieces(newPieces);
+                    console.log(turn)
+                    turn = nextTurn(turn);
                 } else {
                     activePiece.style.position = "relative";
                     activePiece.style.removeProperty("top");

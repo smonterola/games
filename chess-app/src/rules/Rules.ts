@@ -21,7 +21,6 @@ export default class Rules {
     isValidMove(
         p0: Position,
         p1: Position,
-        type: PieceType, 
         color: PieceColor,
         boardState: Piece[],
     ): boolean {
