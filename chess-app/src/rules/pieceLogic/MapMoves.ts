@@ -1,5 +1,5 @@
-import { Piece, PieceColor, Position, addPositions, checkBounds } from "../../Constants";
-import { isOccupied, canCapture } from "./TileAttributes"
+import { Piece, PieceColor, Position} from "../../Constants";
+import { isOccupied, canCapture, addPositions, checkBounds } from "./Position"
 
 export const mapMoves = (
     p0: Position,

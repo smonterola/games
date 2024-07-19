@@ -8,10 +8,10 @@ import {
     TILESIZE, 
     Piece,
     Position,
-    samePosition,
     PieceColor,
 } from "../../Constants";
 import { initialBoardState } from "./initChessboard";
+import { samePosition } from "../../rules/pieceLogic";
 import { nextTurn, pgnToString } from "../History/Pgn";
 
 let moveCounter = 1;

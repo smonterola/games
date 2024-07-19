@@ -39,18 +39,3 @@ export interface Position {
     x: number;
     y: number;
 }
-
-export function samePosition(p0: Position, p1: Position): boolean {
-    return p0.x === p1.x && p0.y === p1.y;
-}
-
-export function addPositions(p0: Position, p1: Position): Position {
-    return {x: p0.x + p1.x, y: p0.y + p1.y}
-}
-
-export function checkBounds(p: Position): boolean {
-    return (
-        p.x >= 0 && p.x <= 7 &&
-        p.y >= 0 && p.y <= 7
-    )
-}
