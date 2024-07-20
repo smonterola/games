@@ -12,7 +12,7 @@ import {
 } from "../../Constants";
 import { initialBoardState } from "./initChessboard";
 import { samePosition } from "../../rules/pieceLogic";
-import { nextTurn, pgnToString } from "../History/Pgn";
+import { nextTurn, pgnToString } from "../../rules/pieceLogic/History/Pgn";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -100,7 +100,7 @@ export default function Chessboard() {
                             const previous: string = 
                                 (pgn.has(moveCounter)) 
                                     ? pgn.get(moveCounter)!: `${moveCounter}.`;
-                            pgn.set(moveCounter, pgnToString(moveCounter, piece, previous));
+                            pgn.set(moveCounter, pgnToString(piece, previous));
                             moveCounter += piece.color; //WHITE = 0, BLACK = 1
                             console.log(pgn)
                         } else if (!(samePosition(piece.position, cursorP))) {

@@ -26,6 +26,5 @@ export const mapMoves = (
             }
         }
     }
-    //console.log(moves);
     return moves;
 }

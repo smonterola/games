@@ -1,4 +1,4 @@
-import { xAxis, yAxis, Position, Piece, PieceType, PieceColor } from "../../Constants";
+import { xAxis, yAxis, Position, Piece, PieceType, PieceColor } from "../../../Constants";
 
 const symbols = new Map<PieceType, string>([
     [PieceType.PAWN,  ""],
@@ -13,18 +13,18 @@ export function stringPosition(p: Position): string {
     return `${xAxis[p.x]}${yAxis[p.y]}`;
 }
 
-export function pieceInitial(type: PieceType): string {
+export function pieceToInitial(type: PieceType): string {
     const char = symbols.get(type);
-    return (char) ? char : ""
+    return char ? char : ""
 }
 
 export function nextTurn(pieceColor: PieceColor): PieceColor {
-    return (pieceColor === PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
+    return pieceColor === PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
 }
-export function pgnToString(moveCounter: number, piece: Piece, previous: String) {
+export function pgnToString(piece: Piece, previous: String) {
     return (
         previous + " " +
-        pieceInitial(piece.type) +
+        pieceToInitial(piece.type) +
         stringPosition(piece.position)
     );
 }

@@ -15,15 +15,6 @@ export enum PieceColor {
     BLACK,
 }
 
-const symbols = new Map<PieceType, string>([
-    [PieceType.PAWN,  ""],
-    [PieceType.BSHP, "B"],
-    [PieceType.NGHT, "N"],
-    [PieceType.ROOK, "R"],
-    [PieceType.QUEN, "Q"],
-    [PieceType.KING, "K"],
-]);
-
 //["", "B", "N", "R", "Q", "K", "+", "#", "$", "O-O", "O-O-O"]
 export const TILESIZE = 100;
 //look at viewport | responsive design

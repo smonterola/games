@@ -1,5 +1,5 @@
-import { Position, PieceColor, Piece } from "../../Constants";
-import { isOccupied, canCapture, addPositions } from "./Position";
+import { Position, PieceColor, Piece } from "../../../Constants";
+import { isOccupied, canCapture, addPositions } from "../Position";
 
 export const movePawn = (
     p0: Position,

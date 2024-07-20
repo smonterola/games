@@ -4,7 +4,6 @@ import {
     PieceType, 
     PieceColor, 
 } from "../Constants";
-
 import {
     mapMoves,
     rookDirections,
@@ -12,9 +11,10 @@ import {
     knightDirections,
     queenDirections,
     movePawn,
+    samePosition,
+    checkBounds,
 } from "./pieceLogic"
-import { samePosition, checkBounds } from "./pieceLogic";
-import { stringPosition } from "../components/History/Pgn";
+import { stringPosition } from "./pieceLogic/History/Pgn";
 
 export default class Rules {
     isValidMove(

@@ -1,7 +1,11 @@
+:root {
+    --tileSize: 100px;
+}
+
 #chessboard {
     display: grid;
-    grid-template-columns: repeat(8, 100px);
-    grid-template-rows: repeat(8, 100px);
+    grid-template-columns: repeat(8, var(--tileSize));
+    grid-template-rows: repeat(8, var(--tileSize));
     width: '100%';
     height: undefined;
     background-color: black;
