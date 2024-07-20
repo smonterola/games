@@ -29,18 +29,19 @@ export default function Chessboard() {
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;
         const chessboard = chessboardRef.current;
-        if (element.classList.contains("chess-piece") && chessboard) {
-            const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE));
-            const getY = (Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE)));
-            setPosition({x: getX, y: getY});
-            const x = e.clientX - TILESIZE/2; //fix this when flex scaling
-            const y = e.clientY - TILESIZE/2;
-            element.style.position = "absolute";
-            element.style.left = `${x}px`;
-            element.style.top = `${y}px`;
-
-            setActivePiece(element);
+        if (!chessboard || !element.classList.contains("chess-piece")) {
+            return;
         }
+        const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE));
+        const getY = (Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE)));
+        setPosition({x: getX, y: getY});
+        const x = e.clientX - TILESIZE/2; //fix this when flex scaling
+        const y = e.clientY - TILESIZE/2;
+        element.style.position = "absolute";
+        element.style.left = `${x}px`;
+        element.style.top = `${y}px`;
+
+        setActivePiece(element);
     }
     
     function movePiece(e: React.MouseEvent) {
@@ -68,49 +69,45 @@ export default function Chessboard() {
 
     function dropPiece(e: React.MouseEvent) {
         const chessboard = chessboardRef.current;
-        if (activePiece && chessboard) {
-            const x = Math.floor(
-                (e.clientX - chessboard.offsetLeft) / TILESIZE
-            );
-            const y = Math.abs(
-                Math.ceil(
-                    (e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE
-                )
-            );
-            const cursorP: Position = {x, y};
-            const movePiece = pieces.find(p => samePosition(p.position, getPosition));
-            if (movePiece) {
-                const validMove = rules.isValidMove(
-                    getPosition, 
-                    cursorP,
-                    turn, 
-                    pieces,
-                );
-                if (validMove) {
-                    const newPieces = pieces.reduce((results, piece) => {
-                        if (samePosition(piece.position, getPosition)) {
-                            piece.position = cursorP;
-                            results.push(piece);
-                            const previous: string = 
-                                (pgn.has(moveCounter)) 
-                                    ? pgn.get(moveCounter)!: `${moveCounter}.`;
-                            pgn.set(moveCounter, pgnToString(piece, previous));
-                            moveCounter += piece.color; //WHITE = 0, BLACK = 1
-                            console.log(pgn)
-                        } else if (!(samePosition(piece.position, cursorP))) {
-                            results.push(piece);
-                        }
-                        return results;
-                    }, [] as Piece[]);
-                    setPieces(newPieces);
-                    turn = nextTurn(turn);
-                } else {
-                    activePiece.style.position = "relative";
-                    activePiece.style.removeProperty("top");
-                    activePiece.style.removeProperty("left");
-                }
-            }
-            setActivePiece(null);
+        if (!chessboard || !activePiece) {
+            return;
+        }
+        setActivePiece(null); 
+        const x = Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE );
+        const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE));
+        const cursorP: Position = {x, y};
+        const movePiece = pieces.find(p => samePosition(p.position, getPosition));
+        if (!(movePiece)) {
+            return;
+        }
+        const validMove = rules.isValidMove(
+            getPosition, 
+            cursorP,
+            turn, 
+            pieces,
+        );
+        if (validMove) {
+            const newPieces = pieces.reduce((results, piece) => {
+                if (samePosition(piece.position, getPosition)) {
+                    piece.position = cursorP;
+                    results.push(piece);
+                    const previous: string = 
+                        (pgn.has(moveCounter)) 
+                            ? pgn.get(moveCounter)!: `${moveCounter}.`;
+                    pgn.set(moveCounter, pgnToString(piece, previous));
+                    moveCounter += piece.color; //WHITE = 0, BLACK = 1
+                    console.log(pgn)
+                } else if (!(samePosition(piece.position, cursorP))) {
+                    results.push(piece);
+                } // if neither condition, do not push piece. This means a piece has just been captured and needs to disappear
+                return results;
+            }, [] as Piece[]);
+            setPieces(newPieces);
+            turn = nextTurn(turn);
+        } else {
+            activePiece.style.position = "relative";
+            activePiece.style.removeProperty("top");
+            activePiece.style.removeProperty("left");
         }
     }
     //rendering board
