@@ -5,11 +5,11 @@ export const mapMoves = (
     p0: Position,
     color: PieceColor,
     boardState: Piece[],
-    movement: Position[],
+    directions: Position[],
     once: boolean,
 ): Position[] => {
     const moves: Position[] = [];
-    for (var direction of movement) {
+    for (var direction of directions) {
         let tempPosition: Position = addPositions(p0, direction);
         while (checkBounds(tempPosition)) {
             if (!isOccupied(tempPosition, boardState)) {

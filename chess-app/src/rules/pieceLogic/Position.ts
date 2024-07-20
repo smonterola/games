@@ -6,7 +6,7 @@ export const isOccupied = (
 ): boolean => {
     const piece = boardState.find((p) => 
         samePosition(coordinate, p.position));
-    return (piece) ? true : false; 
+    return piece ? true : false; 
 }
 
 export const canCapture = (
@@ -16,7 +16,7 @@ export const canCapture = (
 ): boolean => {
     const piece = boardState.find((p) => 
         samePosition(coordinate, p.position) && p.color !== color); 
-    return (piece) ? true : false;
+    return piece ? true : false;
 }
 
 export function getPosition(p: Position): Position {

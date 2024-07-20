@@ -42,33 +42,27 @@ export default function Chessboard() {
             setActivePiece(element);
         }
     }
-
+    
     function movePiece(e: React.MouseEvent) {
         const chessboard = chessboardRef.current;
-        if (activePiece && chessboard) {
-            const minX = chessboard.offsetLeft - TILESIZE/4;
-            const minY = chessboard.offsetTop  - TILESIZE/4;
-            const maxX = chessboard.offsetLeft - TILESIZE/4*3 + chessboard.clientWidth;
-            const maxY = chessboard.offsetTop  - TILESIZE/4*3 + chessboard.clientHeight;
-            const x = e.clientX - TILESIZE/2; //fix this when flex scaling
-            const y = e.clientY - TILESIZE/2;
-            activePiece.style.position = "absolute";
-            //controls the boundaries
-            if (x < minX) {
-                activePiece.style.left = `${minX}px`;
-            } else if (x > maxX) {
-                activePiece.style.left = `${maxX}px`;
-            } else {
-                activePiece.style.left = `${x}px`;
-            }
-
-            if (y < minY) {
-                activePiece.style.top = `${minY}px`;
-            } else if (y > maxY) {
-                activePiece.style.top = `${maxY}px`;
-            } else {
-                activePiece.style.top = `${y}px`;
-            }
+        if (!chessboard || !activePiece) {
+            return;
+        }
+        const minX = chessboard.offsetLeft - TILESIZE/4;
+        const minY = chessboard.offsetTop  - TILESIZE/4;
+        const maxX = chessboard.offsetLeft - TILESIZE/4*3 + chessboard.clientWidth;
+        const maxY = chessboard.offsetTop  - TILESIZE/4*3 + chessboard.clientHeight;
+        const x = e.clientX - TILESIZE/2; //fix this when flex scaling
+        const y = e.clientY - TILESIZE/2;
+        activePiece.style.position = "absolute";
+        //controls the boundaries
+        if (x < minX)        { activePiece.style.left = `${minX}px`;
+        } else if (x > maxX) { activePiece.style.left = `${maxX}px`;
+        } else               { activePiece.style.left = `${x}px`;
+        }
+        if (y < minY)        { activePiece.style.top = `${minY}px`;
+        } else if (y > maxY) { activePiece.style.top = `${maxY}px`;
+        } else               { activePiece.style.top = `${y}px`;
         }
     }
 
