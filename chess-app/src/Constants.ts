@@ -18,7 +18,17 @@ export enum PieceColor {
 }
 
 //["", "B", "N", "R", "Q", "K", "+", "#", "$", "O-O", "O-O-O"]
-export const TILESIZE = 100;
+
+let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+const minDimPx = (vw < vh) ? vw : vh;
+export let pxToVmin = 100 / minDimPx;
+console.log(minDimPx)
+export let TILESIZE = minDimPx / 8;
+console.log("Tilesize")
+console.log(TILESIZE)
+
+document.documentElement.style.setProperty("--tileSize", `${TILESIZE}px`);
 //look at viewport | responsive design
 
 export interface Piece {

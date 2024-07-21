@@ -1,5 +1,6 @@
 :root {
-    --tileSize: calc(100vmin/8.5);
+    /*font-size: 10;*/
+    --tileSize: 100px /*119.875px/*calc(100vmin/8);*/
 }
 
 .tile {
@@ -34,8 +35,8 @@
 }
 
 .tile img {
-    width: calc(var(--tileSize)*0.9);
-    height: calc(var(--tileSize)*0.9);
+    width: 90px;
+    /*height: calc(var(--tileSize)*0.9);*/
 }
 
 .tile-highlight:not(.chess-piece-tile)::before {
