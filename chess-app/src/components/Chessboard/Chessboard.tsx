@@ -25,6 +25,8 @@ export default function Chessboard() {
     const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();
+
+    //for piece
     
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;

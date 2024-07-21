@@ -8,6 +8,8 @@ export enum PieceType {
     ROOK,
     QUEN,
     KING,
+    HIGHTLIGHT,
+    EMPTY,
 }
 
 export enum PieceColor {

@@ -63,6 +63,12 @@ export default class Rules {
                 case PieceType.KING:
                     validMoves.set(pString, mapMoves(p, color, boardState, queenDirections, true));
                     break;
+                case PieceType.HIGHTLIGHT:
+                    //??????
+                    break;
+                case PieceType.EMPTY:
+                    //?????
+                    break;
             }
         }
         return validMoves;
