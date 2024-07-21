@@ -7,7 +7,7 @@ import {
 export const initialBoardState: Piece[] = [];
 
 const parent = "assets/images/";
-const pieceSet = "default/";
+const pieceSet = "default";
 
 const rankOrder = new Map <number, [string, PieceType]>([
     [0, ["r", PieceType.ROOK]],
@@ -25,7 +25,7 @@ for (let color = 0; color < 2; color++) {
     const child = "_" + colorFlag + ".png"
     for (let x = 0; x < 8; x++) {
         const [symbol, type] = [rankOrder.get(x)![0], rankOrder.get(x)![1]];
-        initialBoardState.push({ image: `${parent}${pieceSet}${symbol}${child}`, position: {x, y}, type: type, color: pieceColor});
-        initialBoardState.push({ image: `${parent}${pieceSet}p${child}`, position: {x, y: y+POV}, type: PieceType.PAWN, color: pieceColor});
+        initialBoardState.push({ image: `${parent}${pieceSet}/${symbol}${child}`, position: {x, y}, type: type, color: pieceColor});
+        initialBoardState.push({ image: `${parent}${pieceSet}/p${child}`, position: {x, y: y+POV}, type: PieceType.PAWN, color: pieceColor});
     }
 }
