@@ -1,15 +1,19 @@
+:root {
+    --tileSize: calc(100vmin/8.5);
+}
+
 .tile {
     display: grid;
     place-content: center;
-    width: 100px;
-    height: 100px;
+    width: var(--tileSize);
+    height: var(--tileSize);
 }
 
 .tile .chess-piece {
-    width: 100px;
-    height: 100px;
+    width: var(--tileSize);
+    height: var(--tileSize);
     background-repeat: no-repeat;
-    background-size: 90px;
+    background-size: calc(var(--tileSize)*0.9);
     background-position: center;
 }
 
@@ -30,7 +34,8 @@
 }
 
 .tile img {
-    width: 90px;
+    width: calc(var(--tileSize)*0.9);
+    height: calc(var(--tileSize)*0.9);
 }
 
 .tile-highlight:not(.chess-piece-tile)::before {
