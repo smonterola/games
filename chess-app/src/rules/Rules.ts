@@ -6,15 +6,15 @@ import {
 } from "../Constants";
 import {
     mapMoves,
-    rookDirections,
-    bishopDirections,
-    knightDirections,
+    rookDirections, 
+    bishopDirections, 
+    knightDirections, 
     queenDirections,
     movePawn,
     samePosition,
     checkBounds,
+    stringPosition
 } from "./pieceLogic"
-import { stringPosition } from "./pieceLogic/History/Pgn";
 
 export default class Rules {
     isValidMove(
@@ -23,7 +23,7 @@ export default class Rules {
         color: PieceColor,
         boardState: Piece[],
     ): boolean {
-        if (!checkBounds(p0)) return false; //do not move out of bounds
+        if (!checkBounds(p0) || !checkBounds(p1)) return false; //do not move out of bounds
         let validMoves: Map<string, Position[]> = this.validMoves(color, boardState);
         return this.movePiece(p0, p1, validMoves);
     }
