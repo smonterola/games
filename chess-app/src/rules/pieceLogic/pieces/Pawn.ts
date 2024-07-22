@@ -1,12 +1,12 @@
 import { Position, PieceColor, Piece } from "../../../Constants";
-import { isOccupied, canCapture, addPositions, checkBounds } from "../Position";
+import { isOccupied, canCapture, addPositions, checkBounds, stringPosition } from "../Position";
 
 export const movePawn = (
     p0: Position,
     color: PieceColor,
     pieceMap: Map<string, Piece>,
-): Position[] => {
-    const pawnMoves: Position[] = [];
+): Map<string, Position> => {
+    let pawnMap = new Map<string, Position>();
     const [POV, OG, promotion] = 
         (color === PieceColor.WHITE) ? 
         [ 1, 1, 7] : 
@@ -25,16 +25,17 @@ export const movePawn = (
         addPositions(p0, pawnDirections[i++]),
     ];
     if (checkBounds(upperLeft)  && canCapture(upperLeft, pieceMap, color)) {
-        pawnMoves.push(upperLeft);
+        pawnMap.set(stringPosition(upperLeft), upperLeft);
     }
     if (checkBounds(upperRight) && canCapture(upperRight, pieceMap, color)) {
-        pawnMoves.push(upperRight);
+        pawnMap.set(stringPosition(upperRight), upperRight);
     }
     if (p0.y + 1*POV !== promotion && !isOccupied(upOne, pieceMap)) {
-        pawnMoves.push(upOne);
+        pawnMap.set(stringPosition(upOne), upOne);
         if (p0.y === OG && !isOccupied(upTwo, pieceMap)) {
-            pawnMoves.push(upTwo);
+            pawnMap.set(stringPosition(upTwo), upTwo);
         }
     }
-    return pawnMoves;
+    //console.log(pawnMap)
+    return pawnMap;
 }

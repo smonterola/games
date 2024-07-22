@@ -24,33 +24,30 @@ export default class Rules {
         pieceMap: Map<string, Piece>,
     ): boolean {
         if (!checkBounds(p0) || !checkBounds(p1)) return false; //do not move out of bounds
-        console.log("calling validMoves")
-        let validMoves: Map<string, Position[]> = this.validMoves(color, pieceMap);
-        return this.movePiece(p0, p1, validMoves);
+        return this.movePiece(p0, p1, this.validMoves(color, pieceMap));
     }
+
     movePiece(
         p0: Position, //old
         p1: Position, //new
-        validMoves: Map<string, Position[]>,
+        validMoves: Map<string, Map<string, Position>>,
     ) {
-        const legalMoves = validMoves.get(stringPosition(p0));
-        return (legalMoves?.find(p => (samePosition(p, p1)))) ? true : false;
+        return validMoves.get(stringPosition(p0))?.has(stringPosition(p1)) ? true : false;
     }
+
     validMoves(
         color: PieceColor,
         pieceMap: Map<string, Piece>,
-    ): Map<string, Position[]> {
-        let colorPieces: Piece[] = [];
-        for (let piece of pieceMap.values()) {
+    ): Map<string, Map<string, Position>> {
+        let validMoves = new Map<string, Map<string, Position>>();
+        for (var piece of pieceMap.values()) {
             if (piece.color === color) {
-                colorPieces.push(piece);
+                //pass;
             }
-        }
-        console.log(colorPieces)
-        //pieceMap.values().filter((boardState) => boardState.color === color);
-        let validMoves = new Map<string, Position[]>([]);
-        for (var piece of colorPieces) {
-            const p = piece.position
+            else {
+                continue;
+            }
+            const p = piece.position;
             const pString = stringPosition(p);
             switch (piece.type) {
                 case PieceType.PAWN: 
@@ -79,6 +76,7 @@ export default class Rules {
                     break;
             }
         }
+        //console.log(validMoves)
         return validMoves;
     }
 }

@@ -11,12 +11,11 @@ import {
     PieceColor,
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
-import { checkBounds, samePosition, stringPosition, nextTurn, pgnToString } from "../../rules/pieceLogic";
+import { checkBounds, stringPosition, nextTurn, pgnToString } from "../../rules/pieceLogic";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
 let turn: PieceColor = PieceColor.WHITE;
-//let currMoves: string = ""
 
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
@@ -24,10 +23,6 @@ export default function Chessboard() {
     const [pieceMap, setPieceMap] = useState(new Map<string, Piece>(initialPieces));
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();
-
-    //let pieceMap = new Map<string, Piece>(initialPieces);
-
-    //for piece
     
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;
@@ -85,12 +80,10 @@ export default function Chessboard() {
         const x = Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE );
         const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE));
         const cursorP: Position = {x, y};
-        //console.log(x, y)
         if (!checkBounds(cursorP)) {
             return;
         }
         let movePiece = pieceMap.get(stringPosition(getPosition))!;
-        //find(p => samePosition(p.position, getPosition));
         if (!(movePiece)) {
             return;
         }
@@ -100,7 +93,6 @@ export default function Chessboard() {
             turn, 
             pieceMap,
         );
-        console.log("here")
         if (validMove) {
             movePiece.position = cursorP;
             setPieceMap(prevMap => {
@@ -109,32 +101,14 @@ export default function Chessboard() {
                 nextMap.set(stringPosition(cursorP), movePiece);
                 return nextMap;
             });
-            console.log("valid")
-            console.log("deleting " + stringPosition(getPosition))
-            pieceMap.delete(stringPosition(getPosition))
-            console.log("pushing " + stringPosition(cursorP))
-            console.log("piece is at " + stringPosition(movePiece.position))
-            pieceMap.set(stringPosition(cursorP), movePiece);
-            /*setPieceMap(stringPosition())
-            const newPieces = pieces.reduce((results, piece) => {
-                if (samePosition(piece.position, getPosition)) {
-                    piece.position = cursorP;
-                    results.push(piece);*/
-                    const previous: string = 
-                        (pgn.has(moveCounter)) 
-                            ? pgn.get(moveCounter)!: `${moveCounter}.`;
-                    pgn.set(moveCounter, pgnToString(movePiece, previous));
-                    moveCounter += movePiece.color; //WHITE = 0, BLACK = 1
-                    console.log(pgn);
-                //} else if (!(samePosition(piece.position, cursorP))) {
-                //    results.push(piece);
-                //} // if neither condition, do not push piece. This means a piece has just been captured and needs to disappear
-                //return results;
-            //}, [] as Piece[]);
-            //setPieces(newPieces);
+            const previous: string = 
+                (pgn.has(moveCounter)) 
+                    ? pgn.get(moveCounter)!: `${moveCounter}.`;
+            pgn.set(moveCounter, pgnToString(movePiece, previous));
+            moveCounter += movePiece.color; //WHITE = 0, BLACK = 1
+            console.log(pgn);
             turn = nextTurn(turn);
         } else {
-            console.log("invalid")
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
             activePiece.style.removeProperty("left");
@@ -146,12 +120,10 @@ export default function Chessboard() {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;
             const piece = pieceMap.get(stringPosition({x: i, y: j}))
-            //(p => (samePosition(p.position, {x: i, y: j})));
             let image = piece ? piece.image : undefined;
             board.push(<Tile key={`${i}${j}`} image={image} number={number}/>)
         }
     }
-    console.log(pieceMap);
     return (
         <div 
             onMouseMove={(e) => movePiece(e)}

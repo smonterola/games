@@ -4,10 +4,8 @@ export const isOccupied = (
     coordinate: Position,
     pieceMap: Map<string, Piece>,
 ): boolean => {
-    const piece = pieceMap.get(stringPosition(coordinate));
-    //boardState.find((p) => 
-    //    samePosition(coordinate, p.position));
-    return piece ? true : false; 
+    const occupied = pieceMap.get(stringPosition(coordinate)) ? true : false;
+    return occupied;
 }
 
 export const canCapture = (
@@ -15,10 +13,8 @@ export const canCapture = (
     pieceMap: Map<string, Piece>,
     color: PieceColor,
 ): boolean => {
-    const piece = pieceMap.get(stringPosition(coordinate))?.color !== color;
-    //.find((p) => 
-    //    samePosition(coordinate, p.position) && p.color !== color); 
-    return piece ? true : false;
+    const capturable = pieceMap.has(stringPosition(coordinate)) && pieceMap.get(stringPosition(coordinate))?.color !== color;
+    return capturable;
 }
 
 export function getPosition(p: Position): Position {
