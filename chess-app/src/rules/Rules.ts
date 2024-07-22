@@ -21,10 +21,11 @@ export default class Rules {
         p0: Position,
         p1: Position,
         color: PieceColor,
-        boardState: Piece[],
+        pieceMap: Map<string, Piece>,
     ): boolean {
         if (!checkBounds(p0) || !checkBounds(p1)) return false; //do not move out of bounds
-        let validMoves: Map<string, Position[]> = this.validMoves(color, boardState);
+        console.log("calling validMoves")
+        let validMoves: Map<string, Position[]> = this.validMoves(color, pieceMap);
         return this.movePiece(p0, p1, validMoves);
     }
     movePiece(
@@ -37,31 +38,38 @@ export default class Rules {
     }
     validMoves(
         color: PieceColor,
-        boardState: Piece[],
+        pieceMap: Map<string, Piece>,
     ): Map<string, Position[]> {
-        const colorPieces: Piece[] = boardState.filter((boardState) => boardState.color === color);
+        let colorPieces: Piece[] = [];
+        for (let piece of pieceMap.values()) {
+            if (piece.color === color) {
+                colorPieces.push(piece);
+            }
+        }
+        console.log(colorPieces)
+        //pieceMap.values().filter((boardState) => boardState.color === color);
         let validMoves = new Map<string, Position[]>([]);
         for (var piece of colorPieces) {
             const p = piece.position
             const pString = stringPosition(p);
             switch (piece.type) {
                 case PieceType.PAWN: 
-                    validMoves.set(pString, movePawn(p, color, boardState));
+                    validMoves.set(pString, movePawn(p, color, pieceMap));
                     break;
                 case PieceType.BSHP:
-                    validMoves.set(pString, mapMoves(p, color, boardState, bishopDirections, false));
+                    validMoves.set(pString, mapMoves(p, color, pieceMap, bishopDirections, false));
                     break;
                 case PieceType.NGHT:
-                    validMoves.set(pString, mapMoves(p, color, boardState, knightDirections, true));
+                    validMoves.set(pString, mapMoves(p, color, pieceMap, knightDirections, true));
                     break;
                 case PieceType.ROOK:
-                    validMoves.set(pString, mapMoves(p, color, boardState, rookDirections, false));
+                    validMoves.set(pString, mapMoves(p, color, pieceMap, rookDirections, false));
                     break;
                 case PieceType.QUEN:
-                    validMoves.set(pString, mapMoves(p, color, boardState, queenDirections, false));
+                    validMoves.set(pString, mapMoves(p, color, pieceMap, queenDirections, false));
                     break;
                 case PieceType.KING:
-                    validMoves.set(pString, mapMoves(p, color, boardState, queenDirections, true));
+                    validMoves.set(pString, mapMoves(p, color, pieceMap, queenDirections, true));
                     break;
                 case PieceType.HIGHTLIGHT:
                     //??????

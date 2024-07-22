@@ -4,7 +4,7 @@ import { isOccupied, canCapture, addPositions, checkBounds, getPosition } from "
 export const mapMoves = (
     p0: Position,
     color: PieceColor,
-    boardState: Piece[],
+    pieceMap: Map<string, Piece>,
     directions: Position[],
     once: boolean,
 ): Position[] => {
@@ -12,10 +12,10 @@ export const mapMoves = (
     for (var direction of directions) {
         let tempPosition: Position = addPositions(p0, direction);
         while (checkBounds(tempPosition)) {
-            if (!isOccupied(tempPosition, boardState)) {
+            if (!isOccupied(tempPosition, pieceMap)) {
                 moves.push(getPosition(tempPosition));
                 tempPosition = addPositions(tempPosition, direction);
-            } else if (canCapture(tempPosition, boardState, color)) {
+            } else if (canCapture(tempPosition, pieceMap, color)) {
                 moves.push(getPosition(tempPosition));
                 break;
             } else {

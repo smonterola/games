@@ -1,26 +1,32 @@
-import { Position, Piece, PieceColor } from "../../Constants";
+import { xAxis, yAxis, Position, Piece, PieceColor } from "../../Constants";
 
 export const isOccupied = (
     coordinate: Position,
-    boardState: Piece[],
+    pieceMap: Map<string, Piece>,
 ): boolean => {
-    const piece = boardState.find((p) => 
-        samePosition(coordinate, p.position));
+    const piece = pieceMap.get(stringPosition(coordinate));
+    //boardState.find((p) => 
+    //    samePosition(coordinate, p.position));
     return piece ? true : false; 
 }
 
 export const canCapture = (
     coordinate: Position,
-    boardState: Piece[],
+    pieceMap: Map<string, Piece>,
     color: PieceColor,
 ): boolean => {
-    const piece = boardState.find((p) => 
-        samePosition(coordinate, p.position) && p.color !== color); 
+    const piece = pieceMap.get(stringPosition(coordinate))?.color !== color;
+    //.find((p) => 
+    //    samePosition(coordinate, p.position) && p.color !== color); 
     return piece ? true : false;
 }
 
 export function getPosition(p: Position): Position {
     return {x: p.x, y: p.y};
+}
+
+export function stringPosition(p: Position): string {
+    return `${xAxis[p.x]}${yAxis[p.y]}`;
 }
 
 export function samePosition(p0: Position, p1: Position): boolean {

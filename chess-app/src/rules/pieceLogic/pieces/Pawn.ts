@@ -4,7 +4,7 @@ import { isOccupied, canCapture, addPositions, checkBounds } from "../Position";
 export const movePawn = (
     p0: Position,
     color: PieceColor,
-    boardState: Piece[],
+    pieceMap: Map<string, Piece>,
 ): Position[] => {
     const pawnMoves: Position[] = [];
     const [POV, OG, promotion] = 
@@ -24,15 +24,15 @@ export const movePawn = (
         addPositions(p0, pawnDirections[i++]),
         addPositions(p0, pawnDirections[i++]),
     ];
-    if (checkBounds(upperLeft)  && canCapture(upperLeft, boardState, color)) {
+    if (checkBounds(upperLeft)  && canCapture(upperLeft, pieceMap, color)) {
         pawnMoves.push(upperLeft);
     }
-    if (checkBounds(upperRight) && canCapture(upperRight, boardState, color)) {
+    if (checkBounds(upperRight) && canCapture(upperRight, pieceMap, color)) {
         pawnMoves.push(upperRight);
     }
-    if (p0.y + 1*POV !== promotion && !isOccupied(upOne, boardState)) {
+    if (p0.y + 1*POV !== promotion && !isOccupied(upOne, pieceMap)) {
         pawnMoves.push(upOne);
-        if (p0.y === OG && !isOccupied(upTwo, boardState)) {
+        if (p0.y === OG && !isOccupied(upTwo, pieceMap)) {
             pawnMoves.push(upTwo);
         }
     }

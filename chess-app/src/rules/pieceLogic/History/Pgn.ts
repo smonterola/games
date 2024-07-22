@@ -1,4 +1,5 @@
-import { xAxis, yAxis, Position, Piece, PieceType, PieceColor } from "../../../Constants";
+import { Piece, PieceType, PieceColor } from "../../../Constants";
+import { stringPosition } from "../Position";
 
 const symbols = new Map<PieceType, string>([
     [PieceType.PAWN,  ""],
@@ -8,10 +9,6 @@ const symbols = new Map<PieceType, string>([
     [PieceType.QUEN, "Q"],
     [PieceType.KING, "K"],
 ]);
-
-export function stringPosition(p: Position): string {
-    return `${xAxis[p.x]}${yAxis[p.y]}`;
-}
 
 export function pieceToInitial(type: PieceType): string {
     const char = symbols.get(type);

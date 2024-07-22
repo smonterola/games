@@ -3,8 +3,9 @@ import {
     PieceType, 
     PieceColor,
 } from "../../Constants";
+import { stringPosition } from "../../rules/pieceLogic";
 
-export const initialBoardState: Piece[] = [];
+export let initialPieces = new Map<string, Piece>();//: Piece[] = [];
 
 const parent = "assets/images/";
 const pieceSet = "palmpals";
@@ -25,7 +26,7 @@ for (let color = 0; color < 2; color++) {
     const child = "_" + colorFlag + ".png";
     for (let x = 0; x < 8; x++) {
         const [symbol, type] = [rankOrder.get(x)![0], rankOrder.get(x)![1]];
-        initialBoardState.push({ image: `${parent}${pieceSet}/${symbol}${child}`, position: {x, y}, type, color: pieceColor});
-        initialBoardState.push({ image: `${parent}${pieceSet}/p${child}`, position: {x, y: y+POV}, type: PieceType.PAWN, color: pieceColor});
+        initialPieces.set(stringPosition({x, y}), { image: `${parent}${pieceSet}/${symbol}${child}`, position: {x, y}, type, color: pieceColor});
+        initialPieces.set(stringPosition({x, y:y+POV}), { image: `${parent}${pieceSet}/p${child}`, position: {x, y: y+POV}, type: PieceType.PAWN, color: pieceColor});
     }
 }
