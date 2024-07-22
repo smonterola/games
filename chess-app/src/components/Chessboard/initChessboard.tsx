@@ -8,7 +8,7 @@ import { stringPosition } from "../../rules/pieceLogic";
 export let initialPieces = new Map<string, Piece>();//: Piece[] = [];
 
 const parent = "assets/images/";
-const pieceSet = "palmpals";
+const pieceSet = "default";
 
 const rankOrder = new Map <number, [string, PieceType]>([
     [0, ["r", PieceType.ROOK]],

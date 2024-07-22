@@ -36,6 +36,5 @@ export const movePawn = (
             pawnMap.set(stringPosition(upTwo), upTwo);
         }
     }
-    //console.log(pawnMap)
     return pawnMap;
 }

@@ -95,16 +95,21 @@ export default function Chessboard() {
         );
         if (validMove) {
             movePiece.position = cursorP;
+            const isCapture = pieceMap.has(stringPosition(cursorP));
+            const isCheck   = false;
+            const isShortCastle = false;
+            const isLongCastle = false;
+            const isAmbiguous = false;
             setPieceMap(prevMap => {
                 const nextMap = new Map(prevMap);
                 nextMap.delete(stringPosition(getPosition));
                 nextMap.set(stringPosition(cursorP), movePiece);
                 return nextMap;
             });
-            const previous: string = 
+            const append: string = 
                 (pgn.has(moveCounter)) 
                     ? pgn.get(moveCounter)!: `${moveCounter}.`;
-            pgn.set(moveCounter, pgnToString(movePiece, previous));
+            pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color; //WHITE = 0, BLACK = 1
             console.log(pgn);
             turn = nextTurn(turn);
