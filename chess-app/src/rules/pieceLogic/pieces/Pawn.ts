@@ -1,5 +1,5 @@
 import { Position, PieceColor, Piece } from "../../../Constants";
-import { isOccupied, canCapture, addPositions } from "../Position";
+import { isOccupied, canCapture, addPositions, checkBounds } from "../Position";
 
 export const movePawn = (
     p0: Position,
@@ -7,10 +7,10 @@ export const movePawn = (
     boardState: Piece[],
 ): Position[] => {
     const pawnMoves: Position[] = [];
-    const [POV, OG, leftFile, rightFile, promotion] = 
+    const [POV, OG, promotion] = 
         (color === PieceColor.WHITE) ? 
-        [1, 1, 0, 7, 7] : 
-        [-1, 6, 7, 0, 0];
+        [ 1, 1, 7] : 
+        [-1, 6, 0];
     const pawnDirections: Position[] = [
         {x:-1*POV, y: 1*POV},
         {x: 1*POV, y: 1*POV},
@@ -24,19 +24,17 @@ export const movePawn = (
         addPositions(p0, pawnDirections[i++]),
         addPositions(p0, pawnDirections[i++]),
     ];
-    if (p0.x !== leftFile  && canCapture(upperLeft, boardState, color)) {
+    if (checkBounds(upperLeft)  && canCapture(upperLeft, boardState, color)) {
         pawnMoves.push(upperLeft);
     }
-    if (p0.x !== rightFile && canCapture(upperRight, boardState, color)) {
+    if (checkBounds(upperRight) && canCapture(upperRight, boardState, color)) {
         pawnMoves.push(upperRight);
     }
     if (p0.y + 1*POV !== promotion && !isOccupied(upOne, boardState)) {
         pawnMoves.push(upOne);
-        if (p0.y + 2*POV !== promotion && !isOccupied(upTwo, boardState) && p0.y === OG) {
+        if (p0.y === OG && !isOccupied(upTwo, boardState)) {
             pawnMoves.push(upTwo);
         }
     }
-    //console.log(pawnMoves)
     return pawnMoves;
-    //(pawnMoves.find(p => samePosition(p, p1))) ? true : false;
 }

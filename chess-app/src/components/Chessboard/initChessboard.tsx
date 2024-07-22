@@ -7,7 +7,7 @@ import {
 export const initialBoardState: Piece[] = [];
 
 const parent = "assets/images/";
-const pieceSet = "default";
+const pieceSet = "palmpals";
 
 const rankOrder = new Map <number, [string, PieceType]>([
     [0, ["r", PieceType.ROOK]],

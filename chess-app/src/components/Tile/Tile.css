@@ -27,15 +27,15 @@
 }
 
 .black-tile {
-    background-color: burlywood;
+    background-color: rgb(92, 127, 106); /* burlywood, [92, 127, 106] */
 }
 
 .white-tile {
-    background-color: cornsilk;
+    background-color: cornsilk; /*cornsilk */
 }
 
 .tile img {
-    width: 90px;
+    width: calc(var(--tileSize)*0.9);
     /*height: calc(var(--tileSize)*0.9);*/
 }
 
