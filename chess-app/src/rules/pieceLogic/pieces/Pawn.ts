@@ -24,13 +24,16 @@ export const movePawn = (
         addPositions(p0, pawnDirections[i++]),
         addPositions(p0, pawnDirections[i++]),
     ];
+    //if (p0.y + POV === promotion) {
+
+    //}
     if (checkBounds(upperLeft)  && canCapture(upperLeft, pieceMap, color)) {
         pawnMap.set(stringPosition(upperLeft), upperLeft);
     }
     if (checkBounds(upperRight) && canCapture(upperRight, pieceMap, color)) {
         pawnMap.set(stringPosition(upperRight), upperRight);
     }
-    if (p0.y + 1*POV !== promotion && !isOccupied(upOne, pieceMap)) {
+    if (!isOccupied(upOne, pieceMap)) {
         pawnMap.set(stringPosition(upOne), upOne);
         if (p0.y === OG && !isOccupied(upTwo, pieceMap)) {
             pawnMap.set(stringPosition(upTwo), upTwo);

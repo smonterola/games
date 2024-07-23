@@ -9,11 +9,12 @@ import {
     Piece,
     Position,
     PieceColor,
+    PieceType,
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
 import { checkBounds, stringPosition, nextTurn, pgnToString } from "../../rules/pieceLogic";
 import { evaluate } from "../../engine/evaluate";
-import { updatePieceMap } from "./updateChessboard";
+import { promotePawn, updatePieceMap } from "./updateChessboard";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -35,8 +36,7 @@ export default function Chessboard() {
         const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE));
         const getY = (Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE)));
         setPosition({x: getX, y: getY});
-        const x = e.clientX - TILESIZE/2; //fix this when flex scaling
-        const y = e.clientY - TILESIZE/2;
+        const [x, y] = [e.clientX - TILESIZE/2 , e.clientY - TILESIZE/2];
         element.style.position = "absolute";
         element.style.left = `${x}px`;
         element.style.top = `${y}px`;
@@ -53,24 +53,18 @@ export default function Chessboard() {
         const minY = chessboard.offsetTop  - TILESIZE/4;
         const maxX = chessboard.offsetLeft - TILESIZE/4*3 + chessboard.clientWidth;
         const maxY = chessboard.offsetTop  - TILESIZE/4*3 + chessboard.clientHeight;
-        const x = e.clientX - TILESIZE/2; //fix this when flex scaling
-        const y = e.clientY - TILESIZE/2;
+        const [x, y] = [e.clientX - TILESIZE/2 , e.clientY - TILESIZE/2]
         activePiece.style.position = "absolute";
         //controls the boundaries
-        if (x < minX)        { 
-            activePiece.style.left = `${minX}px`; //setActivePiece(null); 
-        } else if (x > maxX) { 
-            activePiece.style.left = `${maxX}px`; //setActivePiece(null); 
-        } else               { 
-            activePiece.style.left = `${x}px`;
+        if (x < minX)        { activePiece.style.left = `${minX}px`; //setActivePiece(null); 
+        } else if (x > maxX) { activePiece.style.left = `${maxX}px`; //setActivePiece(null); 
+        } else               { activePiece.style.left = `${x}px`;
         }
-        if (y < minY)        { 
-            activePiece.style.top = `${minY}px`; //setActivePiece(null); 
-        } else if (y > maxY) { 
-            activePiece.style.top = `${maxY}px`; //setActivePiece(null); 
-        } else               { 
-            activePiece.style.top = `${y}px`;
+        if (y < minY)        { activePiece.style.top = `${minY}px`; //setActivePiece(null); 
+        } else if (y > maxY) { activePiece.style.top = `${maxY}px`; //setActivePiece(null); 
+        } else               { activePiece.style.top = `${y}px`;
         }
+        
     }
 
     function dropPiece(e: React.MouseEvent) {
@@ -99,10 +93,15 @@ export default function Chessboard() {
             movePiece.position = cursorP;
             const isCapture = pieceMap.has(stringPosition(cursorP));
             const isCheck   = false;
-            const isShortCastle = false;
-            const isLongCastle = false;
             const isAmbiguous = false;
+            
             setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
+            if (
+                movePiece.type === PieceType.PAWN && 
+                (movePiece.position.y === 0 || movePiece.position.y === 7)
+            ) {
+                setPieceMap(promotePawn(pieceMap, getPosition, movePiece, PieceType.QUEN));
+            }
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
             pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1

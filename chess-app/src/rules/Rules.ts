@@ -39,7 +39,7 @@ export default class Rules {
         color: PieceColor,
         pieceMap: Map<string, Piece>,
     ): Map<string, Map<string, Position>> {
-        let validMoves = new Map<string, Map<string, Position>>();
+        const validMoves = new Map<string, Map<string, Position>>();
         for (var piece of pieceMap.values()) {
             if (piece.color === color) {
                 //pass;
