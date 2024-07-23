@@ -1,20 +1,17 @@
-import { log } from "console";
 import { Piece, PieceColor, PieceType } from "../Constants";
 import { endgame, middleGame, threshold, pairsMiddle, pairsEnd, pairsThres } from "./evalConstants";
 import { colorToInitial, pieceToInitial } from "../rules/pieceLogic";
 
-
 export function evaluate(pieceMap: Map<string, Piece>): number {
     let evalutation: number = 0;
-    let logPieceMap = new Map<string, number>(logPieces(pieceMap));
+    const logPieceMap = new Map<string, number>(logPieces(pieceMap));
     let [pieceValues, pairValues] = [threshold, pairsThres];
-
     if (logPieceMap.get(
         colorToInitial(PieceColor.WHITE)+pieceToInitial(PieceType.QUEN)) === 
         logPieceMap.get(colorToInitial(PieceColor.BLACK)+pieceToInitial(PieceType.QUEN))
     ) {
         [pieceValues, pairValues] = logPieceMap.has(colorToInitial(PieceColor.WHITE)+pieceToInitial(PieceType.QUEN)) ? 
-            [middleGame, pairsThres] : [endgame, pairsEnd];
+            [middleGame, pairsMiddle] : [endgame, pairsEnd];
     }
     for (const pieceColor of Object.values(PieceColor)) {
         let pieceScore = 0;
@@ -22,10 +19,13 @@ export function evaluate(pieceMap: Map<string, Piece>): number {
         const colorInitial = colorToInitial(pieceColor);
         for (const pieceType of Object.values(PieceType)) {
             const key = colorInitial + pieceToInitial(pieceType);
-            const pieceCount = logPieceMap.has(key) ? logPieceMap.get(key)! : 0; 
-            const pieceValue = pieceValues.has(pieceType) ? pieceValues.get(pieceType)! * pieceCount : 0;
-            const pairValue = pairValues.has(pieceType) ? pairValues.get(pieceType)! * (pieceCount-1) : 0;
-            pieceScore += pieceValue + pairValue
+            const pieceCount = logPieceMap.has(key) ? 
+                logPieceMap.get(key)! : 0; 
+            const pieceValue = pieceValues.has(pieceType) ? 
+                pieceValues.get(pieceType)! * pieceCount : 0;
+            const pairValue = (pairValues.has(pieceType) && pieceCount > 0) ? 
+                pairValues.get(pieceType)! * (pieceCount-1) : 0;
+            pieceScore += pieceValue + pairValue;
         }
         evalutation += pieceScore * POV;
     }

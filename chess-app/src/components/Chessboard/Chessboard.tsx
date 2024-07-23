@@ -12,7 +12,8 @@ import {
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
 import { checkBounds, stringPosition, nextTurn, pgnToString } from "../../rules/pieceLogic";
-import { evaluate, logPieces } from "../../engine/engine";
+import { evaluate } from "../../engine/evaluate";
+import { updatePieceMap } from "./updateChessboard";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -101,17 +102,8 @@ export default function Chessboard() {
             const isShortCastle = false;
             const isLongCastle = false;
             const isAmbiguous = false;
-            setPieceMap(prevMap => {
-                const nextMap = new Map(prevMap);
-                nextMap.delete(stringPosition(getPosition));
-                nextMap.set(stringPosition(cursorP), movePiece);
-                console.log(evaluate(nextMap));
-                return nextMap;
-            });
-            //console.log(evaluate(pieceMap));
-            const append: string = 
-                (pgn.has(moveCounter)) 
-                    ? pgn.get(moveCounter)!: `${moveCounter}.`;
+            setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
+            const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
             pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
             console.log(pgn);
