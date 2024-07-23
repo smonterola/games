@@ -15,6 +15,9 @@ export function pieceToInitial(type: PieceType): string {
     return char ? char : ""
 }
 
+export function colorToInitial(pieceColor: PieceColor): string {
+    return pieceColor === PieceColor.WHITE ? "w" : "b";
+}
 export function nextTurn(pieceColor: PieceColor): PieceColor {
     return pieceColor === PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
 }
@@ -26,12 +29,12 @@ export function pgnToString(
     isCheck: boolean = false, 
     isShortCastle: boolean = false, 
     isLongCastle: boolean = false,
+    isPromote: boolean = false,
 ) {
     const identifier: string = piece.type === PieceType.PAWN ? xAxis[p0.x] : pieceToInitial(piece.type);
     return (
         append + " " +
         (!isCapture ? pieceToInitial(piece.type) : identifier + "x") +
-        //pieceToInitial(piece.type) +
         stringPosition(piece.position)
     );
 }
