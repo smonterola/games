@@ -12,7 +12,9 @@ export function updatePieceMap(
 ){
     const newPieceMap = new Map<string, Piece>(pieceMap);
     newPieceMap.delete(p0.stringPosition());
+    movePiece.hasMoved = true;
     newPieceMap.set(p1.stringPosition(), movePiece);
+    console.log(movePiece)
     console.log(evaluate(newPieceMap))
     return newPieceMap;
 }
@@ -23,8 +25,8 @@ export function promotePawn(
     pawn: Piece,
     pieceType: PieceType,
 ){
-    const newPieceMap = new Map<string, Piece>(pieceMap);
-    let newPiece: Piece = new Piece(pawn.position, pieceType, pawn.color);
+    const newPieceMap = pieceMap;
+    const newPiece: Piece = new Piece(pawn.position, pieceType, pawn.color);
     newPieceMap.delete(p0.stringPosition());
     newPieceMap.set(pawn.position.stringPosition(), newPiece);
     return newPieceMap;

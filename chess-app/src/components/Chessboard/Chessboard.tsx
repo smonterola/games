@@ -38,7 +38,6 @@ export default function Chessboard() {
         element.style.top = `${y}px`;
 
         setActivePiece(element);
-        console.log("grabbed")
     }
     
     function movePiece(e: React.MouseEvent) {
@@ -80,18 +79,13 @@ export default function Chessboard() {
         if (!(movePiece)) {
             return;
         }
-        const validMove = rules.isValidMove(
-            getPosition, 
-            cursorP,
-            turn, 
-            pieceMap,
-        );
+        setPieceMap(rules.populateValidMoves(movePiece.color, pieceMap));
+        const validMove = rules.canMovePiece(getPosition, cursorP, pieceMap);
         if (validMove) {
             movePiece.position = cursorP;
             const isCapture = pieceMap.has(cursorP.stringPosition());
             const isCheck   = false;
             const isAmbiguous = false;
-            
             setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
             if (
                 movePiece.type === PieceType.PAWN && 

@@ -10,8 +10,8 @@ export class Piece {
     position: Position;
     type: PieceType;
     color: PieceColor;
-    enPassant?: boolean;
-    hasMoved?: boolean; //for castling
+    enPassant?: boolean = false;
+    hasMoved?: boolean = false; //for castling
     moveMap?: Map<string, Position>;
     constructor(
         position: Position, 
