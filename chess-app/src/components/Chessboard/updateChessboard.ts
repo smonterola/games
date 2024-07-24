@@ -1,7 +1,7 @@
-import { stringPosition } from "../../rules/pieceLogic";
-import { Piece, PieceType, Position } from "../../Constants";
+import { PieceType } from "../../Constants";
 import { evaluate } from "../../engine/evaluate";
-import { generatePiece } from "./initChessboard";
+import { Piece, Position } from "../../models";
+//import { generatePiece } from "./initChessboard";
 
 export function updatePieceMap(
     pieceMap: Map<string, Piece>, 
@@ -10,8 +10,8 @@ export function updatePieceMap(
     movePiece: Piece,
 ){
     const newPieceMap = new Map<string, Piece>(pieceMap);
-    newPieceMap.delete(stringPosition(p0));
-    newPieceMap.set(stringPosition(p1), movePiece);
+    newPieceMap.delete(p0.stringPosition());
+    newPieceMap.set(p1.stringPosition(), movePiece);
     console.log(evaluate(newPieceMap))
     return newPieceMap;
 }
@@ -23,11 +23,9 @@ export function promotePawn(
     pieceType: PieceType,
 ){
     const newPieceMap = new Map<string, Piece>(pieceMap);
-    let newPiece: Piece = generatePiece(pawn.color, pieceType);
-    newPiece.position = pawn.position;
-    newPieceMap.delete(stringPosition(p0));
-    newPieceMap.set(stringPosition(pawn.position), newPiece);
-    console.log(newPieceMap)
+    let newPiece: Piece = new Piece(pawn.position, pieceType, pawn.color);
+    newPieceMap.delete(p0.stringPosition());
+    newPieceMap.set(pawn.position.stringPosition(), newPiece);
     return newPieceMap;
 }
 
@@ -37,10 +35,10 @@ export function castle(
     rook: Piece,
 ){
     const newPieceMap = new Map<string, Piece>(pieceMap);
-    newPieceMap.delete(stringPosition(king.position)); //deleting king
-    newPieceMap.delete(stringPosition(rook.position)); //deleting rook
+    newPieceMap.delete(king.position.stringPosition()); //deleting king
+    newPieceMap.delete(rook.position.stringPosition()); //deleting rook
     [rook.position.x, king.position.x] = rook.position.x === 0 ? [3, 2] : [5, 6];
-    newPieceMap.set(stringPosition(rook.position), rook);
-    newPieceMap.set(stringPosition(king.position), king);
+    newPieceMap.set(rook.position.stringPosition(), rook);
+    newPieceMap.set(king.position.stringPosition(), king);
     return newPieceMap;
 }

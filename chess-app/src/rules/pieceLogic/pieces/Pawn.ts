@@ -1,5 +1,6 @@
-import { Position, PieceColor, Piece } from "../../../Constants";
-import { isOccupied, canCapture, addPositions, checkBounds, stringPosition } from "../Position";
+import { Piece, Position } from "../../../models";
+import { PieceColor } from "../../../Constants";
+import { isOccupied, canCapture } from "../Status";
 
 export const movePawn = (
     p0: Position,
@@ -12,31 +13,31 @@ export const movePawn = (
         [ 1, 1, 7] : 
         [-1, 6, 0];
     const pawnDirections: Position[] = [
-        {x:-1*POV, y: 1*POV},
-        {x: 1*POV, y: 1*POV},
-        {x: 0    , y: 1*POV},
-        {x: 0    , y: 2*POV},
+        new Position(-1*POV, 1*POV),
+        new Position( 1*POV, 1*POV),
+        new Position( 0    , 1*POV),
+        new Position( 0    , 2*POV),
     ];
     let i = 0;
     const [upperLeft, upperRight, upOne, upTwo] = [
-        addPositions(p0, pawnDirections[i++]),
-        addPositions(p0, pawnDirections[i++]),
-        addPositions(p0, pawnDirections[i++]),
-        addPositions(p0, pawnDirections[i++]),
+        p0.addPositions(pawnDirections[i++]),
+        p0.addPositions(pawnDirections[i++]),
+        p0.addPositions(pawnDirections[i++]),
+        p0.addPositions(pawnDirections[i++]),
     ];
     //if (p0.y + POV === promotion) {
 
     //}
-    if (checkBounds(upperLeft)  && canCapture(upperLeft, pieceMap, color)) {
-        pawnMap.set(stringPosition(upperLeft), upperLeft);
+    if (upperLeft.checkBounds()  && canCapture(upperLeft, pieceMap, color)) {
+        pawnMap.set(upperLeft.stringPosition(), upperLeft);
     }
-    if (checkBounds(upperRight) && canCapture(upperRight, pieceMap, color)) {
-        pawnMap.set(stringPosition(upperRight), upperRight);
+    if (upperRight.checkBounds() && canCapture(upperRight, pieceMap, color)) {
+        pawnMap.set(upperRight.stringPosition(), upperRight);
     }
     if (!isOccupied(upOne, pieceMap)) {
-        pawnMap.set(stringPosition(upOne), upOne);
+        pawnMap.set(upOne.stringPosition(), upOne);
         if (p0.y === OG && !isOccupied(upTwo, pieceMap)) {
-            pawnMap.set(stringPosition(upTwo), upTwo);
+            pawnMap.set(upTwo.stringPosition(), upTwo);
         }
     }
     return pawnMap;

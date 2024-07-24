@@ -1,38 +1,37 @@
+import { Piece, Position } from "../../models";
 import { 
-    Piece, 
     PieceType, 
     PieceColor,
 } from "../../Constants";
-import { stringPosition } from "../../rules/pieceLogic";
 
 export const initialPieces = new Map<string, Piece>();//: Piece[] = [];
 
 const parent = "assets/images/";
 const pieceSet = "default";
 
-const rankOrder = new Map <number, [string, PieceType]>([
-    [0, ["r", PieceType.ROOK]],
-    [1, ["n", PieceType.NGHT]],
-    [2, ["b", PieceType.BSHP]],
-    [3, ["q", PieceType.QUEN]],
-    [4, ["k", PieceType.KING]],
-    [5, ["b", PieceType.BSHP]],
-    [6, ["n", PieceType.NGHT]],
-    [7, ["r", PieceType.ROOK]],
+const rankOrder = new Map <number, PieceType>([
+    [0, PieceType.ROOK],
+    [1, PieceType.NGHT],
+    [2, PieceType.BSHP],
+    [3, PieceType.QUEN],
+    [4, PieceType.KING],
+    [5, PieceType.BSHP],
+    [6, PieceType.NGHT],
+    [7, PieceType.ROOK],
 ]);
 
 for (let pieceColor of Object.values(PieceColor)) {
     const [color, y, POV] = pieceColor === PieceColor.BLACK ? 
         [PieceColor.BLACK, 7, -1] : [PieceColor.WHITE, 0, 1];
-    const child = "_" + pieceColor + ".png";
     for (let x = 0; x < 8; x++) {
-        const [symbol, type] = [rankOrder.get(x)![0], rankOrder.get(x)![1]];
-        initialPieces.set(stringPosition({x, y}), { image: `${parent}${pieceSet}/${symbol}${child}`, position: {x, y}, type, color});
-        initialPieces.set(stringPosition({x, y:y+POV}), { image: `${parent}${pieceSet}/p${child}`, position: {x, y: y+POV}, type: PieceType.PAWN, color});
+        const pPiece: Position = new Position(x, y);
+        const pPawn:  Position = new Position(x, y+POV);
+        initialPieces.set(pPiece.stringPosition(), new Piece(pPiece, rankOrder.get(x)!, color));
+        initialPieces.set(pPawn.stringPosition(),  new Piece(pPawn,  PieceType.PAWN,    color));
     }
 }
 
-export function generatePiece(color: PieceColor, type: PieceType = PieceType.QUEN) {
+/*export function generatePiece(color: PieceColor, type: PieceType = PieceType.QUEN) {
     let symbol = "q"
     switch(type) {
         case PieceType.BSHP:
@@ -57,3 +56,4 @@ export function generatePiece(color: PieceColor, type: PieceType = PieceType.QUE
     }
     return piece;
 }
+    */

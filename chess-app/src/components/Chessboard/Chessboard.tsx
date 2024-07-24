@@ -2,18 +2,16 @@ import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
+import { Piece, Position } from "../../models";
 import { 
     xAxis, 
     yAxis, 
     TILESIZE, 
-    Piece,
-    Position,
     PieceColor,
     PieceType,
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
-import { checkBounds, stringPosition, nextTurn, pgnToString } from "../../rules/pieceLogic";
-import { evaluate } from "../../engine/evaluate";
+import { nextTurn, pgnToString } from "../../rules/pieceLogic";
 import { promotePawn, updatePieceMap } from "./updateChessboard";
 
 let moveCounter = 1;
@@ -22,7 +20,7 @@ let turn: PieceColor = PieceColor.WHITE;
 
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
-    const [getPosition, setPosition] = useState<Position>({x: -1, y: -1})
+    const [getPosition, setPosition] = useState<Position>(new Position(-1, -1));
     const [pieceMap, setPieceMap] = useState(new Map<string, Piece>(initialPieces));
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();
@@ -35,13 +33,14 @@ export default function Chessboard() {
         }
         const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE));
         const getY = (Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE)));
-        setPosition({x: getX, y: getY});
+        setPosition(new Position(getX, getY));
         const [x, y] = [e.clientX - TILESIZE/2 , e.clientY - TILESIZE/2];
         element.style.position = "absolute";
         element.style.left = `${x}px`;
         element.style.top = `${y}px`;
 
         setActivePiece(element);
+        console.log("grabbed")
     }
     
     function movePiece(e: React.MouseEvent) {
@@ -75,11 +74,11 @@ export default function Chessboard() {
         setActivePiece(null); 
         const x = Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE );
         const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE));
-        const cursorP: Position = {x, y};
-        if (!checkBounds(cursorP)) {
+        const cursorP: Position = new Position(x, y);
+        if (!cursorP.checkBounds()) {
             return;
         }
-        let movePiece = pieceMap.get(stringPosition(getPosition))!;
+        let movePiece = pieceMap.get(getPosition.stringPosition())!;
         if (!(movePiece)) {
             return;
         }
@@ -91,7 +90,7 @@ export default function Chessboard() {
         );
         if (validMove) {
             movePiece.position = cursorP;
-            const isCapture = pieceMap.has(stringPosition(cursorP));
+            const isCapture = pieceMap.has(cursorP.stringPosition());
             const isCheck   = false;
             const isAmbiguous = false;
             
@@ -118,7 +117,7 @@ export default function Chessboard() {
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;
-            const piece = pieceMap.get(stringPosition({x: i, y: j}))
+            const piece = pieceMap.get(new Position(i, j).stringPosition())
             let image = piece ? piece.image : undefined;
             board.push(<Tile key={`${i}${j}`} image={image} number={number}/>)
         }

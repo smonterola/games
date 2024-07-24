@@ -1,6 +1,5 @@
+import { Piece, Position } from "../models";
 import { 
-    Piece, 
-    Position, 
     PieceType, 
     PieceColor, 
 } from "../Constants";
@@ -11,9 +10,6 @@ import {
     knightDirections, 
     queenDirections,
     movePawn,
-    samePosition,
-    checkBounds,
-    stringPosition
 } from "./pieceLogic"
 
 export default class Rules {
@@ -23,7 +19,7 @@ export default class Rules {
         color: PieceColor,
         pieceMap: Map<string, Piece>,
     ): boolean {
-        if (!checkBounds(p0) || !checkBounds(p1)) return false; //do not move out of bounds
+        //if (!p0.checkBounds() || !p1.checkBounds()) return false; //do not move out of bounds
         return this.movePiece(p0, p1, this.validMoves(color, pieceMap));
     }
 
@@ -32,7 +28,7 @@ export default class Rules {
         p1: Position, //new
         validMoves: Map<string, Map<string, Position>>,
     ) {
-        return validMoves.get(stringPosition(p0))?.has(stringPosition(p1)) ? true : false;
+        return validMoves.get(p0.stringPosition())?.has(p1.stringPosition()) ? true : false;
     }
 
     validMoves(
@@ -48,7 +44,7 @@ export default class Rules {
                 continue;
             }
             const p = piece.position;
-            const pString = stringPosition(p);
+            const pString = p.stringPosition();
             switch (piece.type) {
                 case PieceType.PAWN: 
                     validMoves.set(pString, movePawn(p, color, pieceMap));
@@ -68,15 +64,9 @@ export default class Rules {
                 case PieceType.KING:
                     validMoves.set(pString, mapMoves(p, color, pieceMap, queenDirections, true));
                     break;
-                case PieceType.HIGHTLIGHT:
-                    //??????
-                    break;
-                case PieceType.EMPTY:
-                    //?????
-                    break;
             }
         }
-        //console.log(validMoves)
+        console.log(validMoves)
         return validMoves;
     }
 }

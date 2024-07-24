@@ -1,4 +1,5 @@
-import { Piece, PieceColor, PieceType } from "../Constants";
+import { Piece, Position } from "../models";
+import { PieceColor, PieceType } from "../Constants";
 import { endgame, middleGame, threshold, pairsMiddle, pairsEnd, pairsThres } from "./evalConstants";
 import { colorToInitial, pieceToInitial } from "../rules/pieceLogic";
 

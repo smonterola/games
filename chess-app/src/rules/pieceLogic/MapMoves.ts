@@ -1,5 +1,6 @@
-import { Piece, PieceColor, Position} from "../../Constants";
-import { isOccupied, canCapture, addPositions, checkBounds, getPosition, stringPosition } from "./Position"
+import { Piece, Position } from "../../models";
+import { PieceColor } from "../../Constants";
+import { isOccupied, canCapture, } from "./Status"
 
 export const mapMoves = (
     p0: Position,
@@ -10,13 +11,13 @@ export const mapMoves = (
 ): Map<string, Position> => {
     let moveMap = new Map<string, Position>();
     for (var direction of directions) {
-        let tempPosition: Position = addPositions(p0, direction);
-        while (checkBounds(tempPosition)) {
+        let tempPosition: Position = p0.addPositions(direction);
+        while (tempPosition.checkBounds()) {
             if (!isOccupied(tempPosition, pieceMap)) {
-                moveMap.set(stringPosition(getPosition(tempPosition)), getPosition(tempPosition));
-                tempPosition = addPositions(tempPosition, direction);
+                moveMap.set(tempPosition.copyPosition().stringPosition(), tempPosition.copyPosition());
+                tempPosition = tempPosition.addPositions(direction);
             } else if (canCapture(tempPosition, pieceMap, color)) {
-                moveMap.set(stringPosition(getPosition(tempPosition)), getPosition(tempPosition));
+                moveMap.set(tempPosition.copyPosition().stringPosition(), tempPosition.copyPosition());
                 break;
             } else {
                 break;

@@ -2,14 +2,12 @@ export const yAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
 export const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 export enum PieceType {
-    PAWN = "P",
-    BSHP = "B",
+    PAWN = "",
     NGHT = "N",
+    BSHP = "B",
     ROOK = "R",
     QUEN = "Q",
     KING = "K",
-    HIGHTLIGHT = "",
-    EMPTY = "",
 }
 
 export enum PieceColor {
@@ -28,6 +26,7 @@ export let TILESIZE = minDimPx / 8;
 document.documentElement.style.setProperty("--tileSize", `${TILESIZE}px`);
 //look at viewport | responsive design
 
+/*
 export interface Piece {
     image: string;
     position: Position;
@@ -39,3 +38,4 @@ export interface Position {
     x: number;
     y: number;
 }
+*/

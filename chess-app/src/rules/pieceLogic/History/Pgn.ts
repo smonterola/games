@@ -1,5 +1,5 @@
-import { Piece, PieceType, PieceColor, Position, xAxis } from "../../../Constants";
-import { stringPosition } from "../Position";
+import { Piece, Position } from "../../../models";
+import { PieceType, PieceColor, xAxis } from "../../../Constants";
 
 const symbols = new Map<PieceType, string>([
     [PieceType.PAWN,  ""],
@@ -35,6 +35,6 @@ export function pgnToString(
     return (
         append + " " +
         (!isCapture ? pieceToInitial(piece.type) : identifier + "x") +
-        stringPosition(piece.position)
+        piece.position.stringPosition()
     );
 }
