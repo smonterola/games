@@ -9,9 +9,9 @@ export class Piece {
     image: string;
     position: Position;
     type: PieceType;
-    color: PieceColor = PieceColor.WHITE;
-    enPassant?: boolean = false;
-    hasMoved?: boolean = false; //for castling
+    color: PieceColor;
+    enPassant?: boolean;
+    hasMoved?: boolean; //for castling
     moveMap?: Map<string, Position>;
     constructor(
         position: Position, 

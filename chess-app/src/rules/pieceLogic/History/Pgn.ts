@@ -1,23 +1,6 @@
 import { Piece, Position } from "../../../models";
 import { PieceType, PieceColor, xAxis } from "../../../Constants";
 
-const symbols = new Map<PieceType, string>([
-    [PieceType.PAWN,  ""],
-    [PieceType.BSHP, "B"],
-    [PieceType.NGHT, "N"],
-    [PieceType.ROOK, "R"],
-    [PieceType.QUEN, "Q"],
-    [PieceType.KING, "K"],
-]);
-
-export function pieceToInitial(type: PieceType): string {
-    const char = symbols.get(type);
-    return char ? char : ""
-}
-
-export function colorToInitial(pieceColor: PieceColor): string {
-    return pieceColor === PieceColor.WHITE ? "w" : "b";
-}
 export function nextTurn(pieceColor: PieceColor): PieceColor {
     return pieceColor === PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
 }
@@ -31,10 +14,10 @@ export function pgnToString(
     isLongCastle: boolean = false,
     isPromote: boolean = false,
 ) {
-    const identifier: string = piece.type === PieceType.PAWN ? xAxis[p0.x] : pieceToInitial(piece.type);
+    const identifier: string = piece.type === PieceType.PAWN ? xAxis[p0.x] : piece.type;
     return (
         append + " " +
-        (!isCapture ? pieceToInitial(piece.type) : identifier + "x") +
+        (!isCapture ? piece.type : identifier + "x") +
         piece.position.stringPosition()
     );
 }

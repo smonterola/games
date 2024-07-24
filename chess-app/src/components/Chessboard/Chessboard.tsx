@@ -4,11 +4,9 @@ import "./Chessboard.css";
 import Rules from "../../rules/Rules";
 import { Piece, Position } from "../../models";
 import { 
-    xAxis, 
-    yAxis, 
+    xAxis, yAxis, 
     TILESIZE, 
-    PieceColor,
-    PieceType,
+    PieceColor, PieceType,
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
 import { nextTurn, pgnToString } from "../../rules/pieceLogic";

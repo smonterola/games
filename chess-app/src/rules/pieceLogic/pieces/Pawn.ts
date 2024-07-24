@@ -25,9 +25,6 @@ export const movePawn = (
         p0.addPositions(pawnDirections[i++]),
         p0.addPositions(pawnDirections[i++]),
     ];
-    //if (p0.y + POV === promotion) {
-
-    //}
     if (upperLeft.checkBounds()  && canCapture(upperLeft, pieceMap, color)) {
         pawnMap.set(upperLeft.stringPosition(), upperLeft);
     }

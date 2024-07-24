@@ -5,7 +5,7 @@ export const isOccupied = (
     coordinate: Position,
     pieceMap: Map<string, Piece>,
 ): boolean => {
-    const occupied = pieceMap.get(coordinate.stringPosition()) ? true : false;
+    const occupied = pieceMap.has(coordinate.stringPosition());
     return occupied;
 }
 

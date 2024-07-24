@@ -1,25 +1,22 @@
-import { Piece, Position } from "../models";
+import { Piece } from "../models";
 import { PieceColor, PieceType } from "../Constants";
 import { endgame, middleGame, threshold, pairsMiddle, pairsEnd, pairsThres } from "./evalConstants";
-import { colorToInitial, pieceToInitial } from "../rules/pieceLogic";
 
 export function evaluate(pieceMap: Map<string, Piece>): number {
     let evalutation: number = 0;
     const logPieceMap = new Map<string, number>(logPieces(pieceMap));
     let [pieceValues, pairValues] = [threshold, pairsThres];
-    if (logPieceMap.get(
-        colorToInitial(PieceColor.WHITE)+pieceToInitial(PieceType.QUEN)) === 
-        logPieceMap.get(colorToInitial(PieceColor.BLACK)+pieceToInitial(PieceType.QUEN))
+    if (logPieceMap.get(PieceColor.WHITE + PieceType.QUEN) === 
+        logPieceMap.get(PieceColor.BLACK + PieceType.QUEN)
     ) {
-        [pieceValues, pairValues] = logPieceMap.has(colorToInitial(PieceColor.WHITE)+pieceToInitial(PieceType.QUEN)) ? 
+        [pieceValues, pairValues] = logPieceMap.has(PieceColor.WHITE + PieceType.QUEN) ? 
             [middleGame, pairsMiddle] : [endgame, pairsEnd];
     }
     for (const pieceColor of Object.values(PieceColor)) {
         let pieceScore = 0;
         const POV = pieceColor === PieceColor.WHITE ? 1 : -1;
-        const colorInitial = colorToInitial(pieceColor);
         for (const pieceType of Object.values(PieceType)) {
-            const key = colorInitial + pieceToInitial(pieceType);
+            const key = pieceColor + pieceType;
             const pieceCount = logPieceMap.has(key) ? 
                 logPieceMap.get(key)! : 0; 
             const pieceValue = pieceValues.has(pieceType) ? 
@@ -36,12 +33,12 @@ export function evaluate(pieceMap: Map<string, Piece>): number {
 export function logPieces(pieceMap: Map<string, Piece>): Map<string, number> {
     let logPieces = new Map<string, number>();
     for (let piece of pieceMap.values()) {
-        const key = colorToInitial(piece.color)+pieceToInitial(piece.type)
+        const key = piece.color + piece.type;
         const count = 
             logPieces.has(key) ?
             logPieces.get(key) :
             0; 
-        logPieces.set(key, count! + 1)
+        logPieces.set(key, count! + 1);
     }
     return logPieces;
 }

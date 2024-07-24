@@ -3,6 +3,7 @@ import { evaluate } from "../../engine/evaluate";
 import { Piece, Position } from "../../models";
 //import { generatePiece } from "./initChessboard";
 
+//consider making this a class
 export function updatePieceMap(
     pieceMap: Map<string, Piece>, 
     p0: Position, 

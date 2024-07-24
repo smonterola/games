@@ -1,13 +1,7 @@
 import { Piece, Position } from "../../models";
-import { 
-    PieceType, 
-    PieceColor,
-} from "../../Constants";
+import { PieceType, PieceColor } from "../../Constants";
 
 export const initialPieces = new Map<string, Piece>();//: Piece[] = [];
-
-const parent = "assets/images/";
-const pieceSet = "default";
 
 const rankOrder = new Map <number, PieceType>([
     [0, PieceType.ROOK],
@@ -30,30 +24,3 @@ for (let pieceColor of Object.values(PieceColor)) {
         initialPieces.set(pPawn.stringPosition(),  new Piece(pPawn,  PieceType.PAWN,    color));
     }
 }
-
-/*export function generatePiece(color: PieceColor, type: PieceType = PieceType.QUEN) {
-    let symbol = "q"
-    switch(type) {
-        case PieceType.BSHP:
-            symbol = "b";
-            break;
-        case PieceType.ROOK:
-            symbol = "r";
-            break;
-        case PieceType.NGHT:
-            symbol = "n";
-            break;
-        default:
-            symbol = "q";
-            break;
-    }
-    const child = "_" + color + ".png";
-    const piece: Piece = {
-        image: `${parent}${pieceSet}/${symbol}${child}`,
-        position: {x: -1, y: -1},
-        type,
-        color,
-    }
-    return piece;
-}
-    */

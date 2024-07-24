@@ -22,7 +22,7 @@ export const mapMoves = (
             } else {
                 break;
             }
-            if (once) { //limits kings and knights to only one move
+            if (once) { //limits kings and knights to only one move per direction
                 break; 
             }
         }

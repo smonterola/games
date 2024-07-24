@@ -19,7 +19,7 @@ export default class Rules {
         color: PieceColor,
         pieceMap: Map<string, Piece>,
     ): boolean {
-        //if (!p0.checkBounds() || !p1.checkBounds()) return false; //do not move out of bounds
+        if (!p0.checkBounds() || !p1.checkBounds()) return false; //do not move out of bounds
         return this.movePiece(p0, p1, this.validMoves(color, pieceMap));
     }
 
