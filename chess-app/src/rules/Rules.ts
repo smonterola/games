@@ -30,7 +30,7 @@ export default class Rules {
             }
             switch (piece.type) {
                 case PieceType.PAWN: 
-                    piece.moveMap = movePawn(piece.position, color, pieceMap);
+                    [piece.moveMap, piece.enPassant] = movePawn(piece.position, color, pieceMap);
                     break;
                 case PieceType.BSHP:
                     piece.moveMap = mapMoves(piece.position, color, pieceMap, bishopDirections, false);

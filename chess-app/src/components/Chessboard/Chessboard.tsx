@@ -10,7 +10,7 @@ import {
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
 import { nextTurn, pgnToString } from "../../rules/pieceLogic";
-import { promotePawn, updatePieceMap } from "./updateChessboard";
+import { canPromote, promotePawn, updatePieceMap } from "./updateChessboard";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -60,6 +60,8 @@ export default function Chessboard() {
         } else if (y > maxY) { activePiece.style.top = `${maxY}px`; //setActivePiece(null); 
         } else               { activePiece.style.top = `${y}px`;
         }
+        //activePiece.style.left = `${x}px`;
+        //activePiece.style.top  = `${y}px`;
         
     }
 
@@ -87,12 +89,6 @@ export default function Chessboard() {
             const isCheck   = false;
             const isAmbiguous = false;
             setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
-            if (
-                movePiece.type === PieceType.PAWN && 
-                (movePiece.position.y === 0 || movePiece.position.y === 7)
-            ) {
-                setPieceMap(promotePawn(pieceMap, getPosition, movePiece, PieceType.QUEN));
-            }
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
             pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
