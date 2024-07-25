@@ -15,6 +15,7 @@ import { updatePieceMap } from "./updateChessboard";
 let moveCounter = 1;
 const pgn = new Map<number, string>();
 let turn: PieceColor = PieceColor.WHITE;
+let positionHighlight: Position = new Position(-1, -1);
 
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
@@ -94,20 +95,30 @@ export default function Chessboard() {
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
             console.log(pgn);
             turn = nextTurn(turn);
+            positionHighlight = new Position(-1, -1);
         } else {
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
             activePiece.style.removeProperty("left");
+            positionHighlight = getPosition.copyPosition;
         }
     }
     //rendering board
     let board = [];
+    let highlightMap = new Map<string, Position>();
+    if (positionHighlight.samePosition(getPosition)) {
+        highlightMap = pieceMap.has(getPosition.stringPosition) ? 
+            pieceMap.get(getPosition.stringPosition)?.moveMap! : new Map<string, Position>();
+    } else {
+        highlightMap = new Map<string, Position>();
+    }
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;
-            const piece = pieceMap.get(new Position(i, j).stringPosition)
+            const piece = pieceMap.get(new Position(i, j).stringPosition);
             let image = piece ? piece.image : undefined;
-            board.push(<Tile key={`${i}${j}`} image={image} number={number}/>)
+            const highlight = highlightMap.has(new Position(i, j).stringPosition) ? true : false;
+            board.push(<Tile key={`${i}${j}`} image={image} number={number} highlight={highlight}/>)
         }
     }
     return (

@@ -10,7 +10,7 @@ export class Piece {
     position: Position;
     type: PieceType;
     color: PieceColor;
-    moveMap?: Map<string, Position>;
+    moveMap: Map<string, Position> = new Map<string, Position>();
     enPassant?: boolean = false;
     hasMoved?: boolean = false; //for castling
     constructor(
