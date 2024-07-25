@@ -1,22 +1,29 @@
 import { Piece, Position } from "../../models";
-import { PieceColor } from "../../Constants";
+import { PieceType } from "../../Constants";
 import { isOccupied, canCapture, } from "./Status"
+import { bishopDirections, knightDirections, queenDirections, rookDirections } from "./pieces/Directions";
+
+const pieceDirectons = new Map<PieceType, [Position[], boolean]>([
+    [PieceType.NGHT, [knightDirections, true]],
+    [PieceType.BSHP, [bishopDirections, false]],
+    [PieceType.ROOK, [rookDirections, false]],
+    [PieceType.QUEN, [queenDirections, false]],
+    [PieceType.KING, [queenDirections, true]],
+]);
 
 export const mapMoves = (
-    p0: Position,
-    color: PieceColor,
     pieceMap: Map<string, Piece>,
-    directions: Position[],
-    once: boolean,
+    piece: Piece,
 ): Map<string, Position> => {
     let moveMap = new Map<string, Position>();
+    const [directions, once] = pieceDirectons.get(piece.type)!;
     for (var direction of directions) {
-        let tempPosition: Position = p0.addPositions(direction);
+        let tempPosition: Position = piece.position.addPositions(direction);
         while (tempPosition.checkBounds()) {
             if (!isOccupied(tempPosition, pieceMap)) {
                 moveMap.set(tempPosition.copyPosition().stringPosition(), tempPosition.copyPosition());
                 tempPosition = tempPosition.addPositions(direction);
-            } else if (canCapture(tempPosition, pieceMap, color)) {
+            } else if (canCapture(tempPosition, pieceMap, piece.color)) {
                 moveMap.set(tempPosition.copyPosition().stringPosition(), tempPosition.copyPosition());
                 break;
             } else {

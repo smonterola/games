@@ -1,9 +1,6 @@
 import { Piece, Position } from "../models";
 import { PieceType, PieceColor } from "../Constants";
-import {
-    mapMoves, movePawn,
-    rookDirections, bishopDirections, knightDirections, queenDirections
-} from "./pieceLogic"
+import { mapMoves, movePawn } from "./pieceLogic"
 
 export default class Rules {
     canMovePiece(
@@ -22,31 +19,14 @@ export default class Rules {
         pieceMap: Map<string, Piece>,
     ): Map<string, Piece> {
         for (var piece of pieceMap.values()) {
-            if (piece.color === color) {
-                //pass;
-            }
-            else {
+            if (piece.color !== color) {
+                piece.moveMap?.clear();
                 continue;
             }
-            switch (piece.type) {
-                case PieceType.PAWN: 
-                    [piece.moveMap, piece.enPassant] = movePawn(piece.position, color, pieceMap);
-                    break;
-                case PieceType.BSHP:
-                    piece.moveMap = mapMoves(piece.position, color, pieceMap, bishopDirections, false);
-                    break;
-                case PieceType.NGHT:
-                    piece.moveMap = mapMoves(piece.position, color, pieceMap, knightDirections, true);
-                    break;
-                case PieceType.ROOK:
-                    piece.moveMap = mapMoves(piece.position, color, pieceMap, rookDirections, false);
-                    break;
-                case PieceType.QUEN:
-                    piece.moveMap = mapMoves(piece.position, color, pieceMap, queenDirections, false);
-                    break;
-                case PieceType.KING:
-                    piece.moveMap = mapMoves(piece.position, color, pieceMap, queenDirections, true);
-                    break;
+            if (piece.type === PieceType.PAWN) { 
+                [piece.moveMap, piece.enPassant] = movePawn(piece.position, color, pieceMap);
+            } else {
+                piece.moveMap = mapMoves(pieceMap, piece);
             }
         }
         //console.log(validMoves)

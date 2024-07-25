@@ -81,7 +81,7 @@ export default function Chessboard() {
         if (!(movePiece)) {
             return;
         }
-        setPieceMap(rules.populateValidMoves(movePiece.color, pieceMap));
+        setPieceMap(rules.populateValidMoves(turn, pieceMap));
         const validMove = rules.canMovePiece(getPosition, cursorP, pieceMap);
         if (validMove) {
             movePiece.position = cursorP;

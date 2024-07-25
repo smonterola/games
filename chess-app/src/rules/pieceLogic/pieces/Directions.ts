@@ -1,4 +1,4 @@
-import { Position } from "../../models";
+import { Position } from "../../../models";
 
 export const rookDirections: Position[] = [
     new Position( 1, 0), // 0pi/2

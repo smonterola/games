@@ -1,4 +1,4 @@
-export * from "./Directions"
+export * from "./pieces/Directions"
 export * from "./MapMoves"
 export * from "./Status"
 export * from "./pieces/Pawn"
