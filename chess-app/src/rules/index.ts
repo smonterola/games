@@ -1,5 +1,5 @@
 export * from "./pieces/Directions"
-export * from "./MapMoves"
-export * from "./Status"
+export * from "./Movement/MapMoves"
+export * from "./Movement/Status"
 export * from "./pieces/Pawn"
 export * from "./History/Pgn"

@@ -1,5 +1,5 @@
-import { Piece, Position } from "../../../models";
-import { PieceType, PieceColor, xAxis } from "../../../Constants";
+import { Piece, Position } from "../../models";
+import { PieceType, PieceColor, xAxis } from "../../Constants";
 
 export function nextTurn(pieceColor: PieceColor): PieceColor {
     return (pieceColor === PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;

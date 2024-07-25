@@ -9,7 +9,7 @@ import {
     PieceColor, PieceType,
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
-import { nextTurn, pgnToString } from "../../rules/pieceLogic";
+import { nextTurn, pgnToString } from "../../rules";
 import { canPromote, promotePawn, updatePieceMap } from "./updateChessboard";
 
 let moveCounter = 1;

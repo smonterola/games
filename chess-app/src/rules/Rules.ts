@@ -1,6 +1,7 @@
 import { Piece, Position } from "../models";
 import { PieceType, PieceColor } from "../Constants";
-import { mapMoves, movePawn } from "./pieceLogic"
+import { mapMoves, movePawn } from "."
+import { castle } from "./pieces/King";
 
 export default class Rules {
     canMovePiece(
@@ -18,18 +19,20 @@ export default class Rules {
         color: PieceColor,
         pieceMap: Map<string, Piece>,
     ): Map<string, Piece> {
-        for (var piece of pieceMap.values()) {
+        for (let piece of pieceMap.values()) {
             if (piece.color !== color) {
                 piece.moveMap?.clear();
                 continue;
             }
             if (piece.type === PieceType.PAWN) { 
                 [piece.moveMap, piece.enPassant] = movePawn(piece.position, color, pieceMap);
+            } else if (piece.type === PieceType.KING) {
+                piece.moveMap = mapMoves(pieceMap, piece);
+                piece.moveMap = castle(pieceMap, piece, piece.moveMap);
             } else {
                 piece.moveMap = mapMoves(pieceMap, piece);
             }
         }
-        //console.log(validMoves)
         return pieceMap;
     }
 }

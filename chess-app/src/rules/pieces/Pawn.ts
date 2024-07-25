@@ -1,6 +1,6 @@
-import { Piece, Position } from "../../../models";
-import { PieceColor, PieceType } from "../../../Constants";
-import { isOccupied, canCapture } from "../Status";
+import { Piece, Position } from "../../models";
+import { PieceColor, PieceType } from "../../Constants";
+import { isOccupied, canCapture } from "../Movement/Status";
 
 export const movePawn = (
     p: Position,
