@@ -12,14 +12,14 @@ export function updatePieceMap(
     //MAKING NEW COPY? maybe?
     const newPieceMap = pieceMap; //might need to make copies if this is bugged
     //DELETING WHERE PIECE WAS
-    newPieceMap.delete(p0.stringPosition)
+    newPieceMap.delete(p0.string)
     //PAWN BEHAVIOR
     if (movePiece.type === PieceType.PAWN) {
         //EN PASSANT CHECKER
         const clearPosition = //enPassant checker
-            (movePiece.type === PieceType.PAWN && !newPieceMap.has(p1.stringPosition)) ? 
+            (movePiece.type === PieceType.PAWN && !newPieceMap.has(p1.string)) ? 
             new Position(p1.x, p0.y) : p1;
-        newPieceMap.delete(clearPosition.stringPosition);
+        newPieceMap.delete(clearPosition.string);
         //CHECKING FOR PROMOTION
         if (canPromote(movePiece)) {
             movePiece = promotePawn(movePiece, PieceType.QUEN);
@@ -30,14 +30,14 @@ export function updatePieceMap(
     if (movePiece.type === PieceType.KING && Math.abs(p1.x - p0.x) === 2) {
         const shift: number = Math.sign(p1.x - p0.x);
         const rookX = shift === 1 ? 7 : 0; 
-        const moveRook: Piece = pieceMap.get(new Position(rookX, p0.y).stringPosition)!;
-        newPieceMap.delete(moveRook.position.stringPosition)
+        const moveRook: Piece = pieceMap.get(new Position(rookX, p0.y).string)!;
+        newPieceMap.delete(moveRook.position.string)
         moveRook.position.x = p1.x - shift;
-        newPieceMap.set(moveRook.position.stringPosition, moveRook);
+        newPieceMap.set(moveRook.position.string, moveRook);
     }
     //MOVING PIECE TO NEW SQUARE
     movePiece.hasMoved = true;
-    newPieceMap.set(p1.stringPosition, movePiece);
+    newPieceMap.set(p1.string, movePiece);
     console.log(movePiece)
     console.log(evaluate(newPieceMap))
     return newPieceMap;
@@ -66,10 +66,10 @@ export function castle(
     rook: Piece,
 ){
     const newPieceMap = pieceMap;
-    newPieceMap.delete(king.position.stringPosition()); //deleting king
-    newPieceMap.delete(rook.position.stringPosition()); //deleting rook
+    newPieceMap.delete(king.position.string()); //deleting king
+    newPieceMap.delete(rook.position.string()); //deleting rook
     [rook.position.x, king.position.x] = rook.position.x === 0 ? [3, 2] : [5, 6];
-    newPieceMap.set(rook.position.stringPosition(), rook);
-    newPieceMap.set(king.position.stringPosition(), king);
+    newPieceMap.set(rook.position.string(), rook);
+    newPieceMap.set(king.position.string(), king);
     return newPieceMap;
 }*/

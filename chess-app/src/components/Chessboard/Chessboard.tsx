@@ -7,10 +7,12 @@ import {
     xAxis, yAxis, 
     TILESIZE, 
     PieceColor,
+    PieceType,
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
 import { nextTurn, pgnToString } from "../../rules";
 import { updatePieceMap } from "./updateChessboard";
+import { isCheck } from "../../rules/pieces/King";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -78,18 +80,31 @@ export default function Chessboard() {
         if (!cursorP.checkBounds) {
             return;
         }
-        let movePiece = pieceMap.get(getPosition.stringPosition)!;
+        let movePiece = pieceMap.get(getPosition.string)!;
         if (!(movePiece)) {
             return;
         }
         setPieceMap(rules.populateValidMoves(turn, pieceMap));
+        const revertPieceMap = new Map<string, Piece>(pieceMap);
         const validMove = rules.canMovePiece(getPosition, cursorP, pieceMap);
+        
         if (validMove) {
             movePiece.position = cursorP;
-            const isCapture = pieceMap.has(cursorP.stringPosition);
-            const isCheck   = false;
-            const isAmbiguous = false;
+            const isCapture = pieceMap.has(cursorP.string);
             setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
+            const king: Piece = [...pieceMap.values()].find((p) => (p.type === PieceType.KING && p.color === movePiece.color))!
+            if (isCheck(pieceMap, king.position, turn)) {
+                console.log("king is at", king.position.string)
+                console.log("cannot allow check")
+                movePiece.position = getPosition;
+                setPieceMap(revertPieceMap);
+                activePiece.style.position = "relative";
+                activePiece.style.removeProperty("top");
+                activePiece.style.removeProperty("left");
+                console.log(pieceMap)
+                return;
+            };
+            console.log(pieceMap)
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
             pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
@@ -107,17 +122,18 @@ export default function Chessboard() {
     let board = [];
     let highlightMap = new Map<string, Position>();
     if (positionHighlight.samePosition(getPosition)) {
-        highlightMap = pieceMap.has(getPosition.stringPosition) ? 
-            pieceMap.get(getPosition.stringPosition)?.moveMap! : new Map<string, Position>();
+        highlightMap = pieceMap.has(getPosition.string) ? 
+            pieceMap.get(getPosition.string)?.moveMap! : new Map<string, Position>();
     } else {
         highlightMap = new Map<string, Position>();
     }
+    //console.log(pieceMap)
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;
-            const piece = pieceMap.get(new Position(i, j).stringPosition);
+            const piece = pieceMap.get(new Position(i, j).string);
             let image = piece ? piece.image : undefined;
-            const highlight = highlightMap.has(new Position(i, j).stringPosition) ? true : false;
+            const highlight = highlightMap.has(new Position(i, j).string) ? true : false;
             board.push(<Tile key={`${i}${j}`} image={image} number={number} highlight={highlight}/>)
         }
     }

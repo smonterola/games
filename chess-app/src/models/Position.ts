@@ -6,17 +6,11 @@ export class Position {
         this.x = x;
         this.y = y;
     }
-    samePosition(p: Position): boolean {
-        return this.x === p.x && this.y === p.y;
-    }
     get copyPosition(): Position {
         return new Position(this.x, this.y);
     }
-    get stringPosition(): string {
+    get string(): string {
         return `${xAxis[this.x]}${yAxis[this.y]}`;
-    }
-    addPositions(p: Position): Position {
-        return new Position(this.x + p.x, this.y + p.y);
     }
     get checkBounds(): boolean {
         return (
@@ -24,4 +18,11 @@ export class Position {
             this.y >= 0 && this.y <= 7
         )
     }
+    addPositions(p: Position): Position {
+        return new Position(this.x + p.x, this.y + p.y);
+    }
+    samePosition(p: Position): boolean {
+        return this.x === p.x && this.y === p.y;
+    }
+    
 }

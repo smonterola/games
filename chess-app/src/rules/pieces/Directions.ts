@@ -1,20 +1,21 @@
 import { Position } from "../../models";
+import { PieceType } from "../../Constants";
 
-export const rookDirections: Position[] = [
+const rookDirections: Position[] = [
     new Position( 1, 0), // 0pi/2
     new Position( 0, 1), // 1pi/2
     new Position(-1, 0), // 2pi/2
     new Position( 0,-1), // 3pi/2
 ];
 
-export const bishopDirections: Position[] = [
+const bishopDirections: Position[] = [
     new Position( 1, 1), //  pi/4
     new Position( 1,-1), // 3pi/4
     new Position(-1,-1), // 5pi/4
     new Position(-1, 1), // 7pi/4
 ];
 
-export const knightDirections: Position[] = [
+const knightDirections: Position[] = [
     new Position( 2, 1),
     new Position( 2,-1),
     new Position(-2,-1),
@@ -25,6 +26,20 @@ export const knightDirections: Position[] = [
     new Position(-1, 2),
 ]
 
-export const queenDirections: Position[] = 
+const queenDirections: Position[] = 
     rookDirections.concat(bishopDirections);
+
+const pawnAttacks: Position[] = [
+    new Position(-1, 1),
+    new Position( 1, 1),
+]
+
+export const pieceDirectons = new Map<PieceType, [Position[], boolean]>([
+    [PieceType.NGHT, [knightDirections, true]],
+    [PieceType.BSHP, [bishopDirections, false]],
+    [PieceType.ROOK, [rookDirections, false]],
+    [PieceType.QUEN, [queenDirections, false]],
+    [PieceType.KING, [queenDirections, true]],
+    [PieceType.PAWN, [pawnAttacks, true]],
+]);
 

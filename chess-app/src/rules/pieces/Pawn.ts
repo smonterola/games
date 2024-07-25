@@ -33,23 +33,23 @@ export const movePawn = (
     if (
         canCapture(upperLeft, pieceMap, color) ||
         (canCapture(left, pieceMap, color) && 
-        pieceMap.get(left.stringPosition)!.enPassant === true &&
-        pieceMap.get(left.stringPosition)!.type === PieceType.PAWN)
+        pieceMap.get(left.string)!.enPassant === true &&
+        pieceMap.get(left.string)!.type === PieceType.PAWN)
     ) {
-        pawnMap.set(upperLeft.stringPosition, upperLeft);
+        pawnMap.set(upperLeft.string, upperLeft);
     }
     if (
         canCapture(upperRight, pieceMap, color) ||
         (canCapture(right, pieceMap, color) && 
-        pieceMap.get(right.stringPosition)!.enPassant === true &&
-        pieceMap.get(right.stringPosition)!.type === PieceType.PAWN)
+        pieceMap.get(right.string)!.enPassant === true &&
+        pieceMap.get(right.string)!.type === PieceType.PAWN)
     ) {
-        pawnMap.set(upperRight.stringPosition, upperRight);
+        pawnMap.set(upperRight.string, upperRight);
     }
     if (!isOccupied(upOne, pieceMap)) {
-        pawnMap.set(upOne.stringPosition, upOne);
+        pawnMap.set(upOne.string, upOne);
         if (p.y === OG && !isOccupied(upTwo, pieceMap)) {
-            pawnMap.set(upTwo.stringPosition, upTwo);
+            pawnMap.set(upTwo.string, upTwo);
             enPassant = true;
         }
     }

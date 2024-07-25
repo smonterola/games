@@ -9,9 +9,8 @@ export default class Rules {
         p1: Position, //new
         pieceMap: Map<string, Piece>,
     ): boolean {
-        const p0String = p0.stringPosition
-        const validMove = pieceMap.has(p0String) ? 
-            pieceMap.get(p0String)!.moveMap?.has(p1.stringPosition) : false;
+        const validMove = pieceMap.has(p0.string) ? 
+            pieceMap.get(p0.string)!.moveMap?.has(p1.string) : false;
         return validMove ? true : false;
     }
 
