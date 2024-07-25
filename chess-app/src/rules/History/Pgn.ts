@@ -18,6 +18,6 @@ export function pgnToString(
     return (
         append + " " +
         (!isCapture ? piece.type : identifier + "x") +
-        piece.position.stringPosition()
+        piece.position.stringPosition
     );
 }

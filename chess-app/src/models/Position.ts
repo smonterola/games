@@ -9,16 +9,16 @@ export class Position {
     samePosition(p: Position): boolean {
         return this.x === p.x && this.y === p.y;
     }
-    copyPosition(): Position {
+    get copyPosition(): Position {
         return new Position(this.x, this.y);
     }
-    stringPosition(): string {
+    get stringPosition(): string {
         return `${xAxis[this.x]}${yAxis[this.y]}`;
     }
     addPositions(p: Position): Position {
         return new Position(this.x + p.x, this.y + p.y);
     }
-    checkBounds(): boolean {
+    get checkBounds(): boolean {
         return (
             this.x >= 0 && this.x <= 7 &&
             this.y >= 0 && this.y <= 7

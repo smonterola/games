@@ -20,7 +20,7 @@ for (let pieceColor of Object.values(PieceColor)) {
     for (let x = 0; x < 8; x++) {
         const pPiece: Position = new Position(x, y);
         const pPawn:  Position = new Position(x, y+POV);
-        initialPieces.set(pPiece.stringPosition(), new Piece(pPiece, rankOrder[x], color));
-        initialPieces.set(pPawn.stringPosition(),  new Piece(pPawn,  PieceType.PAWN,    color));
+        initialPieces.set(pPiece.stringPosition, new Piece(pPiece, rankOrder[x], color));
+        initialPieces.set(pPawn.stringPosition,  new Piece(pPawn,  PieceType.PAWN,    color));
     }
 }

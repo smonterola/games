@@ -17,21 +17,21 @@ export function castle(
     const rank = piece.color === PieceColor.WHITE ? 0 : 7;
     //must not allow castling through check
     const shortCastle = 
-        pieceMap.get(new Position(7, rank).stringPosition())?.hasMoved === false &&
+        pieceMap.get(new Position(7, rank).stringPosition)?.hasMoved === false &&
         !isOccupied(new Position(5, rank), pieceMap) &&
         !isOccupied(new Position(6, rank), pieceMap);
     const longCastle  = 
-        pieceMap.get(new Position(7, rank).stringPosition())?.hasMoved === false &&
+        pieceMap.get(new Position(7, rank).stringPosition)?.hasMoved === false &&
         !isOccupied(new Position(1, rank), pieceMap) &&
         !isOccupied(new Position(2, rank), pieceMap) &&
         !isOccupied(new Position(3, rank), pieceMap);
     if (shortCastle) {
         const shortKing = new Position(6, rank);
-        kingMap.set(shortKing.stringPosition(), shortKing);
+        kingMap.set(shortKing.stringPosition, shortKing);
     }
     if (longCastle) {
         const longKing = new Position(2, rank);
-        kingMap.set(longKing.stringPosition(), longKing);
+        kingMap.set(longKing.stringPosition, longKing);
     }
     return kingMap;
 }

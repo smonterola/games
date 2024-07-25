@@ -6,11 +6,11 @@ import { Piece, Position } from "../../models";
 import { 
     xAxis, yAxis, 
     TILESIZE, 
-    PieceColor, PieceType,
+    PieceColor,
 } from "../../Constants";
 import { initialPieces } from "./initChessboard";
 import { nextTurn, pgnToString } from "../../rules";
-import { canPromote, promotePawn, updatePieceMap } from "./updateChessboard";
+import { updatePieceMap } from "./updateChessboard";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -74,10 +74,10 @@ export default function Chessboard() {
         const x = Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE );
         const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE));
         const cursorP: Position = new Position(x, y);
-        if (!cursorP.checkBounds()) {
+        if (!cursorP.checkBounds) {
             return;
         }
-        let movePiece = pieceMap.get(getPosition.stringPosition())!;
+        let movePiece = pieceMap.get(getPosition.stringPosition)!;
         if (!(movePiece)) {
             return;
         }
@@ -85,7 +85,7 @@ export default function Chessboard() {
         const validMove = rules.canMovePiece(getPosition, cursorP, pieceMap);
         if (validMove) {
             movePiece.position = cursorP;
-            const isCapture = pieceMap.has(cursorP.stringPosition());
+            const isCapture = pieceMap.has(cursorP.stringPosition);
             const isCheck   = false;
             const isAmbiguous = false;
             setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
@@ -105,7 +105,7 @@ export default function Chessboard() {
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;
-            const piece = pieceMap.get(new Position(i, j).stringPosition())
+            const piece = pieceMap.get(new Position(i, j).stringPosition)
             let image = piece ? piece.image : undefined;
             board.push(<Tile key={`${i}${j}`} image={image} number={number}/>)
         }

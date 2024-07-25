@@ -10,19 +10,17 @@ export class Piece {
     position: Position;
     type: PieceType;
     color: PieceColor;
+    moveMap?: Map<string, Position>;
     enPassant?: boolean = false;
     hasMoved?: boolean = false; //for castling
-    moveMap?: Map<string, Position>;
     constructor(
         position: Position, 
         type: PieceType, 
         color: PieceColor,
-        //moveMap: Map<string, Position>
     ){
         this.image = `${parent}${pieceSet}/${color}${type}${file}`;
         this.position = position;
         this.type = type;
         this.color = color;
-        //this.moveMap = moveMap;
     } 
 }
