@@ -12,7 +12,7 @@ import {
 import { initialPieces } from "./initChessboard";
 import { nextTurn, pgnToString } from "../../rules";
 import { updatePieceMap } from "./updateChessboard";
-import { isCheck } from "../../rules/pieces/King";
+import { findKing, isCheck } from "../../rules/pieces/King";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -25,6 +25,9 @@ export default function Chessboard() {
     const [pieceMap, setPieceMap] = useState(new Map<string, Piece>(initialPieces));
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();
+
+    let whiteKingKey: string = "e1";
+    let blackKingKey: string = "e8";
     
     function grabPiece(e: React.MouseEvent) {
         const element = e.target as HTMLElement;
@@ -85,31 +88,26 @@ export default function Chessboard() {
             return;
         }
         setPieceMap(rules.populateValidMoves(turn, pieceMap));
-        //const revertPieceMap = new Map<string, Piece>(pieceMap);
         const validMove = rules.canMovePiece(getPosition, cursorP, pieceMap);
         
         if (validMove) {
             movePiece.position = cursorP;
             const isCapture = pieceMap.has(cursorP.string);
             const tempPieceMap = updatePieceMap(pieceMap, getPosition, cursorP, movePiece);
-            const king: Piece = 
-                [...tempPieceMap.values()].find(
-                    (p) => (p.type === PieceType.KING && p.color === movePiece.color)
-                )!
-            console.log(king)
+            whiteKingKey = findKing(tempPieceMap, whiteKingKey, PieceColor.WHITE);
+            blackKingKey = findKing(tempPieceMap, blackKingKey, PieceColor.BLACK);
+            const kingKey = movePiece.color === PieceColor.WHITE ? whiteKingKey : blackKingKey;
+            const king: Piece = tempPieceMap.get(kingKey)!;
             if (isCheck(tempPieceMap, king.position, turn)) {
                 console.log("king is at", king.position.string)
                 console.log("cannot allow check")
                 movePiece.position = getPosition;
-                //setPieceMap(revertPieceMap);
                 activePiece.style.position = "relative";
                 activePiece.style.removeProperty("top");
                 activePiece.style.removeProperty("left");
-                //console.log(pieceMap);
                 return;
             };
             setPieceMap(tempPieceMap);
-            //console.log(pieceMap)
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
             pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1

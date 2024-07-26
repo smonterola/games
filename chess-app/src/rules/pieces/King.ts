@@ -65,7 +65,7 @@ export function isCheck(
                             pieceMap.get(tempPosition.string)!.type + " on "
                             + tempPosition.string + " sees " + p.string
                         );
-                        console.log("found threat")
+                        console.log("found threat");
                         return true; 
                     }
                     else {
@@ -88,4 +88,21 @@ export function canPass(
     color: PieceColor,
 ){
     return !isOccupied(p, pieceMap) && !isCheck(pieceMap, p, color);
+}
+
+export function findKing(
+    pieceMap: Map<string, Piece>,
+    prevKey: string,
+    color: PieceColor,
+): string {
+    const piece: Piece = pieceMap.has(prevKey) ? 
+        pieceMap.get(prevKey)! : 
+        new Piece(new Position(-1, -1), PieceType.PAWN, color);
+    if (piece.type === PieceType.KING && piece.color === color) {
+        return prevKey;
+    }
+    const king: Piece = [...pieceMap.values()].find(
+        (p) => (p.type === PieceType.KING && p.color === color)
+    )!
+    return king.position.string;
 }

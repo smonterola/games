@@ -38,7 +38,6 @@ export function updatePieceMap(
     //MOVING PIECE TO NEW SQUARE
     movePiece.hasMoved = true;
     newPieceMap.set(p1.string, movePiece);
-    console.log(movePiece)
     console.log(evaluate(newPieceMap))
     return newPieceMap;
 }
@@ -54,22 +53,7 @@ export function promotePawn(
     pawn: Piece,
     pieceType: PieceType,
 ){
-    //const newPieceMap = pieceMap;
     const newPiece: Piece = new Piece(pawn.position, pieceType, pawn.color);
     newPiece.hasMoved = true;
     return newPiece;
 }
-/*
-export function castle(
-    pieceMap: Map<string, Piece>,
-    king: Piece,
-    rook: Piece,
-){
-    const newPieceMap = pieceMap;
-    newPieceMap.delete(king.position.string()); //deleting king
-    newPieceMap.delete(rook.position.string()); //deleting rook
-    [rook.position.x, king.position.x] = rook.position.x === 0 ? [3, 2] : [5, 6];
-    newPieceMap.set(rook.position.string(), rook);
-    newPieceMap.set(king.position.string(), king);
-    return newPieceMap;
-}*/
