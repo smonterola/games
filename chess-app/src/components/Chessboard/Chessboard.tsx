@@ -85,26 +85,31 @@ export default function Chessboard() {
             return;
         }
         setPieceMap(rules.populateValidMoves(turn, pieceMap));
-        const revertPieceMap = new Map<string, Piece>(pieceMap);
+        //const revertPieceMap = new Map<string, Piece>(pieceMap);
         const validMove = rules.canMovePiece(getPosition, cursorP, pieceMap);
         
         if (validMove) {
             movePiece.position = cursorP;
             const isCapture = pieceMap.has(cursorP.string);
-            setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
-            const king: Piece = [...pieceMap.values()].find((p) => (p.type === PieceType.KING && p.color === movePiece.color))!
-            if (isCheck(pieceMap, king.position, turn)) {
+            const tempPieceMap = updatePieceMap(pieceMap, getPosition, cursorP, movePiece);
+            const king: Piece = 
+                [...tempPieceMap.values()].find(
+                    (p) => (p.type === PieceType.KING && p.color === movePiece.color)
+                )!
+            console.log(king)
+            if (isCheck(tempPieceMap, king.position, turn)) {
                 console.log("king is at", king.position.string)
                 console.log("cannot allow check")
                 movePiece.position = getPosition;
-                setPieceMap(revertPieceMap);
+                //setPieceMap(revertPieceMap);
                 activePiece.style.position = "relative";
                 activePiece.style.removeProperty("top");
                 activePiece.style.removeProperty("left");
-                console.log(pieceMap)
+                //console.log(pieceMap);
                 return;
             };
-            console.log(pieceMap)
+            setPieceMap(tempPieceMap);
+            //console.log(pieceMap)
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
             pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1

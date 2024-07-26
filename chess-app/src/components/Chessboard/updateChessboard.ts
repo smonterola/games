@@ -10,7 +10,7 @@ export function updatePieceMap(
     movePiece: Piece,
 ){  
     //MAKING NEW COPY? maybe?
-    const newPieceMap = pieceMap; //might need to make copies if this is bugged
+    const newPieceMap = new Map<string, Piece>(pieceMap); //might need to make copies if this is bugged
     //DELETING WHERE PIECE WAS
     newPieceMap.delete(p0.string)
     //PAWN BEHAVIOR

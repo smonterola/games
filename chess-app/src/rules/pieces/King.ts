@@ -2,17 +2,18 @@ import { PieceColor, PieceType } from "../../Constants";
 import { Piece, Position } from "../../models";
 import { isOccupied, canCapture } from "../Movement/Status";
 import { pieceDirectons } from "./Directions";
-//cannot castle through check
-//needs features to not move into check
 //put checkmate and stalemate
-//other pieces cannot allow discovered check
 
 export function castle(
     pieceMap: Map<string, Piece>, 
     king: Piece, 
     kingMap: Map<string, Position>,
 ): Map<string, Position> {
-    if (king.type !== PieceType.KING || king.hasMoved === true) {
+    if (
+        king.type !== PieceType.KING || 
+        king.hasMoved === true || 
+        isCheck(pieceMap, king.position, king.color)
+    ) {
         return kingMap;
     }
     const rank = king.color === PieceColor.WHITE ? 0 : 7;
@@ -42,36 +43,32 @@ export function isCheck(
     p: Position,
     color: PieceColor
 ): boolean {
-    //console.log("SQUARE")
-    //console.log(p.string)
     for (const pieceType in PieceType) {
         const type: PieceType = PieceType[pieceType as keyof typeof PieceType];
         const [directions, once] = pieceDirectons.get(type)!;
-        //console.log(type)
         for (let direction of directions) {
-            let safe = false
-            if (type === PieceType.PAWN) {
-                const POV = color === PieceColor.WHITE ? 1 : -1
-                direction.y = direction.y * POV;
-            }
+            let safe = false;
             let tempPosition: Position = p.addPositions(direction);
+            if (type === PieceType.PAWN) {
+                const POV = color === PieceColor.WHITE ? 1 : -1;
+                tempPosition = p.addPositions(new Position(direction.x, POV));
+            }
             while (tempPosition.checkBounds && !safe) {
-            //    console.log(tempPosition.string)
                 if (!isOccupied(tempPosition, pieceMap)) {
                     tempPosition = tempPosition.addPositions(direction);
-            //        console.log("empty square");
                 } else {
                     if (
                         pieceMap.get(tempPosition.string)!.color !== color && 
                         pieceMap.get(tempPosition.string)!.type  === type
                     ){
-                        console.log(pieceMap.get(tempPosition.string)!.type + " on "
-                        + tempPosition.string + " sees " + p.string);
+                        console.log(
+                            pieceMap.get(tempPosition.string)!.type + " on "
+                            + tempPosition.string + " sees " + p.string
+                        );
                         console.log("found threat")
                         return true; 
                     }
                     else {
-            //            console.log("friendly found")
                         safe = true;
                         break;
                     }
