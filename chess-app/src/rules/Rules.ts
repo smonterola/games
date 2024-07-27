@@ -1,4 +1,4 @@
-import { Piece, Position } from "../models";
+import { Piece, PieceMap, Position } from "../models";
 import { PieceType, PieceColor } from "../Constants";
 import { mapMoves, movePawn } from "."
 import { castle } from "./pieces/King";
@@ -7,7 +7,7 @@ export default class Rules {
     canMovePiece(
         p0: Position, //old
         p1: Position, //new
-        pieceMap: Map<string, Piece>,
+        pieceMap: PieceMap,
     ): boolean {
         const validMove = pieceMap.has(p0.string) ? 
             pieceMap.get(p0.string)!.moveMap?.has(p1.string) : false;
@@ -16,7 +16,7 @@ export default class Rules {
 
     populateValidMoves(
         color: PieceColor,
-        pieceMap: Map<string, Piece>,
+        pieceMap: PieceMap,
     ): Map<string, Piece> {
         for (let piece of pieceMap.values()) {
             if (piece.color !== color) {

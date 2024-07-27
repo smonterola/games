@@ -22,20 +22,5 @@ let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight
 const minDimPx = (vw < vh) ? vw : vh;
 //const pxToVmin = 100 / minDimPx;
 export let TILESIZE = minDimPx / 8;
-
 document.documentElement.style.setProperty("--tileSize", `${TILESIZE}px`);
 //look at viewport | responsive design
-
-/*
-export interface Piece {
-    image: string;
-    position: Position;
-    type: PieceType;
-    color: PieceColor;
-}
-
-export interface Position {
-    x: number;
-    y: number;
-}
-*/

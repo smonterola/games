@@ -1,8 +1,9 @@
 import { PieceType, PieceColor } from "../Constants";
+import { PositionMap } from "./MapAliases";
 import { Position } from "./Position";
 
 const parent = "assets/images/";
-const pieceSet = "default";
+const pieceSet = "palmpals";
 const file = ".png"
 
 export class Piece {
@@ -10,7 +11,7 @@ export class Piece {
     position: Position;
     type: PieceType;
     color: PieceColor;
-    moveMap: Map<string, Position> = new Map<string, Position>();
+    moveMap: PositionMap = new Map();
     enPassant?: boolean = false;
     hasMoved?: boolean = false; //for castling
     constructor(

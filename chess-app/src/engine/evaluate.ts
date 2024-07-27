@@ -1,8 +1,8 @@
-import { Piece } from "../models";
+import { Piece, PieceMap } from "../models";
 import { PieceColor, PieceType } from "../Constants";
 import { endgame, middleGame, threshold, pairsMiddle, pairsEnd, pairsThres } from "./evalConstants";
 
-export function evaluate(pieceMap: Map<string, Piece>): number {
+export function evaluate(pieceMap: PieceMap): number {
     let evalutation: number = 0;
     const logPieceMap = new Map<string, number>(logPieces(pieceMap));
     let [pieceValues, pairValues] = [threshold, pairsThres];
@@ -30,7 +30,7 @@ export function evaluate(pieceMap: Map<string, Piece>): number {
     return Math.round(evalutation * 100) / 100;
 }
 
-export function logPieces(pieceMap: Map<string, Piece>): Map<string, number> {
+export function logPieces(pieceMap: PieceMap): Map<string, number> {
     let logPieces = new Map<string, number>();
     for (let piece of pieceMap.values()) {
         const key = piece.color + piece.type;

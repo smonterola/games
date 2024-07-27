@@ -1,14 +1,13 @@
 import { PieceColor, PieceType } from "../../Constants";
-import { Piece, Position } from "../../models";
-import { isOccupied, canCapture } from "../Movement/Status";
+import { Piece, PieceMap, Position, PositionMap } from "../../models";
 import { pieceDirectons } from "./Directions";
 //put checkmate and stalemate
 
 export function castle(
-    pieceMap: Map<string, Piece>, 
+    pieceMap: PieceMap, 
     king: Piece, 
-    kingMap: Map<string, Position>,
-): Map<string, Position> {
+    kingMap: PositionMap,
+): PositionMap {
     if (
         king.type !== PieceType.KING || 
         king.hasMoved === true || 
@@ -19,12 +18,12 @@ export function castle(
     const rank = king.color === PieceColor.WHITE ? 0 : 7;
     //must not allow castling through check
     const shortCastle = 
-        pieceMap.get(new Position(7, rank).string)?.hasMoved === false &&
+        pieceMap.get(new Position(7, rank).string)?.hasMoved === false && //kingside rook hasn't moved
         canPass(pieceMap, new Position(5, rank), king.color) &&
         canPass(pieceMap, new Position(6, rank), king.color);
     const longCastle  = 
-        pieceMap.get(new Position(7, rank).string)?.hasMoved === false &&
-        !isOccupied(new Position(1, rank), pieceMap) &&
+        pieceMap.get(new Position(7, rank).string)?.hasMoved === false && //queenside rook hasn't moved
+        !new Position(1, rank).isOccupied(pieceMap) &&
         canPass(pieceMap, new Position(2, rank), king.color) &&
         canPass(pieceMap, new Position(3, rank), king.color);
     if (shortCastle) {
@@ -39,7 +38,7 @@ export function castle(
 }
 
 export function isCheck(
-    pieceMap: Map<string, Piece>,
+    pieceMap: PieceMap,
     p: Position,
     color: PieceColor
 ): boolean {
@@ -54,7 +53,7 @@ export function isCheck(
                 tempPosition = p.addPositions(new Position(direction.x, POV));
             }
             while (tempPosition.checkBounds && !safe) {
-                if (!isOccupied(tempPosition, pieceMap)) {
+                if (!tempPosition.isOccupied(pieceMap)) {
                     tempPosition = tempPosition.addPositions(direction);
                 } else {
                     if (
@@ -83,15 +82,15 @@ export function isCheck(
 }
 
 export function canPass(
-    pieceMap: Map<string, Piece>,
+    pieceMap: PieceMap,
     p: Position,
     color: PieceColor,
 ){
-    return !isOccupied(p, pieceMap) && !isCheck(pieceMap, p, color);
+    return !p.isOccupied(pieceMap) && !isCheck(pieceMap, p, color);
 }
 
 export function findKing(
-    pieceMap: Map<string, Piece>,
+    pieceMap: PieceMap,
     prevKey: string,
     color: PieceColor,
 ): string {

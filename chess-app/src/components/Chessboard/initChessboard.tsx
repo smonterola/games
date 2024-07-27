@@ -1,7 +1,8 @@
 import { Piece, Position } from "../../models";
 import { PieceType, PieceColor } from "../../Constants";
-
-export const initialPieces = new Map<string, Piece>();//: Piece[] = [];
+import { PieceMap } from "../../models";
+export const initialMap: PieceMap = new Map();
+//new Map<string, Piece>();//: Piece[] = [];
 
 const rankOrder: PieceType[] = [
     PieceType.ROOK,
@@ -20,7 +21,7 @@ for (let pieceColor of Object.values(PieceColor)) {
     for (let x = 0; x < 8; x++) {
         const pPiece: Position = new Position(x, y);
         const pPawn:  Position = new Position(x, y+POV);
-        initialPieces.set(pPiece.string, new Piece(pPiece, rankOrder[x], color));
-        initialPieces.set(pPawn.string,  new Piece(pPawn,  PieceType.PAWN,    color));
+        initialMap.set(pPiece.string, new Piece(pPiece, rankOrder[x],  color));
+        initialMap.set(pPawn.string,  new Piece(pPawn, PieceType.PAWN, color));
     }
 }

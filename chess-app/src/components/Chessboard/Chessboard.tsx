@@ -3,16 +3,12 @@ import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
 import { Piece, Position } from "../../models";
-import { 
-    xAxis, yAxis, 
-    TILESIZE, 
-    PieceColor,
-    PieceType,
-} from "../../Constants";
-import { initialPieces } from "./initChessboard";
+import { xAxis, yAxis, TILESIZE, PieceColor} from "../../Constants";
 import { nextTurn, pgnToString } from "../../rules";
 import { updatePieceMap } from "./updateChessboard";
 import { findKing, isCheck } from "../../rules/pieces/King";
+import { PieceMap, PositionMap } from "../../models";
+import { initialMap } from "./initChessboard";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -22,7 +18,7 @@ let positionHighlight: Position = new Position(-1, -1);
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
     const [getPosition, setPosition] = useState<Position>(new Position(-1, -1));
-    const [pieceMap, setPieceMap] = useState(new Map<string, Piece>(initialPieces));
+    const [pieceMap, setPieceMap] = useState<PieceMap>(initialMap);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();
 
@@ -77,7 +73,7 @@ export default function Chessboard() {
             return;
         }
         setActivePiece(null); 
-        const x = Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE );
+        const x = Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE);
         const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - TILESIZE*8) / TILESIZE));
         const cursorP: Position = new Position(x, y);
         if (!cursorP.checkBounds) {
@@ -123,12 +119,10 @@ export default function Chessboard() {
     }
     //rendering board
     let board = [];
-    let highlightMap = new Map<string, Position>();
+    let highlightMap: PositionMap = new Map();
     if (positionHighlight.samePosition(getPosition)) {
         highlightMap = pieceMap.has(getPosition.string) ? 
-            pieceMap.get(getPosition.string)?.moveMap! : new Map<string, Position>();
-    } else {
-        highlightMap = new Map<string, Position>();
+            pieceMap.get(getPosition.string)?.moveMap! : new Map();
     }
     //console.log(pieceMap)
     for (let j = yAxis.length - 1; j >= 0; j--) {

@@ -1,4 +1,6 @@
-import { xAxis, yAxis } from "../Constants";
+import { PieceColor, xAxis, yAxis } from "../Constants";
+import { PieceMap } from "./MapAliases";
+import { Piece } from "./Piece";
 export class Position {
     x: number;
     y: number;
@@ -24,5 +26,13 @@ export class Position {
     samePosition(p: Position): boolean {
         return this.x === p.x && this.y === p.y;
     }
-    
+    isOccupied(pieceMap: PieceMap): boolean {
+        return pieceMap.has(this.string);
+    }
+    canCapture(pieceMap: PieceMap, color: PieceColor): boolean {
+        return (
+            this.isOccupied(pieceMap) && 
+            pieceMap.get(this.string)!.color !== color
+        );
+    }
 }
