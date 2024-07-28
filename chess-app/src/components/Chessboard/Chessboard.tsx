@@ -2,13 +2,13 @@ import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
-import { Piece, Position } from "../../models";
+import { Piece, Position, PieceMap, PositionMap } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor} from "../../Constants";
-import { nextTurn, pgnToString } from "../../rules";
+import { nextTurn, findKing, pgnToString } from "../../rules";
 import { updatePieceMap } from "./updateChessboard";
-import { findKing, isCheck } from "../../rules/pieces/King";
-import { PieceMap, PositionMap } from "../../models";
 import { initialMap } from "./initChessboard";
+import { evaluate } from "../../engine/evaluate";
+import { deepClonePMap } from "../../rules/History/Clone";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -83,33 +83,25 @@ export default function Chessboard() {
         if (!(movePiece)) {
             return;
         }
-        setPieceMap(rules.populateValidMoves(turn, pieceMap));
+        whiteKingKey = findKing(pieceMap, whiteKingKey, PieceColor.WHITE);
+        blackKingKey = findKing(pieceMap, blackKingKey, PieceColor.BLACK);
+        const kingKey = movePiece.color === PieceColor.WHITE ? whiteKingKey : blackKingKey;
+        const king: Piece = pieceMap.get(kingKey)!;
+        setPieceMap(rules.populateValidMoves(pieceMap, turn, king));
         const validMove = rules.canMovePiece(getPosition, cursorP, pieceMap);
         
         if (validMove) {
             movePiece.position = cursorP;
             const isCapture = pieceMap.has(cursorP.string);
-            const tempPieceMap = updatePieceMap(pieceMap, getPosition, cursorP, movePiece);
-            whiteKingKey = findKing(tempPieceMap, whiteKingKey, PieceColor.WHITE);
-            blackKingKey = findKing(tempPieceMap, blackKingKey, PieceColor.BLACK);
-            const kingKey = movePiece.color === PieceColor.WHITE ? whiteKingKey : blackKingKey;
-            const king: Piece = tempPieceMap.get(kingKey)!;
-            if (isCheck(tempPieceMap, king.position, turn)) {
-                console.log("king is at", king.position.string)
-                console.log("cannot allow check")
-                movePiece.position = getPosition;
-                activePiece.style.position = "relative";
-                activePiece.style.removeProperty("top");
-                activePiece.style.removeProperty("left");
-                return;
-            };
-            setPieceMap(tempPieceMap);
+            setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
             pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
             console.log(pgn);
             turn = nextTurn(turn);
             positionHighlight = new Position(-1, -1);
+            console.log("eval:", evaluate(pieceMap));
+            console.log(pieceMap)
         } else {
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
@@ -124,7 +116,7 @@ export default function Chessboard() {
         highlightMap = pieceMap.has(getPosition.string) ? 
             pieceMap.get(getPosition.string)?.moveMap! : new Map();
     }
-    //console.log(pieceMap)
+    deepClonePMap(pieceMap);
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;

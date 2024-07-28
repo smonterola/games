@@ -11,17 +11,27 @@ export class Piece {
     position: Position;
     type: PieceType;
     color: PieceColor;
-    moveMap: PositionMap = new Map();
+    moveMap?: PositionMap;
     enPassant?: boolean = false;
     hasMoved?: boolean = false; //for castling
     constructor(
         position: Position, 
         type: PieceType, 
         color: PieceColor,
+        moveMap: PositionMap = new Map(),
     ){
         this.image = `${parent}${pieceSet}/${color}${type}${file}`;
         this.position = position;
         this.type = type;
         this.color = color;
+        this.moveMap = moveMap;
     } 
+    clone(): Piece {
+        return new Piece(
+            this.position,
+            this.type,
+            this.color,
+            this.moveMap,
+        );
+    }
 }

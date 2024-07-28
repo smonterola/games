@@ -1,6 +1,6 @@
 import { PieceColor, xAxis, yAxis } from "../Constants";
 import { PieceMap } from "./MapAliases";
-import { Piece } from "./Piece";
+
 export class Position {
     x: number;
     y: number;
@@ -34,5 +34,8 @@ export class Position {
             this.isOccupied(pieceMap) && 
             pieceMap.get(this.string)!.color !== color
         );
+    }
+    clone(): Position {
+        return new Position(this.x, this.y);
     }
 }

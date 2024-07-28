@@ -1,7 +1,9 @@
-import { Piece, PieceMap, Position } from "../models";
+import { Piece, PieceMap, Position, PositionMap } from "../models";
 import { PieceType, PieceColor } from "../Constants";
 import { mapMoves, movePawn } from "."
-import { castle } from "./pieces/King";
+import { castle, isCheck } from "./pieces/King";
+import { updatePieceMap } from "../components/Chessboard/updateChessboard";
+import { evaluate } from "../engine/evaluate";
 
 export default class Rules {
     canMovePiece(
@@ -15,23 +17,61 @@ export default class Rules {
     }
 
     populateValidMoves(
-        color: PieceColor,
         pieceMap: PieceMap,
-    ): Map<string, Piece> {
+        color: PieceColor,
+        king: Piece,
+    ): PieceMap {
         for (let piece of pieceMap.values()) {
             if (piece.color !== color) {
                 piece.moveMap?.clear();
                 continue;
             }
             if (piece.type === PieceType.PAWN) { 
-                [piece.moveMap, piece.enPassant] = movePawn(piece.position, color, pieceMap);
+                [piece.moveMap, piece.enPassant] = movePawn(pieceMap, piece.position, color);
             } else if (piece.type === PieceType.KING) {
                 piece.moveMap = mapMoves(pieceMap, piece);
                 piece.moveMap = castle(pieceMap, piece, piece.moveMap);
             } else {
                 piece.moveMap = mapMoves(pieceMap, piece);
             }
+            piece.moveMap = new Map(this.filterMoves(pieceMap, piece, king));
         }
         return pieceMap;
+    }
+
+    verifyMove(
+        pieceMap: PieceMap,
+        piece: Piece,
+        destination: Position,
+        king: Piece,
+    ): [boolean, PieceMap, number] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
+        const newPieceMap = new Map(updatePieceMap(
+            pieceMap, 
+            piece.position, 
+            destination,
+            piece,
+        ));
+        const pKing = (piece.type !== PieceType.KING) ? king.position : destination;
+        if (isCheck(newPieceMap, pKing, piece.color)) {
+            return [false, new Map(), 0];
+        }
+        return [true, newPieceMap, evaluate(newPieceMap)];
+    }
+
+    filterMoves(
+        pieceMap: PieceMap,
+        piece: Piece,
+        king: Piece,
+    ): PositionMap {
+        for (const destination of piece.moveMap!.values()) {
+            const [isLegal, newPieceMap, evaluation] = this.verifyMove(
+                pieceMap, 
+                piece, 
+                destination,
+                king
+            );
+            if (!isLegal) piece.moveMap?.delete(destination.string);
+        }
+        return piece.moveMap ? piece.moveMap : new Map();
     }
 }

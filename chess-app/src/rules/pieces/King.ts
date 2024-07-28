@@ -13,6 +13,8 @@ export function castle(
         king.hasMoved === true || 
         isCheck(pieceMap, king.position, king.color)
     ) {
+        console.log("cannot castle while in check")
+        console.log(king.hasMoved)
         return kingMap;
     }
     const rank = king.color === PieceColor.WHITE ? 0 : 7;
@@ -60,11 +62,11 @@ export function isCheck(
                         pieceMap.get(tempPosition.string)!.color !== color && 
                         pieceMap.get(tempPosition.string)!.type  === type
                     ){
-                        console.log(
+                        /*console.log(
                             pieceMap.get(tempPosition.string)!.type + " on "
                             + tempPosition.string + " sees " + p.string
                         );
-                        console.log("found threat");
+                        console.log("found threat");*/
                         return true; 
                     }
                     else {

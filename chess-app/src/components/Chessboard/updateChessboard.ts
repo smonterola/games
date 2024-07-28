@@ -1,6 +1,6 @@
 import { PieceType } from "../../Constants";
-import { evaluate } from "../../engine/evaluate";
 import { Piece, PieceMap, Position } from "../../models";
+import { deepClonePMap } from "../../rules/History/Clone";
 
 //consider making this a class
 export function updatePieceMap(
@@ -9,10 +9,11 @@ export function updatePieceMap(
     p1: Position, 
     movePiece: Piece,
 ){  
+    //DEEP CLONING
     //MAKING NEW COPY? maybe?
-    const newPieceMap = pieceMap; //might need to make copies if this is bugged
+    const newPieceMap: PieceMap = deepClonePMap(pieceMap); //might need to make copies if this is bugged
     //DELETING WHERE PIECE WAS
-    newPieceMap.delete(p0.string)
+    newPieceMap.delete(p0.string);
     //PAWN BEHAVIOR
     if (movePiece.type === PieceType.PAWN) {
         //EN PASSANT CHECKER
@@ -31,14 +32,16 @@ export function updatePieceMap(
         const shift: number = Math.sign(p1.x - p0.x);
         const rookX = shift === 1 ? 7 : 0; 
         const moveRook: Piece = pieceMap.get(new Position(rookX, p0.y).string)!;
+        //console.log(moveRook)
         newPieceMap.delete(moveRook.position.string)
         moveRook.position.x = p1.x - shift;
         newPieceMap.set(moveRook.position.string, moveRook);
+        //console.log(moveRook)
     }
     //MOVING PIECE TO NEW SQUARE
     movePiece.hasMoved = true;
     newPieceMap.set(p1.string, movePiece);
-    console.log(evaluate(newPieceMap))
+    //console.log(evaluate(newPieceMap))
     return newPieceMap;
 }
 export function canPromote(

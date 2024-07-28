@@ -52,8 +52,8 @@
     position: absolute;
     content: " ";
     background-position: center;
-    width: calc(var(--tileSize)*0.95);
-    height: calc(var(--tileSize)*0.95);
+    width: calc(var(--tileSize)*0.88);
+    height: calc(var(--tileSize)*0.88);
     border: calc(var(--tileSize)*0.05) solid rgba(0, 0, 0, 0.4);
     border-radius: 50%;
 }

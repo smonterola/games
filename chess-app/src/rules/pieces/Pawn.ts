@@ -2,9 +2,9 @@ import { Piece, PieceMap, Position, PositionMap } from "../../models";
 import { PieceColor, PieceType } from "../../Constants";
 
 export const movePawn = (
+    pieceMap: PieceMap,
     p: Position,
     color: PieceColor,
-    pieceMap: PieceMap,
 ): [PositionMap, boolean] => {
     let pawnMap: PositionMap = new Map();
     let enPassant = false;
