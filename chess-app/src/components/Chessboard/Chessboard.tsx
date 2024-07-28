@@ -8,7 +8,7 @@ import { nextTurn, findKing, pgnToString } from "../../rules";
 import { updatePieceMap } from "./updateChessboard";
 import { initialMap } from "./initChessboard";
 import { evaluate } from "../../engine/evaluate";
-import { deepClonePMap } from "../../rules/History/Clone";
+import { deepClone } from "../../rules/History/Clone";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -38,7 +38,7 @@ export default function Chessboard() {
         element.style.position = "absolute";
         element.style.left = `${x}px`;
         element.style.top = `${y}px`;
-
+        
         setActivePiece(element);
     }
     
@@ -87,9 +87,11 @@ export default function Chessboard() {
         blackKingKey = findKing(pieceMap, blackKingKey, PieceColor.BLACK);
         const kingKey = movePiece.color === PieceColor.WHITE ? whiteKingKey : blackKingKey;
         const king: Piece = pieceMap.get(kingKey)!;
-        setPieceMap(rules.populateValidMoves(pieceMap, turn, king));
-        const validMove = rules.canMovePiece(getPosition, cursorP, pieceMap);
-        
+        const newPieceMap = rules.populateValidMoves(pieceMap, turn, king);
+        const validMove = rules.canMovePiece(getPosition, cursorP, newPieceMap);
+        setPieceMap(newPieceMap);
+        console.log(pieceMap);
+        console.log(movePiece.moveMap)
         if (validMove) {
             movePiece.position = cursorP;
             const isCapture = pieceMap.has(cursorP.string);
@@ -103,6 +105,7 @@ export default function Chessboard() {
             console.log("eval:", evaluate(pieceMap));
             console.log(pieceMap)
         } else {
+            console.log(getPosition.string, "to", cursorP.string, "is invalid")
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
             activePiece.style.removeProperty("left");
@@ -116,7 +119,6 @@ export default function Chessboard() {
         highlightMap = pieceMap.has(getPosition.string) ? 
             pieceMap.get(getPosition.string)?.moveMap! : new Map();
     }
-    deepClonePMap(pieceMap);
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;

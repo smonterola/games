@@ -1,6 +1,6 @@
 import { PieceType } from "../../Constants";
 import { Piece, PieceMap, Position } from "../../models";
-import { deepClonePMap } from "../../rules/History/Clone";
+import { deepClone } from "../../rules/History/Clone";
 
 //consider making this a class
 export function updatePieceMap(
@@ -11,7 +11,7 @@ export function updatePieceMap(
 ){  
     //DEEP CLONING
     //MAKING NEW COPY? maybe?
-    const newPieceMap: PieceMap = deepClonePMap(pieceMap); //might need to make copies if this is bugged
+    const newPieceMap: PieceMap = deepClone(pieceMap); //might need to make copies if this is bugged
     //DELETING WHERE PIECE WAS
     newPieceMap.delete(p0.string);
     //PAWN BEHAVIOR
@@ -39,7 +39,9 @@ export function updatePieceMap(
         //console.log(moveRook)
     }
     //MOVING PIECE TO NEW SQUARE
-    movePiece.hasMoved = true;
+    if (!p0.samePosition(p1)) {
+        //movePiece.hasMoved = true;
+    }
     newPieceMap.set(p1.string, movePiece);
     //console.log(evaluate(newPieceMap))
     return newPieceMap;

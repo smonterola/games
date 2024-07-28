@@ -4,7 +4,7 @@ import { mapMoves, movePawn } from "."
 import { castle, isCheck } from "./pieces/King";
 import { updatePieceMap } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine/evaluate";
-
+import { deepClone } from "./History/Clone";
 export default class Rules {
     canMovePiece(
         p0: Position, //old
@@ -21,22 +21,23 @@ export default class Rules {
         color: PieceColor,
         king: Piece,
     ): PieceMap {
-        for (let piece of pieceMap.values()) {
+        const pMap = deepClone(pieceMap);
+        for (let piece of pMap.values()) {
             if (piece.color !== color) {
                 piece.moveMap?.clear();
                 continue;
             }
             if (piece.type === PieceType.PAWN) { 
-                [piece.moveMap, piece.enPassant] = movePawn(pieceMap, piece.position, color);
+                [piece.moveMap, piece.enPassant] = movePawn(pMap, piece.position, color);
             } else if (piece.type === PieceType.KING) {
-                piece.moveMap = mapMoves(pieceMap, piece);
-                piece.moveMap = castle(pieceMap, piece, piece.moveMap);
+                piece.moveMap = mapMoves(pMap, piece);
+                piece.moveMap = castle(pMap, piece, piece.moveMap);
             } else {
-                piece.moveMap = mapMoves(pieceMap, piece);
+                piece.moveMap = mapMoves(pMap, piece);
             }
-            piece.moveMap = new Map(this.filterMoves(pieceMap, piece, king));
+            piece.moveMap = new Map(this.filterMoves(pMap, piece, king));
         }
-        return pieceMap;
+        return pMap;
     }
 
     verifyMove(
@@ -46,7 +47,7 @@ export default class Rules {
         king: Piece,
     ): [boolean, PieceMap, number] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
         const newPieceMap = new Map(updatePieceMap(
-            pieceMap, 
+            deepClone(pieceMap), 
             piece.position, 
             destination,
             piece,
