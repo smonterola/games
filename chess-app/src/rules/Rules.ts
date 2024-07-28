@@ -4,7 +4,7 @@ import { mapMoves, movePawn } from "."
 import { castle, isCheck } from "./pieces/King";
 import { updatePieceMap } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine/evaluate";
-import { deepClone } from "./History/Clone";
+import { cloneMoves, deepClone } from "./History/Clone";
 export default class Rules {
     canMovePiece(
         p0: Position, //old
@@ -35,7 +35,7 @@ export default class Rules {
             } else {
                 piece.moveMap = mapMoves(pMap, piece);
             }
-            piece.moveMap = new Map(this.filterMoves(pMap, piece, king));
+            piece.moveMap = new Map(this.filterMoves(pMap, piece, king)); //this is what needs to be fixed
         }
         return pMap;
     }
@@ -47,7 +47,7 @@ export default class Rules {
         king: Piece,
     ): [boolean, PieceMap, number] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
         const newPieceMap = new Map(updatePieceMap(
-            deepClone(pieceMap), 
+            pieceMap, 
             piece.position, 
             destination,
             piece,
@@ -64,15 +64,17 @@ export default class Rules {
         piece: Piece,
         king: Piece,
     ): PositionMap {
-        for (const destination of piece.moveMap!.values()) {
+        const pMap: PieceMap = deepClone(pieceMap);
+        const moveMap = cloneMoves(piece.moveMap!)
+        for (const destination of moveMap.values()) {
             const [isLegal, newPieceMap, evaluation] = this.verifyMove(
-                pieceMap, 
+                pMap, 
                 piece, 
                 destination,
                 king
             );
-            if (!isLegal) piece.moveMap?.delete(destination.string);
+            if (!isLegal) moveMap.delete(destination.string);
         }
-        return piece.moveMap ? piece.moveMap : new Map();
+        return moveMap;
     }
 }

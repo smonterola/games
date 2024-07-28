@@ -5,11 +5,7 @@ export function deepClone(pieceMap: PieceMap): PieceMap {
     const clonePieceMap: PieceMap = new Map();
     for (const piece of pieceMap.values()) {
         const key: string = piece.position.string;
-        const clonePosition: Position = piece.position.clone();
-        const cloneMoveMap: PositionMap = new Map();
-        for (const destination of piece.moveMap!.values()) {
-            cloneMoveMap.set(destination.string, destination.clone());
-        }
+        const cloneMoveMap: PositionMap = cloneMoves(piece.moveMap!);
         const clonePiece: Piece = piece.clone();
         clonePiece.moveMap = new Map(cloneMoveMap);
         clonePiece.enPassant = piece.enPassant;
@@ -17,6 +13,14 @@ export function deepClone(pieceMap: PieceMap): PieceMap {
 
         clonePieceMap.set(key, clonePiece);
     }
-    //console.log("deep cloning")
+    console.log("deep cloning")
     return clonePieceMap;
+}
+
+export function cloneMoves(positionMap: PositionMap): PositionMap {
+    const cloneMoveMap: PositionMap = new Map();
+    for (const destination of positionMap.values()) {
+        cloneMoveMap.set(destination.string, destination.clone());
+    } 
+    return cloneMoveMap;
 }

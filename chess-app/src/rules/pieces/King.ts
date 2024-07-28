@@ -9,7 +9,7 @@ export function castle(
     king: Piece, 
     kingMap: PositionMap,
 ): PositionMap {
-    const pMap = deepClone(pieceMap);
+    const pMap = pieceMap;
     if (
         king.type !== PieceType.KING || 
         king.hasMoved === true || 

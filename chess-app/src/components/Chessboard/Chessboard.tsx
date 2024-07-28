@@ -94,6 +94,7 @@ export default function Chessboard() {
         console.log(movePiece.moveMap)
         if (validMove) {
             movePiece.position = cursorP;
+            movePiece.hasMoved = true;
             const isCapture = pieceMap.has(cursorP.string);
             setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;

@@ -39,7 +39,7 @@ export function updatePieceMap(
         //console.log(moveRook)
     }
     //MOVING PIECE TO NEW SQUARE
-    if (!p0.samePosition(p1)) {
+    if (!p0.clone().samePosition(p1.clone())) {
         //movePiece.hasMoved = true;
     }
     newPieceMap.set(p1.string, movePiece);
