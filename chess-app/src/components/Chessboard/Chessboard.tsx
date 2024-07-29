@@ -89,11 +89,11 @@ export default function Chessboard() {
         const newPieceMap = rules.populateValidMoves(pieceMap, turn, king);
         const validMove = rules.canMovePiece(getPosition, cursorP, newPieceMap);
         setPieceMap(newPieceMap);
-        console.log(pieceMap);
-        console.log(movePiece.moveMap)
+        //console.log(pieceMap);
+        //console.log(movePiece.moveMap)
         if (validMove) {
             movePiece.position = cursorP;
-            movePiece.hasMoved = true;
+            //movePiece.hasMoved = true;
             const isCapture = pieceMap.has(cursorP.string);
             setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
@@ -102,8 +102,8 @@ export default function Chessboard() {
             console.log(pgn);
             turn = nextTurn(turn);
             positionHighlight = new Position(-1, -1);
-            console.log("eval:", evaluate(pieceMap));
-            console.log(pieceMap)
+            //console.log("eval:", evaluate(pieceMap));
+            //console.log(pieceMap)
         } else {
             console.log(getPosition.string, "to", cursorP.string, "is invalid")
             activePiece.style.position = "relative";
