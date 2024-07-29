@@ -22,8 +22,9 @@ export default class Rules {
         king: Piece,
     ): PieceMap {
         const pMap: PieceMap = pieceMap;
-        const futureBoards: BoardMap = new Map();
+        const longBoards: BoardMap = new Map();
         for (let piece of pMap.values()) {
+            let destinationBoards: BoardMap = new Map();
             if (piece.color !== color) {
                 piece.moveMap?.clear();
                 continue;
@@ -36,7 +37,10 @@ export default class Rules {
             } else {
                 piece.moveMap = mapMoves(pMap, piece);
             }
-            piece.moveMap = this.filterMoves(pMap, piece, king); //this is what needs to be fixed
+            [piece.moveMap, destinationBoards] = this.filterMoves(pMap, piece, king); //this is what needs to be fixed
+            for (let [destination, [nextBoard, score]] of destinationBoards) {
+                longBoards.set(piece.position.string+destination, [nextBoard, score]);
+            }
         }
         return pMap;
     }
@@ -64,9 +68,10 @@ export default class Rules {
         pieceMap: PieceMap,
         piece: Piece,
         king: Piece,
-    ): PositionMap {
+    ): [PositionMap, BoardMap] {
         const pMap: PieceMap = deepClone(pieceMap);
         const moveMap = cloneMoves(piece.moveMap!);
+        const destinationBoards: BoardMap = new Map()
         for (const destination of moveMap.values()) {
             const [isLegal, nextPieceMap, evaluation] = this.verifyMove(
                 pMap, 
@@ -74,9 +79,15 @@ export default class Rules {
                 destination,
                 king
             );
-            if (!isLegal) moveMap.delete(destination.string);
+            console.log("checking if the map survived")
+            console.log(nextPieceMap)
+            if (!isLegal) {
+                moveMap.delete(destination.string);
+            } else {
+                destinationBoards.set(destination.string, [deepClone(nextPieceMap), evaluation])
+            }
         }
-        return moveMap;
+        return [moveMap, destinationBoards];
     }
 
     compileLegalMoves(

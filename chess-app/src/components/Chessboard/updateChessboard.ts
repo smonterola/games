@@ -30,8 +30,7 @@ export function updatePieceMap(
             if (canEnPassant) {
                 newPieceMap.delete(enPassantP.string);
             }
-        }
-        
+        }   
     }
     //KING BEHAVIOR => MOVING ROOK TO SUIT KING
     if (movePiece.type === PieceType.KING && Math.abs(p1.x - p0.x) === 2) {
