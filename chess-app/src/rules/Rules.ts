@@ -6,21 +6,19 @@ import { updatePieceMap } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine/evaluate";
 import { cloneMoves, deepClone } from "./History/Clone";
 export default class Rules {
-    canMovePiece(
-        p0: Position, //old
-        p1: Position, //new
-        pieceMap: PieceMap,
+    nextBoard(
+        nextBoards: BoardMap,
+        p0: Position,
+        p1: Position,
     ): boolean {
-        const validMove = pieceMap.has(p0.string) ? 
-            pieceMap.get(p0.string)!.moveMap?.has(p1.string) : false;
-        return validMove ? true : false;
+        return nextBoards.has(p0.string+p1.string);
     }
 
     populateValidMoves(
         pieceMap: PieceMap,
         color: PieceColor,
         king: Piece,
-    ): PieceMap {
+    ): [PieceMap, BoardMap] {
         const pMap: PieceMap = pieceMap;
         const longBoards: BoardMap = new Map();
         for (let piece of pMap.values()) {
@@ -42,7 +40,7 @@ export default class Rules {
                 longBoards.set(piece.position.string+destination, [nextBoard, score]);
             }
         }
-        return pMap;
+        return [pMap, longBoards];
     }
 
     verifyMove(
@@ -79,8 +77,8 @@ export default class Rules {
                 destination,
                 king
             );
-            console.log("checking if the map survived")
-            console.log(nextPieceMap)
+            //console.log("checking if the map survived")
+            //console.log(nextPieceMap)
             if (!isLegal) {
                 moveMap.delete(destination.string);
             } else {

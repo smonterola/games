@@ -86,16 +86,18 @@ export default function Chessboard() {
         blackKingKey = findKing(pieceMap, blackKingKey, PieceColor.BLACK);
         const kingKey = movePiece.color === PieceColor.WHITE ? whiteKingKey : blackKingKey;
         const king: Piece = pieceMap.get(kingKey)!;
-        const newPieceMap = rules.populateValidMoves(pieceMap, turn, king);
-        const validMove = rules.canMovePiece(getPosition, cursorP, newPieceMap);
+        const [newPieceMap, nextBoards] = rules.populateValidMoves(pieceMap, turn, king);
+        const validMove = rules.nextBoard(nextBoards, getPosition, cursorP);
         setPieceMap(newPieceMap);
-        //console.log(pieceMap);
+        console.log(nextBoards);
         //console.log(movePiece.moveMap)
         if (validMove) {
-            movePiece.position = cursorP;
+            const nextBoard: PieceMap = nextBoards.get(getPosition.string+cursorP.string)![0];
+            //movePiece.position = cursorP;
             //movePiece.hasMoved = true;
             const isCapture = pieceMap.has(cursorP.string);
-            setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
+            setPieceMap(nextBoard);
+            //setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
             const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
             pgn.set(moveCounter, pgnToString(movePiece, getPosition, append, isCapture));
             moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
