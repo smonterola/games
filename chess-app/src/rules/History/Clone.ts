@@ -1,4 +1,4 @@
-import { PieceMap, Position, PositionMap, Piece } from "../../models";
+import { Piece, PieceMap, PositionMap } from "../../models";
 
 //DEEP CLONING
 export function deepClone(pieceMap: PieceMap): PieceMap {
@@ -7,7 +7,7 @@ export function deepClone(pieceMap: PieceMap): PieceMap {
         const key: string = piece.position.string;
         const cloneMoveMap: PositionMap = cloneMoves(piece.moveMap!);
         const clonePiece: Piece = piece.clone();
-        clonePiece.moveMap = new Map(cloneMoveMap);
+        clonePiece.moveMap = cloneMoveMap;
         clonePiece.enPassant = piece.enPassant;
         clonePiece.hasMoved = piece.hasMoved;
 

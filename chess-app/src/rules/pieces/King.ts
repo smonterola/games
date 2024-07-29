@@ -1,6 +1,5 @@
 import { PieceColor, PieceType } from "../../Constants";
 import { Piece, PieceMap, Position, PositionMap } from "../../models";
-import { deepClone } from "../History/Clone";
 import { pieceDirectons } from "./Directions";
 //put checkmate and stalemate
 

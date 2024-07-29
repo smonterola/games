@@ -8,7 +8,6 @@ import { nextTurn, findKing, pgnToString } from "../../rules";
 import { updatePieceMap } from "./updateChessboard";
 import { initialMap } from "./initChessboard";
 import { evaluate } from "../../engine/evaluate";
-import { deepClone } from "../../rules/History/Clone";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();

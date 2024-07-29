@@ -1,4 +1,4 @@
-import { Piece, PieceMap, Position, PositionMap } from "../models";
+import { BoardMap, Piece, PieceMap, Position, PositionMap } from "../models";
 import { PieceType, PieceColor } from "../Constants";
 import { mapMoves, movePawn } from "."
 import { castle, isCheck } from "./pieces/King";
@@ -21,7 +21,8 @@ export default class Rules {
         color: PieceColor,
         king: Piece,
     ): PieceMap {
-        const pMap = deepClone(pieceMap);
+        const pMap: PieceMap = pieceMap;
+        const futureBoards: BoardMap = new Map();
         for (let piece of pMap.values()) {
             if (piece.color !== color) {
                 piece.moveMap?.clear();
@@ -35,7 +36,7 @@ export default class Rules {
             } else {
                 piece.moveMap = mapMoves(pMap, piece);
             }
-            piece.moveMap = new Map(this.filterMoves(pMap, piece, king)); //this is what needs to be fixed
+            piece.moveMap = this.filterMoves(pMap, piece, king); //this is what needs to be fixed
         }
         return pMap;
     }
@@ -46,17 +47,17 @@ export default class Rules {
         destination: Position,
         king: Piece,
     ): [boolean, PieceMap, number] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
-        const newPieceMap = new Map(updatePieceMap(
+        const nextPieceMap = new Map(updatePieceMap(
             pieceMap, 
             piece.position, 
             destination,
             piece,
         ));
         const pKing = (piece.type !== PieceType.KING) ? king.position : destination;
-        if (isCheck(newPieceMap, pKing, piece.color)) {
+        if (isCheck(nextPieceMap, pKing, piece.color)) {
             return [false, new Map(), 0];
         }
-        return [true, newPieceMap, evaluate(newPieceMap)];
+        return [true, nextPieceMap, evaluate(nextPieceMap)];
     }
 
     filterMoves(
@@ -65,9 +66,9 @@ export default class Rules {
         king: Piece,
     ): PositionMap {
         const pMap: PieceMap = deepClone(pieceMap);
-        const moveMap = cloneMoves(piece.moveMap!)
+        const moveMap = cloneMoves(piece.moveMap!);
         for (const destination of moveMap.values()) {
-            const [isLegal, newPieceMap, evaluation] = this.verifyMove(
+            const [isLegal, nextPieceMap, evaluation] = this.verifyMove(
                 pMap, 
                 piece, 
                 destination,
@@ -76,5 +77,13 @@ export default class Rules {
             if (!isLegal) moveMap.delete(destination.string);
         }
         return moveMap;
+    }
+
+    compileLegalMoves(
+        pieceMap: PieceMap,
+    ): Map<string, PieceMap> {
+        const futureBoards = new Map<string, PieceMap>();
+
+        return futureBoards;
     }
 }
