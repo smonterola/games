@@ -17,10 +17,12 @@ export function updatePieceMap(
     //PAWN BEHAVIOR
     if (movePiece.type === PieceType.PAWN) {
         //EN PASSANT CHECKER
-        const clearPosition = //enPassant checker
-            (movePiece.type === PieceType.PAWN && !newPieceMap.has(p1.string)) ? 
-            new Position(p1.x, p0.y) : p1;
-        newPieceMap.delete(clearPosition.string);
+        const enPassantP = new Position(p1.x, p0.y)
+        const canEnPassant = newPieceMap.get(enPassantP.string)?.enPassant === true
+        if (canEnPassant) {
+            console.log(newPieceMap.get(enPassantP.string))
+            newPieceMap.delete(enPassantP.string);
+        }
         //CHECKING FOR PROMOTION
         if (canPromote(movePiece)) {
             movePiece = promotePawn(movePiece, PieceType.QUEN);
@@ -43,7 +45,7 @@ export function updatePieceMap(
         //movePiece.hasMoved = true;
     }
     newPieceMap.set(p1.string, movePiece);
-    //console.log(evaluate(newPieceMap))
+    //console.log(newPieceMap)
     return newPieceMap;
 }
 export function canPromote(

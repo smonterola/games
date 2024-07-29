@@ -13,7 +13,7 @@ export function deepClone(pieceMap: PieceMap): PieceMap {
 
         clonePieceMap.set(key, clonePiece);
     }
-    console.log("deep cloning")
+    //console.log("deep cloning")
     return clonePieceMap;
 }
 

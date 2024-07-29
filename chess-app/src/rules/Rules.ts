@@ -47,12 +47,12 @@ export default class Rules {
         destination: Position,
         king: Piece,
     ): [boolean, PieceMap, number] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
-        const nextPieceMap = new Map(updatePieceMap(
+        const nextPieceMap = updatePieceMap(
             pieceMap, 
             piece.position, 
             destination,
             piece,
-        ));
+        );
         const pKing = (piece.type !== PieceType.KING) ? king.position : destination;
         if (isCheck(nextPieceMap, pKing, piece.color)) {
             return [false, new Map(), 0];
