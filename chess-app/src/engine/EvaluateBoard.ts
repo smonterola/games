@@ -18,11 +18,14 @@ export function evaluate(pieceMap: PieceMap): number {
         for (const pieceType of Object.values(PieceType)) {
             const key = pieceColor + pieceType;
             const pieceCount = logPieceMap.has(key) ? 
-                logPieceMap.get(key)! : 0; 
+                logPieceMap.get(key)! : 
+                0; 
             const pieceValue = pieceValues.has(pieceType) ? 
-                pieceValues.get(pieceType)! * pieceCount : 0;
+                pieceValues.get(pieceType)! * pieceCount : 
+                0;
             const pairValue = (pairValues.has(pieceType) && pieceCount > 0) ? 
-                pairValues.get(pieceType)! * (pieceCount-1) : 0;
+                pairValues.get(pieceType)! * (pieceCount-1) : 
+                0;
             pieceScore += pieceValue + pairValue;
         }
         evalutation += pieceScore * POV;
@@ -31,11 +34,10 @@ export function evaluate(pieceMap: PieceMap): number {
 }
 
 export function logPieces(pieceMap: PieceMap): Map<string, number> {
-    let logPieces: PieceCount = new Map();
+    const logPieces: PieceCount = new Map();
     for (let piece of pieceMap.values()) {
         const key = piece.color + piece.type;
-        const count = 
-            logPieces.has(key) ?
+        const count = logPieces.has(key) ?
             logPieces.get(key) :
             0; 
         logPieces.set(key, count! + 1);

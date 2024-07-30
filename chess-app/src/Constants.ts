@@ -15,12 +15,19 @@ export enum PieceColor {
     BLACK = "b",
 }
 
+export enum GameState {
+    MIDDLEGAME = "Middlegame",
+    THRESHOLD = "Threshold",
+    ENDGAME = "Endgame",
+    CHECKMATE = "Checkmate",
+    STALEMATE = "Stalemate",
+    CHECK = "Check",
+    PLAY = "Play",
+}
 //["", "B", "N", "R", "Q", "K", "+", "#", "$", "O-O", "O-O-O"]
-
-let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
 const minDimPx = (vw < vh) ? vw : vh;
-export let TILESIZE = minDimPx / 8;
+export const TILESIZE = minDimPx / 8;
 document.documentElement.style.setProperty("--tileSize", `${TILESIZE}px`);
-//look at viewport | responsive design
 

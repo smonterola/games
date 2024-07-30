@@ -1,7 +1,6 @@
 import { PieceColor, PieceType } from "../../Constants";
 import { Piece, PieceMap, Position, PositionMap } from "../../models";
 import { pieceDirectons } from "./Directions";
-//put checkmate and stalemate
 
 export function castle(
     pieceMap: PieceMap, 
@@ -13,22 +12,21 @@ export function castle(
         king.type !== PieceType.KING || 
         king.hasMoved === true || 
         isCheck(pMap, king.position, king.color)
-    ) {
-        //console.log("king has moved")
-        //console.log(king.hasMoved)
+    ){
         return kingMap;
     }
     const rank = king.color === PieceColor.WHITE ? 0 : 7;
-    //must not allow castling through check
-    const shortCastle = 
+    const shortCastle: boolean = (
         pMap.get(new Position(7, rank).string)?.hasMoved === false && //kingside rook hasn't moved
         canPass(pMap, new Position(5, rank), king.color) &&
-        canPass(pMap, new Position(6, rank), king.color);
-    const longCastle  = 
+        canPass(pMap, new Position(6, rank), king.color)
+    );
+    const longCastle: boolean = ( 
         pMap.get(new Position(7, rank).string)?.hasMoved === false && //queenside rook hasn't moved
         !new Position(1, rank).isOccupied(pMap) &&
         canPass(pMap, new Position(2, rank), king.color) &&
-        canPass(pMap, new Position(3, rank), king.color);
+        canPass(pMap, new Position(3, rank), king.color)
+    );
     if (shortCastle) {
         const shortKing = new Position(6, rank);
         kingMap.set(shortKing.string, shortKing);
@@ -63,11 +61,6 @@ export function isCheck(
                         pieceMap.get(tempPosition.string)!.color !== color && 
                         pieceMap.get(tempPosition.string)!.type  === type
                     ){
-                        /*console.log(
-                            pieceMap.get(tempPosition.string)!.type + " on "
-                            + tempPosition.string + " sees " + p.string
-                        );
-                        console.log("found threat");*/
                         return true; 
                     }
                     else {
@@ -88,7 +81,7 @@ export function canPass(
     pieceMap: PieceMap,
     p: Position,
     color: PieceColor,
-){
+){  //this functions makes sure the king cannot castle through check
     return !p.isOccupied(pieceMap) && !isCheck(pieceMap, p, color);
 }
 
@@ -96,7 +89,7 @@ export function findKing(
     pieceMap: PieceMap,
     prevKey: string,
     color: PieceColor,
-): string {
+): string { //if the king is in the same spot, easy index. Otherwise, look through all the pieces for the king.
     const piece: Piece = pieceMap.has(prevKey) ? 
         pieceMap.get(prevKey)! : 
         new Piece(new Position(-1, -1), PieceType.PAWN, color);

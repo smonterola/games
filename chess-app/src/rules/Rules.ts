@@ -1,13 +1,13 @@
 import { BoardMap, Piece, PieceMap, Position, PositionMap } from "../models";
-import { PieceType, PieceColor } from "../Constants";
+import { PieceType, PieceColor, GameState } from "../Constants";
 import { mapMoves, movePawn } from "."
 import { castle, isCheck } from "./pieces/King";
 import { updatePieceMap } from "../components/Chessboard/updateChessboard";
-import { evaluate } from "../engine/evaluate";
 import { cloneMoves, deepClone } from "./History/Clone";
-import { GameState } from "../engine/evalConstants";
+import { evaluate } from "../engine";
+
 export default class Rules {
-    nextBoard(
+    canMove(
         nextBoards: BoardMap,
         p0: Position,
         p1: Position,
@@ -29,7 +29,8 @@ export default class Rules {
                 continue;
             }
             if (piece.type === PieceType.PAWN) { 
-                [piece.moveMap, piece.enPassant] = movePawn(pMap, piece.position, color);
+                piece.moveMap = movePawn(pMap, piece.position, color);
+                //console.log(piece.position.string, piece.enPassant)
             } else if (piece.type === PieceType.KING) {
                 piece.moveMap = mapMoves(pMap, piece);
                 piece.moveMap = castle(pMap, piece, piece.moveMap);
@@ -56,7 +57,10 @@ export default class Rules {
             destination,
             piece,
         );
-        const pKing = (piece.type !== PieceType.KING) ? king.position : destination;
+        const pKing = (piece.type !== PieceType.KING) ? 
+            king.position : 
+            destination;
+        
         if (isCheck(nextPieceMap, pKing, piece.color)) {
             return [false, new Map(), 0];
         }
@@ -78,12 +82,10 @@ export default class Rules {
                 destination,
                 king
             );
-            //console.log("checking if the map survived")
-            //console.log(nextPieceMap)
             if (!isLegal) {
                 moveMap.delete(destination.string);
             } else {
-                destinationBoards.set(destination.string, [deepClone(nextPieceMap), evaluation])
+                destinationBoards.set(destination.string, [(nextPieceMap), evaluation]);
             }
         }
         return [moveMap, destinationBoards];

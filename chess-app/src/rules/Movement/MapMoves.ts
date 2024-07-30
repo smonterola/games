@@ -13,15 +13,13 @@ export const mapMoves = (
             if (!tempPosition.isOccupied(pieceMap)) {
                 moveMap.set(tempPosition.string, tempPosition.copyPosition);
                 tempPosition = tempPosition.addPositions(direction);
+                if (!once) { //limiting knights and kings to only one move per direction
+                    continue; //if it is a piece that can move move in space, then continue and loop again
+                }
             } else if (tempPosition.canCapture(pieceMap, piece.color)) {
                 moveMap.set(tempPosition.string, tempPosition.copyPosition);
-                break;
-            } else {
-                break;
             }
-            if (once) { //limits kings and knights to only one move per direction
-                break; 
-            }
+            break; //loop only once unless specifically allowed to go again
         }
     }
     return moveMap;

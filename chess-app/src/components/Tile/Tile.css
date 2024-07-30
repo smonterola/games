@@ -1,6 +1,5 @@
 :root {
-    /*font-size: 10;*/
-    --tileSize: 100px /*119.875px/*calc(100vmin/8);*/
+    --tileSize: 100px; /*default value*/
 }
 
 .tile {
