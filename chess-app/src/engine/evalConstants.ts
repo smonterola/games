@@ -33,6 +33,7 @@ export enum GameState {
     ENDGAME,
     CHECKMATE,
     STALEMATE,
+    PLAY,
 }
 
 export const pairsMiddle = new Map<PieceType, number>([

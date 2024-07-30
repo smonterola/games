@@ -5,8 +5,9 @@ export function nextTurn(pieceColor: PieceColor): PieceColor {
     return (pieceColor === PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
 }
 export function pgnToString(
-    piece: Piece, 
+    piece: Piece,
     p0: Position,
+    p1: Position,
     append: String, 
     isCapture: boolean = false, 
     isCheck: boolean = false, 
@@ -18,6 +19,6 @@ export function pgnToString(
     return (
         append + " " +
         (!isCapture ? piece.type : identifier + "x") +
-        piece.position.string
+        p1.string
     );
 }

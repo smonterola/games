@@ -1,10 +1,10 @@
-import { Piece, PieceMap } from "../models";
+import { PieceCount, PieceMap } from "../models";
 import { PieceColor, PieceType } from "../Constants";
 import { endgame, middleGame, threshold, pairsMiddle, pairsEnd, pairsThres } from "./evalConstants";
 
 export function evaluate(pieceMap: PieceMap): number {
     let evalutation: number = 0;
-    const logPieceMap = new Map<string, number>(logPieces(pieceMap));
+    const logPieceMap: PieceCount = logPieces(pieceMap);
     let [pieceValues, pairValues] = [threshold, pairsThres];
     if (logPieceMap.get(PieceColor.WHITE + PieceType.QUEN) === 
         logPieceMap.get(PieceColor.BLACK + PieceType.QUEN)
@@ -31,7 +31,7 @@ export function evaluate(pieceMap: PieceMap): number {
 }
 
 export function logPieces(pieceMap: PieceMap): Map<string, number> {
-    let logPieces = new Map<string, number>();
+    let logPieces: PieceCount = new Map();
     for (let piece of pieceMap.values()) {
         const key = piece.color + piece.type;
         const count = 

@@ -5,6 +5,7 @@ import { castle, isCheck } from "./pieces/King";
 import { updatePieceMap } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine/evaluate";
 import { cloneMoves, deepClone } from "./History/Clone";
+import { GameState } from "../engine/evalConstants";
 export default class Rules {
     nextBoard(
         nextBoards: BoardMap,
@@ -88,11 +89,16 @@ export default class Rules {
         return [moveMap, destinationBoards];
     }
 
-    compileLegalMoves(
+    getStatus(
+        futures: BoardMap,
         pieceMap: PieceMap,
-    ): Map<string, PieceMap> {
-        const futureBoards = new Map<string, PieceMap>();
-
-        return futureBoards;
+        king: Piece,
+    ): GameState {
+        if (futures.size === 0) {
+            const result: GameState = isCheck(pieceMap, king.position, king.color) ? GameState.CHECKMATE : GameState.STALEMATE;
+            console.log(result);
+            return result;
+        }
+        return GameState.PLAY;
     }
 }

@@ -14,8 +14,8 @@ export function castle(
         king.hasMoved === true || 
         isCheck(pMap, king.position, king.color)
     ) {
-        console.log("king has moved")
-        console.log(king.hasMoved)
+        //console.log("king has moved")
+        //console.log(king.hasMoved)
         return kingMap;
     }
     const rank = king.color === PieceColor.WHITE ? 0 : 7;
