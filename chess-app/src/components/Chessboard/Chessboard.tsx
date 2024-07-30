@@ -112,6 +112,7 @@ export default function Chessboard() {
         if (status === GameState.CHECKMATE || status === GameState.STALEMATE) {
             return;
         }
+        console.log(newBoards)
         setBoards(newBoards);
     }
     //rendering board

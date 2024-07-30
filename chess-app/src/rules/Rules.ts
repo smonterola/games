@@ -30,7 +30,6 @@ export default class Rules {
             }
             if (piece.type === PieceType.PAWN) { 
                 piece.moveMap = movePawn(pMap, piece.position, color);
-                //console.log(piece.position.string, piece.enPassant)
             } else if (piece.type === PieceType.KING) {
                 piece.moveMap = mapMoves(pMap, piece);
                 piece.moveMap = castle(pMap, piece, piece.moveMap);

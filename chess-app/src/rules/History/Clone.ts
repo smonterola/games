@@ -8,7 +8,7 @@ export function deepClone(pieceMap: PieceMap): PieceMap {
         const cloneMoveMap: PositionMap = cloneMoves(piece.moveMap!);
         const clonePiece: Piece = piece.clone();
         clonePiece.moveMap = cloneMoveMap;
-        clonePiece.enPassant = piece.enPassant;
+        clonePiece.enPassant = false; //piece.enPassant;
         clonePiece.hasMoved = piece.hasMoved;
 
         clonePieceMap.set(key, clonePiece);

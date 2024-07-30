@@ -9,33 +9,28 @@ export function updatePieceMap(
     p1: Position, 
     piece: Piece,
 ){  
+    const newPieceMap: PieceMap = deepClone(pieceMap);
+    
     let movePiece = piece.clone();
-    movePiece.hasMoved = piece.hasMoved;
-    movePiece.enPassant = piece.enPassant;
-
-    //DEEP CLONING
-    //MAKING NEW COPY? maybe?
-    const newPieceMap: PieceMap = deepClone(pieceMap); //might need to make copies if this is bugged
+    const doublePawn: boolean = movePiece.type === PieceType.PAWN && Math.abs(p1.y - p0.y) === 2;
     //DELETING WHERE PIECE WAS
     newPieceMap.delete(p0.string);
     //PAWN BEHAVIOR
     if (movePiece.type === PieceType.PAWN) {
         //CHECKING FOR PROMOTION
         if (p1.y === 0 || p1.y === 7) {
-            movePiece.type = PieceType.QUEN;
-            console.log("can promote")
-            //movePiece = promotePawn(movePiece.clone(), PieceType.QUEN);
+            movePiece = promotePawn(movePiece, PieceType.QUEN);
         } else {
             //EN PASSANT CHECKER
             const enPassantP = new Position(p1.x, p0.y);
-            const canEnPassant = newPieceMap.get(enPassantP.string)?.enPassant === true //&& newPieceMap.get(enPassantP.string)?.type === PieceType.PAWN
+            const canEnPassant = newPieceMap.get(enPassantP.string)?.type === PieceType.PAWN;
             if (canEnPassant) {
                 newPieceMap.delete(enPassantP.string);
             }
         }   
     }
     //KING BEHAVIOR => MOVING ROOK TO SUIT KING
-    if (movePiece.type === PieceType.KING && Math.abs(p1.x - p0.x) === 2) {
+    else if (movePiece.type === PieceType.KING && Math.abs(p1.x - p0.x) === 2) {
         const shift: number = Math.sign(p1.x - p0.x);
         const rookX = shift === 1 ? 7 : 0; 
         const moveRook: Piece = pieceMap.get(new Position(rookX, p0.y).string)!;
@@ -44,13 +39,12 @@ export function updatePieceMap(
         newPieceMap.set(moveRook.position.string, moveRook);
     }
     //MOVING PIECE TO NEW SQUARE
-    if (!p0.clone().samePosition(p1.clone())) {
+    if (!p0.samePosition(p1)) {
         movePiece.hasMoved = true;
+        movePiece.position = p1;
+        movePiece.enPassant = doublePawn;
     }
-    movePiece.position = p1;
     newPieceMap.set(p1.string, movePiece);
-    //console.log("update:")
-    //console.log(newPieceMap)
     return newPieceMap;
 }
 export function canPromote(

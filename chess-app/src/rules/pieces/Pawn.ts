@@ -5,11 +5,10 @@ export const movePawn = (
     pieceMap: PieceMap,
     p: Position,
     color: PieceColor,
-): [PositionMap, boolean] => {
+): PositionMap => {
     let pawnMap: PositionMap = new Map();
-    let enPassant = false;
-    const [POV, OG] = 
-        (color === PieceColor.WHITE) ? 
+    let double = false;
+    const [POV, OG] = color === PieceColor.WHITE ? 
         [ 1, 1] : 
         [-1, 6];
     const pawnDirections: Position[] = [
@@ -35,6 +34,8 @@ export const movePawn = (
         pieceMap.get(left.string)!.enPassant === true && //needs to be this order for indexing purposes
         pieceMap.get(left.string)!.type === PieceType.PAWN)
     ) {
+        //console.log("capture detected")
+        //console.log(double)
         pawnMap.set(upperLeft.string, upperLeft);
     }
     if (
@@ -49,8 +50,8 @@ export const movePawn = (
         pawnMap.set(upOne.string, upOne);
         if (p.y === OG && !upTwo.isOccupied(pieceMap)) {
             pawnMap.set(upTwo.string, upTwo);
-            enPassant = true;
+            //change needs to be in the future board states
         }
     }
-    return [pawnMap, enPassant];
+    return pawnMap;
 }
