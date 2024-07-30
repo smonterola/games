@@ -3,7 +3,6 @@ import { PieceType, PieceColor, GameState } from "../Constants";
 import { mapMoves, movePawn } from "."
 import { castle, isCheck } from "./pieces/King";
 import { updatePieceMap } from "../components/Chessboard/updateChessboard";
-import { cloneMoves, deepClone } from "./History/Clone";
 import { evaluate } from "../engine";
 
 export default class Rules {
@@ -71,8 +70,8 @@ export default class Rules {
         piece: Piece,
         king: Piece,
     ): [PositionMap, BoardMap] {
-        const pMap: PieceMap = deepClone(pieceMap);
-        const moveMap = cloneMoves(piece.moveMap!);
+        const pMap: PieceMap = (pieceMap);
+        const moveMap = (piece.moveMap!);
         const destinationBoards: BoardMap = new Map()
         for (const destination of moveMap.values()) {
             const [isLegal, nextPieceMap, evaluation] = this.verifyMove(
