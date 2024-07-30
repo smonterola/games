@@ -1,8 +1,9 @@
 import { Piece, Position } from "../../models";
 import { PieceType, PieceColor } from "../../Constants";
 import { PieceMap } from "../../models";
-export const initialMap: PieceMap = new Map();
-//new Map<string, Piece>();//: Piece[] = [];
+import Rules from "../../rules/Rules";
+
+const initialMap: PieceMap = new Map();
 
 const rankOrder: PieceType[] = [
     PieceType.ROOK,
@@ -25,3 +26,10 @@ for (let pieceColor of Object.values(PieceColor)) {
         initialMap.set(pPawn.string,  new Piece(pPawn, PieceType.PAWN, color));
     }
 }
+
+const rules = new Rules();
+export const [initialPieceMap, initialBoards] = rules.populateValidMoves(
+    initialMap, 
+    PieceColor.WHITE, 
+    initialMap.get("e1")!
+);

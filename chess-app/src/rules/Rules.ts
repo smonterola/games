@@ -93,12 +93,20 @@ export default class Rules {
         futures: BoardMap,
         pieceMap: PieceMap,
         king: Piece,
-    ): GameState {
-        if (futures.size === 0) {
-            const result: GameState = isCheck(pieceMap, king.position, king.color) ? GameState.CHECKMATE : GameState.STALEMATE;
-            console.log(result);
-            return result;
+    ): GameState { //uses prime number properties for logic
+        const check: number = isCheck(pieceMap, king.position, king.color) ? 
+            2 : 3;
+        const moves: number = futures.size === 0 ?
+            5 : 7;
+        switch(check * moves) {
+            case 10: 
+                return GameState.CHECKMATE;
+            case 14: 
+                return GameState.CHECK;
+            case 15: 
+                return GameState.STALEMATE;
+            default:
+                return GameState.PLAY;
         }
-        return GameState.PLAY;
     }
 }

@@ -28,12 +28,13 @@ export const endgame = new Map<PieceType, number>([
 ]);
 
 export enum GameState {
-    MIDDLEGAME,
-    THRESHOLD,
-    ENDGAME,
-    CHECKMATE,
-    STALEMATE,
-    PLAY,
+    MIDDLEGAME = "Middlegame",
+    THRESHOLD = "Threshold",
+    ENDGAME = "Endgame",
+    CHECKMATE = "Checkmate",
+    STALEMATE = "Stalemate",
+    CHECK = "Check",
+    PLAY = "Play",
 }
 
 export const pairsMiddle = new Map<PieceType, number>([

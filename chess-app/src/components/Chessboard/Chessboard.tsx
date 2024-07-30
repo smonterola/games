@@ -2,11 +2,11 @@ import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
-import { Piece, Position, PieceMap, PositionMap } from "../../models";
+import { Piece, Position, PieceMap, PositionMap, BoardMap } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor} from "../../Constants";
 import { nextTurn, findKing, pgnToString } from "../../rules";
 import { updatePieceMap } from "./updateChessboard";
-import { initialMap } from "./initChessboard";
+import { initialBoards, initialPieceMap } from "./initChessboard";
 import { evaluate } from "../../engine/evaluate";
 import { GameState } from "../../engine/evalConstants";
 
@@ -16,13 +16,14 @@ let turn: PieceColor = PieceColor.WHITE;
 let positionHighlight: Position = new Position(-1, -1);
 let whiteKingKey: string = "e1";
 let blackKingKey: string = "e8";
-const rules = new Rules();
-let [newPieceMap, nextBoards] = rules.populateValidMoves(initialMap, turn, initialMap.get(whiteKingKey)!);
 
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
     const [getPosition, setPosition] = useState<Position>(new Position(-1, -1));
-    const [pieceMap, setPieceMap] = useState<PieceMap>(newPieceMap);
+    const [pieceMap, setPieceMap] = useState<PieceMap>(initialPieceMap);
+    const [getBoards, setBoards] = useState<BoardMap>(initialBoards);
+    const [getNextPieceMap, setNextPieceMap] = useState<PieceMap>(pieceMap);
+    //const [getNextBoards, setNextBoards] = useState<BoardMap>(getBoards);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();    
 
@@ -63,9 +64,6 @@ export default function Chessboard() {
         } else if (y > maxY) { activePiece.style.top = `${maxY}px`; //setActivePiece(null); 
         } else               { activePiece.style.top = `${y}px`;
         }
-        //activePiece.style.left = `${x}px`;
-        //activePiece.style.top  = `${y}px`;
-        
     }
 
     function dropPiece(e: React.MouseEvent) {
@@ -84,43 +82,38 @@ export default function Chessboard() {
         if (!(movePiece)) {
             return;
         }
-        whiteKingKey = findKing(pieceMap, whiteKingKey, PieceColor.WHITE);
-        blackKingKey = findKing(pieceMap, blackKingKey, PieceColor.BLACK);
-        let [kingKey, nextKingKey] = movePiece.color === PieceColor.WHITE ? [whiteKingKey, blackKingKey] : [blackKingKey, whiteKingKey];
-        const king: Piece = pieceMap.get(kingKey)!;
-        const [newPieceMap, nextBoards] = rules.populateValidMoves(pieceMap, turn, king);
-        const validMove = rules.nextBoard(nextBoards, getPosition, cursorP);
-        setPieceMap(newPieceMap);
-        console.log(nextBoards);
-        //console.log(movePiece.moveMap)
-        if (validMove) {
-            const nextBoard: PieceMap = nextBoards.get(getPosition.string+cursorP.string)![0];
-            const isCapture = pieceMap.has(cursorP.string);
-            setPieceMap(nextBoard);
-            //setPieceMap(updatePieceMap(pieceMap, getPosition, cursorP, movePiece));
-            const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
-            pgn.set(moveCounter, pgnToString(movePiece, getPosition, cursorP, append, isCapture));
-            moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
-            console.log(pgn);
-            turn = nextTurn(turn);
-            positionHighlight = new Position(-1, -1);
-            //console.log("eval:", evaluate(pieceMap));
-            //console.log(pieceMap)
-        } else {
-            console.log(getPosition.string, "to", cursorP.string, "is invalid")
+        const validMove = rules.nextBoard(getBoards, getPosition, cursorP);
+    
+        if (!validMove) {
+            //console.log(getPosition.string, "to", cursorP.string, "is invalid")
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
             activePiece.style.removeProperty("left");
             positionHighlight = getPosition.copyPosition;
+            return; 
         }
-        //nextKingKey = findKing(pieceMap, nextKingKey, turn);
-        //const nextKing: Piece = pieceMap.get(nextKingKey)!;
-        //[newPieceMap, nextBoards] = rules.populateValidMoves(pieceMap, turn, nextKing);
-        const status: GameState = rules.getStatus(nextBoards, pieceMap, king)
-        //const status: GameState = rules.getStatus(nextBoards, pieceMap, nextKing);
-        if (status !== GameState.PLAY) {
-            console.log("CHECKMATE or STALEMATE");
+        const nextBoard: PieceMap = getBoards.get(getPosition.string+cursorP.string)![0];
+        const isCapture = pieceMap.has(cursorP.string);
+        setPieceMap(nextBoard);
+        const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
+        pgn.set(moveCounter, pgnToString(movePiece, getPosition, cursorP, append, isCapture));
+        moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
+        console.log(pgn);
+        turn = nextTurn(turn);
+        positionHighlight = new Position(-1, -1);
+        positionHighlight = getPosition.copyPosition;
+        whiteKingKey = findKing(pieceMap, whiteKingKey, PieceColor.WHITE);
+        blackKingKey = findKing(pieceMap, blackKingKey, PieceColor.BLACK);
+        const kingKey = movePiece.color === PieceColor.BLACK ? whiteKingKey : blackKingKey;
+        const king: Piece = pieceMap.get(kingKey)!;
+        const [newPieceMap, newBoards] = rules.populateValidMoves(nextBoard, turn, king);
+        const status: GameState = rules.getStatus(newBoards, newPieceMap, king);
+        console.log(status);
+        if (status === GameState.CHECKMATE || status === GameState.STALEMATE) {
+            return;
         }
+        setNextPieceMap(newPieceMap);
+        setBoards(newBoards);
     }
     //rendering board
     let board = [];
@@ -138,7 +131,6 @@ export default function Chessboard() {
             board.push(<Tile key={`${i}${j}`} image={image} number={number} highlight={highlight}/>)
         }
     }
-    //setPieceMap(newPieceMap);
     return (
         <div 
             onMouseMove={(e) => movePiece(e)}
