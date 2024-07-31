@@ -23,7 +23,12 @@ export function updatePieceMap(
         } else {
             //EN PASSANT CHECKER
             const enPassantP = new Position(p1.x, p0.y);
-            const canEnPassant = newPieceMap.get(enPassantP.string)?.type === PieceType.PAWN;
+            const pawn = newPieceMap.get(enPassantP.string); 
+            const canEnPassant = (
+                pawn?.type === PieceType.PAWN &&
+                pawn?.color !== movePiece.color && 
+                (p1.y === 4 || p1.y === 5)
+            );
             if (canEnPassant) {
                 newPieceMap.delete(enPassantP.string);
             }

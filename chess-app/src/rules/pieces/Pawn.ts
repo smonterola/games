@@ -29,7 +29,7 @@ export const movePawn = (
         p.addPositions(pawnDirections[i++]),
     ];
     if (
-        upperLeft.canCapture(pieceMap, color) ||
+        upperLeft.canCapture(pieceMap, color) || 
         (left.canCapture(pieceMap, color) && 
         pieceMap.get(left.string)!.enPassant === true && //needs to be this order for indexing purposes
         pieceMap.get(left.string)!.type === PieceType.PAWN)
