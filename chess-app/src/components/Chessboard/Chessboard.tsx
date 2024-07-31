@@ -6,7 +6,7 @@ import { Piece, Position, PieceMap, PositionMap, BoardMap } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor, GameState} from "../../Constants";
 import { nextTurn, findKing, pgnToString } from "../../rules";
 import { initialBoards, initialPieceMap } from "./initChessboard";
-import { doubleMoves, worstCase } from "../../engine";
+import { createDeque, doubleMoves, scoreMoves, worstCase } from "../../engine";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -117,8 +117,11 @@ export default function Chessboard() {
         setBoards(newBoards);
 
         //console.log(worstCase(newBoards, turn))
-        const depthTwo = doubleMoves(newBoards, nextTurn(turn)); 
-        console.log(depthTwo)
+        //const depthTwo = doubleMoves(newBoards, nextTurn(turn)); 
+        //console.log(depthTwo);
+        const lines = (createDeque(newBoards));
+        const newLines = scoreMoves(lines, newBoards, 2, turn, whiteKingKey, blackKingKey);
+        console.log(newLines)
     }
     //rendering board
     let board = [];

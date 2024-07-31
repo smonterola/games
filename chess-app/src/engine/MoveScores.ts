@@ -2,7 +2,10 @@ import { PieceColor } from "../Constants";
 import { Piece, BoardMap, PieceMap } from "../models";
 import { findKing, nextTurn } from "../rules";
 import Rules from "../rules/Rules";
+import { Deque } from "./Deque";
+
 type MovesScore = [string[], number];
+type Moves = string[];
 
 export function worstCase(boardMap: BoardMap, color: PieceColor): number {
     const POV: number = color === PieceColor.WHITE ? -1 : 1;
@@ -41,15 +44,99 @@ function boardsToScores(boardMap: BoardMap, color: PieceColor): MovesScore[] {
     return moveScore;
 }
 
+export function createDeque(boardMap: BoardMap): Deque {
+    let deque = new Deque;
+    for (const [move, [_, evaluation]] of boardMap) {
+        deque.pushBack([[move], 0, evaluation]);
+    }
+    return deque;
+}
+
 export function scoreMoves(
-    lines: MovesScore[],
+    lines: Deque,
     boardMap: BoardMap, 
     depth: number,
     turn: PieceColor,
     kingKey: string,
     nextKey: string,
-): MovesScore[]{
-    //const rules = Rules;
+): Deque {
+    const rules = new Rules;
+    if (depth <= 0) return lines;
+    while (1) {
+        const line = lines.popFront();
+        if (line === undefined) {
+            break;
+        }
+        const [moves, iteration, _score] = line;
+        if (iteration === depth) {
+            lines.pushFront(line);
+            break;
+        }
+        const move: string = moves[0];
+        if (!boardMap.has(move)) {
+            continue;
+        }
+        const board: PieceMap = boardMap.get(move)![0]; //making the next board
+        kingKey = findKing(board, kingKey, nextTurn(turn));
+        const king: Piece = board.get(kingKey)!;
+        const [_newPieceMap, nextBoardMap] = rules.populateValidMoves(board, nextTurn(turn), king);
+        const lines2: Deque = createDeque(nextBoardMap);
+        while(1) {
+            const line2 = lines2.popFront();
+            if (line2 === undefined) {
+                break;
+            }
+            const [moves2, iteration, score] = line2;
+            if (iteration === depth) {
+                lines2.pushFront(line2);
+                break;
+            }
+            const move2: string = moves2[0];
+            if (!nextBoardMap.has(move2)) {
+                continue;
+            }
+            const nextBoard: PieceMap = nextBoardMap.get(move2)![0]; //making the next board
+            kingKey = findKing(nextBoard, kingKey, turn);
+            const king: Piece = nextBoard.get(kingKey)!;
+            const [_newPieceMap, nextBoardMap3] = rules.populateValidMoves(nextBoard, turn, king);
+            const lines3: Deque = createDeque(nextBoardMap3);
+            while(1) {
+                const line3 = lines3.popFront();
+                //console.log(line3)
+                if (line3 === undefined) {
+                    break;
+                }
+                const [moves3, iteration, score] = line3;
+                if (iteration === depth) {
+                    lines3.pushFront(line3);
+                    console.log("breaking at depth")
+                    break;
+                }
+                const move3: string = moves3[0];
+                if (!nextBoardMap3.has(move3)) {
+                    continue;
+                } 
+                
+                lines.pushBack([[...moves, move2, move3], iteration+2, score]);
+                //console.log("push")
+            }
+        }
+    }
+    return lines;
+    for (const [move, [board, evaluation]] of boardMap) {
+        if (depth <= 0) {
+            const depthScore = worstCase(boardMap, turn);
+            //lines.pop
+        } else {
+            kingKey = findKing(board, kingKey, turn);
+            const king: Piece = board.get(kingKey)!;
+            const [_newPieceMap, nextBoardMap] = rules.populateValidMoves(board, turn, king);
+        }
+    }
+    return lines;
+}
+
+/* 
     if (depth <= 0) {
         const score: number = worstCase(boardMap, turn);
         lines.forEach(moveScore => {
@@ -61,7 +148,7 @@ export function scoreMoves(
         const move = moveScore[0].pop();
     }
     return lines;
-}
+}*/
 
 export function doubleMoves(boardMap: BoardMap, color: PieceColor): MovesScore[] {
     const rules = new Rules;
@@ -72,7 +159,7 @@ export function doubleMoves(boardMap: BoardMap, color: PieceColor): MovesScore[]
         let move1Scores:MovesScore[] = new Array();         //the worst possible outcome of each enemy move given best play
         const kingKey = findKing(board1, "e1", nextColor);
         const king: Piece = board1.get(kingKey)!;
-        const [_newPieceMap2, newBoards2] = rules.populateValidMoves(board1, nextColor, king);
+        const [_newPieceMap2, newBoards2] = rules.populateValidMoves(board1, nextColor, king); //possible boards from the enemy
         for (let [move2, [board2, _evaluation2]] of newBoards2) {
             let move2Scores:MovesScore[] = new Array();
             const kingKey = findKing(board2, "e1", color);
