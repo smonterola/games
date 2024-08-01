@@ -1,6 +1,15 @@
 import { Position } from "../../models";
 import { PieceType } from "../../Constants";
 
+export const rawPawnDirections: Position[] = [
+    new Position(-1, 1),
+    new Position( 1, 1),
+    new Position( 0, 1),
+    new Position( 0, 2),
+    new Position(-1, 0),
+    new Position( 1, 0),
+];
+
 const rookDirections: Position[] = [
     new Position( 1, 0), // 0pi/2
     new Position( 0, 1), // 1pi/2

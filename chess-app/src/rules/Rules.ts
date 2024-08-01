@@ -4,7 +4,7 @@ import { mapMoves, movePawn } from "."
 import { castle, isCheck } from "./pieces/King";
 import { updatePieceMap } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine";
-import { cloneMoves, deepClone } from "./History/Clone";
+import { deepClone } from "./History/Clone";
 
 export default class Rules {
     canMove(
@@ -20,13 +20,13 @@ export default class Rules {
         color: PieceColor,
         king: Piece,
     ): [PieceMap, BoardMap] {
-        const pMap: PieceMap = pieceMap;
+        const pMap: PieceMap = (pieceMap);
         const longBoards: BoardMap = new Map();
         for (let piece of pMap.values()) {
             let destinationBoards: BoardMap = new Map();
             if (piece.color !== color) {
                 piece.moveMap?.clear();
-                continue;
+                continue; //check if this should be cleared or not
             }
             if (piece.type === PieceType.PAWN) { 
                 piece.moveMap = movePawn(pMap, piece.position, color);

@@ -34,4 +34,11 @@ export class Piece {
             this.moveMap,
         );
     }
+    get POV(): number {
+        return this.color === PieceColor.WHITE ? 1 : -1;
+    }
+}
+
+export function getPOV(color: PieceColor): number {
+    return color === PieceColor.WHITE ? 1 : -1;
 }

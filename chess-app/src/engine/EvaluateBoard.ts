@@ -30,7 +30,15 @@ export function evaluate(pieceMap: PieceMap): number {
         }
         evalutation += pieceScore * POV;
     }
-    return Math.round(evalutation * 100) / 100;
+    /*
+    let activity = 0;
+    for (let [key, piece] of pieceMap) { //rudimentary way to score "piece activity"
+        let moves = (piece.moveMap ? piece.moveMap.size : 0) * piece.POV * 0.01;
+        activity += 1 * piece.POV
+    }
+    evalutation += activity;
+    */
+    return Math.round(evalutation * 1000) / 1000;
 }
 
 export function logPieces(pieceMap: PieceMap): Map<string, number> {

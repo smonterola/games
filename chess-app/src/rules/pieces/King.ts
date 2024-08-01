@@ -1,5 +1,5 @@
 import { PieceColor, PieceType } from "../../Constants";
-import { Piece, PieceMap, Position, PositionMap } from "../../models";
+import { Piece, PieceMap, Position, PositionMap, getPOV } from "../../models";
 import { pieceDirectons } from "./Directions";
 import { cloneMoves } from "../History/Clone";
 
@@ -53,8 +53,7 @@ export function isCheck(
             let safe = false;
             let tempPosition: Position = p.addPositions(direction);
             if (type === PieceType.PAWN) {
-                const POV = color === PieceColor.WHITE ? 1 : -1;
-                tempPosition = p.addPositions(new Position(direction.x, POV));
+                tempPosition = p.addPositions(new Position(direction.x, getPOV(color)));
             }
             while (tempPosition.checkBounds && !safe) {
                 if (!tempPosition.isOccupied(pieceMap)) {
