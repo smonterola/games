@@ -4,6 +4,7 @@ import { mapMoves, movePawn } from "."
 import { castle, isCheck } from "./pieces/King";
 import { updatePieceMap } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine";
+import { cloneMoves, deepClone } from "./History/Clone";
 
 export default class Rules {
     canMove(
@@ -37,7 +38,7 @@ export default class Rules {
             }
             [piece.moveMap, destinationBoards] = this.filterMoves(pMap, piece, king); //this is what needs to be fixed
             for (let [destination, [nextBoard, score]] of destinationBoards) {
-                longBoards.set(piece.position.string+destination, [nextBoard, score]);
+                longBoards.set(piece.position.string+destination, [(nextBoard), score]);
             }
         }
         return [pMap, longBoards];
@@ -70,7 +71,7 @@ export default class Rules {
         piece: Piece,
         king: Piece,
     ): [PositionMap, BoardMap] {
-        const pMap: PieceMap = (pieceMap);
+        const pMap: PieceMap = deepClone(pieceMap); //needs to stay to protect the rook
         const moveMap = (piece.moveMap!);
         const destinationBoards: BoardMap = new Map()
         for (const destination of moveMap.values()) {

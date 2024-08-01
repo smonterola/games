@@ -52,6 +52,14 @@ export function createDeque(boardMap: BoardMap): Deque {
     return deque;
 }
 
+export function createArray(boardMap: BoardMap): Array<[string[], number, number]> {
+    let array = new Array();
+    for (const [move, [_, evaluation]] of boardMap) {
+        array.push([[move], 0, evaluation]);
+    }
+    return array; 
+}
+
 export function scoreMoves(
     lines: Deque,
     boardMap: BoardMap, 
