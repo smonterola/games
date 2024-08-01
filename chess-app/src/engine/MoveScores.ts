@@ -6,6 +6,7 @@ import { Deque } from "./Deque";
 
 type MovesScore = [string[], number];
 type Moves = string[];
+type MoveRec = [string, number, string[]]
 
 export function worstCase(boardMap: BoardMap, color: PieceColor): number {
     const POV: number = color === PieceColor.WHITE ? -1 : 1;
@@ -158,43 +159,79 @@ export function scoreMoves(
     return lines;
 }*/
 
-export function doubleMoves(boardMap: BoardMap, color: PieceColor): MovesScore[] {
+export function doubleMoves(boardMap: BoardMap, color: PieceColor) {
+    const tolerance: number = 0.4;
     const rules = new Rules;
     const POV: number = color === PieceColor.WHITE ? 1 : -1;
     const nextColor = nextTurn(color);
     let totalMoveScores:MovesScore[] = new Array();
-    for (let [move1, [board1, _evaluation1]] of boardMap) { //generate all attacks
-        let move1Scores:MovesScore[] = new Array();         //the worst possible outcome of each enemy move given best play
-        const kingKey = findKing(board1, "e1", nextColor);
-        const king: Piece = board1.get(kingKey)!;
-        const [_newPieceMap2, newBoards2] = rules.populateValidMoves(board1, nextColor, king); //possible boards from the enemy
-        for (let [move2, [board2, _evaluation2]] of newBoards2) {
-            let move2Scores:MovesScore[] = new Array();
-            const kingKey = findKing(board2, "e1", color);
-            const king: Piece = board2.get(kingKey)!;
-            const [_newPieceMap3, newBoards3] = rules.populateValidMoves(board2, color, king);
-            //miniMax
-            let move3Scores: MovesScore[] = boardsToScores(newBoards3, color); //the first conversion
-            const scoreThird: number = miniMax(move3Scores, nextColor); //maximum branches, find the worst result possible if move2
-            //now the bottom branch has its worst value stored
-            //move2Scores represents all the possible moves we could make defined by max danger
-            for (let [move3, [_board3, _evaluation3]] of newBoards3) {
-                move2Scores.push([[move2, move3], scoreThird]); //defining move by the max strength response for second move
+    for (let [move0, [board0, evaluation0]] of boardMap) { //generate all attacks
+        let move0Scores:MovesScore[] = new Array();         //the worst possible outcome of each enemy move given best play
+        const kingKey = findKing(board0, "e1", nextColor);
+        const king: Piece = board0.get(kingKey)!;
+        const [_newPieceMap1, newBoards1] = rules.populateValidMoves(board0, nextColor, king);
+        for (let [move1, [board1, _evaluation1]] of newBoards1) { //generate all attacks
+            let move1Scores:MovesScore[] = new Array();         //the worst possible outcome of each enemy move given best play
+            const kingKey = findKing(board1, "e1", color);
+            const king: Piece = board1.get(kingKey)!;
+            const [_newPieceMap2, newBoards2] = rules.populateValidMoves(board1, color, king); //possible boards from the enemy
+            for (let [move2, [board2, evaluation2]] of newBoards2) {
+                if (Math.abs(evaluation2 - worstCase(newBoards2, nextColor)) > tolerance * 20) continue;
+                let move2Scores:MovesScore[] = new Array();
+                const kingKey = findKing(board2, "e1", nextColor);
+                const king: Piece = board2.get(kingKey)!;
+                const [_newPieceMap3, newBoards3] = rules.populateValidMoves(board2, nextColor, king);
+                //miniMax
+                let move3Scores: MovesScore[] = boardsToScores(newBoards3, color); //the first conversion
+                const scoreThird: number = miniMax(move3Scores, nextColor); //maximum branches, find the worst result possible if move2
+                //now the bottom branch has its worst value stored
+                //move2Scores represents all the possible moves we could make defined by max danger
+                for (let [move3, [_board3, evaluation3]] of newBoards3) {
+                    if (evaluation3 !== scoreThird) continue;
+                    move2Scores.push([[move2, move3], scoreThird]); //defining move by the max strength response for second move
+                }
+                const scoreSecond: number = miniMax(move2Scores, color); //find our best response by minimizing the enemy advatage
+                move2Scores = move2Scores.map(moveScore => {
+                    return [[move1, ...moveScore[0]], scoreSecond]
+                });
+                move1Scores.push(...move2Scores);
             }
-            const scoreSecond: number = miniMax(move2Scores, color); //find our best response by minimizing the enemy advatage
-            move2Scores = move2Scores.map(moveScore => {
-                return [[move1, ...moveScore[0]], scoreSecond]
-            });
-            move1Scores.push(...move2Scores);
+            const scoreFirst: number = miniMax(move1Scores, nextColor);
+            move1Scores = move1Scores.filter(
+                moveScore => moveScore[1] === scoreFirst).map(
+                    moveScore => {
+                        return [[move0, ...moveScore[0]], scoreFirst];
+                    }
+                );
+            move0Scores.push(...move1Scores);
         }
-        const scoreFirst: number = miniMax(move1Scores, nextColor);
-        move1Scores = move1Scores.map(moveScore => {
-            return [moveScore[0], scoreFirst];
-        });
-        totalMoveScores.push(...move1Scores);
-    }
-    totalMoveScores.sort(function(a, b){
-        return (a[1] - b[1])*POV;
-    });
-    return totalMoveScores;
+        const scoreZero: number = miniMax(move0Scores, color);
+        move0Scores = move0Scores.filter(
+            moveScore => moveScore[1] === scoreZero).map(
+                moveScore => {
+                    return [moveScore[0], scoreZero];
+                }
+            );
+        totalMoveScores.push(...move0Scores);
+        const finalScore: number = miniMax(totalMoveScores, color);
+        totalMoveScores = totalMoveScores.filter(moveScore => moveScore[1] === finalScore);
+       
+    } 
+    const size = totalMoveScores.length;
+    const option1 = totalMoveScores[Math.floor(Math.random() * size)];
+    const option2 = totalMoveScores[Math.floor(0.3 * size)];
+    const option3 = totalMoveScores[Math.floor(0.9 * size)];
+    const first = [option1[0][0], option1[0]];
+    const second = [option2[0][0], option2[0]];
+    const third = [option3[0][0], option3[0]];
+    const one = option1[0][0];
+    const two = option2[0][0];
+    const three = option3[0][0]
+    //totalMoveScores.sort(function(a, b){
+    //    return -(a[1] - b[1])*POV;
+    //});
+    //return [first, second, third];
+    //return totalMoveScores;
+    //return [option1, option2, option3];
+    return [one, two, three, "eval: ", option1[1], "options: ", size];
 }

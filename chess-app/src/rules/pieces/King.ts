@@ -1,6 +1,7 @@
 import { PieceColor, PieceType } from "../../Constants";
 import { Piece, PieceMap, Position, PositionMap } from "../../models";
 import { pieceDirectons } from "./Directions";
+import { cloneMoves } from "../History/Clone";
 
 export function castle(
     pieceMap: PieceMap, 
@@ -8,34 +9,36 @@ export function castle(
     kingMap: PositionMap,
 ): PositionMap {
     const pMap = pieceMap;
+    const rank = king.color === PieceColor.WHITE ? 0 : 7;
     if (
         king.type !== PieceType.KING || 
         king.hasMoved === true || 
-        isCheck(pMap, king.position, king.color)
+        isCheck(pMap, king.position, king.color) ||
+        !pMap.has(new Position(7, rank).string)
     ){
         return kingMap;
     }
-    const rank = king.color === PieceColor.WHITE ? 0 : 7;
+    const newKingMap: PositionMap = cloneMoves(kingMap);
     const shortCastle: boolean = (
         pMap.get(new Position(7, rank).string)?.hasMoved === false && //kingside rook hasn't moved
         canPass(pMap, new Position(5, rank), king.color) &&
         canPass(pMap, new Position(6, rank), king.color)
     );
-    const longCastle: boolean = ( 
-        pMap.get(new Position(7, rank).string)?.hasMoved === false && //queenside rook hasn't moved
+    const longCastle: boolean = (
+        pMap.get(new Position(0, rank).string)?.hasMoved === false && //queenside rook hasn't moved
         !new Position(1, rank).isOccupied(pMap) &&
         canPass(pMap, new Position(2, rank), king.color) &&
         canPass(pMap, new Position(3, rank), king.color)
     );
     if (shortCastle) {
         const shortKing = new Position(6, rank);
-        kingMap.set(shortKing.string, shortKing);
+        newKingMap.set(shortKing.string, shortKing);
     }
     if (longCastle) {
         const longKing = new Position(2, rank);
-        kingMap.set(longKing.string, longKing);
+        newKingMap.set(longKing.string, longKing);
     }
-    return kingMap;
+    return newKingMap;
 }
 
 export function isCheck(
@@ -99,5 +102,11 @@ export function findKing(
     const king: Piece = [...pieceMap.values()].find(
         (p) => (p.type === PieceType.KING && p.color === color)
     )!
+    if (!king) {
+        console.log("king not found")
+        console.log(pieceMap)
+    } else {
+        //console.log(king)
+    }
     return king.position.string;
 }

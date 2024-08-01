@@ -117,11 +117,13 @@ export default function Chessboard() {
         setBoards(newBoards);
 
         //console.log(worstCase(newBoards, turn))
-        //const depthTwo = doubleMoves(newBoards, nextTurn(turn)); 
-        //console.log(depthTwo);
-        const lines = (createDeque(newBoards));
-        const newLines = scoreMoves(lines, newBoards, 2, turn, whiteKingKey, blackKingKey);
-        console.log(newLines)
+        const depthTwo = doubleMoves(newBoards, turn); 
+        console.log(depthTwo);
+        //let lines = (createDeque(newBoards));
+        //const newLines = scoreMoves(lines, newBoards, 1, turn, whiteKingKey, blackKingKey);
+        //console.log(newLines)
+        //const possibleBranches = countMoves(newBoards, 3, 0, turn, whiteKingKey, blackKingKey);
+        //console.log(possibleBranches)
     }
     //rendering board
     let board = [];

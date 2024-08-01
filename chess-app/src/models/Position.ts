@@ -1,4 +1,4 @@
-import { PieceColor, xAxis, yAxis } from "../Constants";
+import { PieceColor, PieceType, xAxis, yAxis } from "../Constants";
 import { PieceMap } from "./MapAliases";
 
 export class Position {
@@ -32,7 +32,8 @@ export class Position {
     canCapture(pieceMap: PieceMap, color: PieceColor): boolean {
         return (
             this.isOccupied(pieceMap) && 
-            pieceMap.get(this.string)!.color !== color
+            pieceMap.get(this.string)!.color !== color &&
+            pieceMap.get(this.string)!.type !== PieceType.KING
         );
     }
     clone(): Position {

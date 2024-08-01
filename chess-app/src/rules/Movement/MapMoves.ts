@@ -1,3 +1,4 @@
+import { PieceType } from "../../Constants";
 import { Piece, PieceMap, Position, PositionMap } from "../../models";
 import { pieceDirectons } from "../pieces/Directions";
 
