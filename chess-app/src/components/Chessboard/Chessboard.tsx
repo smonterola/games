@@ -6,7 +6,7 @@ import { Piece, Position, PieceMap, BoardMap } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor, GameState} from "../../Constants";
 import { nextTurn, findKing, pgnToString } from "../../rules";
 import { initialBoards, initialPieceMap } from "./initChessboard";
-import { createDeque, doubleMoves, evaluate, scoreMoves, worstCase } from "../../engine";
+import { createDeque, quadMoves, evaluate, scoreMoves, worstCase } from "../../engine";
 import { deepClone } from "../../rules/History/Clone";
 
 let moveCounter = 1;
@@ -27,9 +27,13 @@ export default function Chessboard() {
         const element = e.target as HTMLElement;
         if (!chessboard || !element.classList.contains("chess-piece")) {
             console.log("finding moves that are good for", turn)
+            
             setTimeout(
-                function(){        
-                    const depthTwo = doubleMoves(getBoards, turn); 
+                function(){
+                    const start = performance.now();
+                    const depthTwo = quadMoves(getBoards, turn); 
+                    const end = performance.now();
+                    console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
                     console.log(depthTwo);
                 }, 0
             );
@@ -110,7 +114,7 @@ export default function Chessboard() {
         ];
         const kingKey = turn === PieceColor.WHITE ? whiteKingKey : blackKingKey;
         const king: Piece = pieceMap.get(kingKey)!;
-        const [newPieceMap, newBoards] = rules.populateValidMoves(deepClone(nextBoard), turn, king);
+        const [newPieceMap, newBoards] = rules.populateValidMoves((nextBoard), turn, king);
         const status: GameState = rules.getStatus(newBoards, newPieceMap, king);
         setTimeout(function(){
             console.log(status, evaluate((newPieceMap)));
@@ -119,7 +123,7 @@ export default function Chessboard() {
         if (status === GameState.CHECKMATE || status === GameState.STALEMATE) {
             return;
         }
-        console.log(newBoards)
+        //console.log(newBoards)
         setBoards(newBoards);
 
         //console.log(worstCase(newBoards, turn))

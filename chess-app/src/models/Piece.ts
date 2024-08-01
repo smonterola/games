@@ -28,7 +28,7 @@ export class Piece {
     } 
     clone(): Piece {
         return new Piece(
-            this.position.clone(),
+            this.position.clone,
             this.type,
             this.color,
             this.moveMap,

@@ -20,7 +20,7 @@ export function deepClone(pieceMap: PieceMap): PieceMap {
 export function cloneMoves(positionMap: PositionMap): PositionMap {
     const cloneMoveMap: PositionMap = new Map();
     for (const destination of positionMap.values()) {
-        cloneMoveMap.set(destination.string, destination.clone());
+        cloneMoveMap.set(destination.string, destination.clone);
     } 
     return cloneMoveMap;
 }

@@ -1,4 +1,4 @@
-import { PieceType } from "../../Constants";
+import { PieceColor, PieceType } from "../../Constants";
 import { Piece, PieceMap, Position } from "../../models";
 import { deepClone } from "../../rules/History/Clone";
 
@@ -10,7 +10,6 @@ export function updatePieceMap(
     piece: Piece,
 ){  
     const newPieceMap: PieceMap = deepClone(pieceMap);
-    
     let movePiece = piece.clone();
     const doublePawn: boolean = movePiece.type === PieceType.PAWN && Math.abs(p1.y - p0.y) === 2;
     //DELETING WHERE PIECE WAS
@@ -25,9 +24,9 @@ export function updatePieceMap(
             const enPassantP = new Position(p1.x, p0.y);
             const pawn = newPieceMap.get(enPassantP.string); 
             const canEnPassant = (
+                !p1.isOccupied(newPieceMap) &&
                 pawn?.type === PieceType.PAWN &&
-                pawn?.color !== movePiece.color && 
-                (p1.y === 4 || p1.y === 5)
+                pawn?.color !== movePiece.color
             );
             if (canEnPassant) {
                 newPieceMap.delete(enPassantP.string);
@@ -46,7 +45,7 @@ export function updatePieceMap(
     //MOVING PIECE TO NEW SQUARE
     if (!p0.samePosition(p1)) {
         movePiece.hasMoved = true;
-        movePiece.position = p1;
+        movePiece.position = p1.clone;
         movePiece.enPassant = doublePawn;
     }
     newPieceMap.set(p1.string, movePiece);

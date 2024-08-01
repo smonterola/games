@@ -36,7 +36,7 @@ export class Position {
             pieceMap.get(this.string)!.type !== PieceType.KING
         );
     }
-    clone(): Position {
+    get clone(): Position {
         return new Position(this.x, this.y);
     }
 }
