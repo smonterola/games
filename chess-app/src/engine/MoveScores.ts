@@ -159,44 +159,44 @@ export function scoreMoves(
     return lines;
 }*/
 
-export function doubleMoves(boardMap: BoardMap, color: PieceColor) {
+export function doubleMoves(boardMap: BoardMap, color0: PieceColor) {
     const tolerance: number = 0.4;
     const rules = new Rules;
-    const POV: number = color === PieceColor.WHITE ? 1 : -1;
-    const nextColor = nextTurn(color);
+    const color1 = nextTurn(color0);
+    let [king0Key, king1Key] = (color0 === PieceColor.WHITE) ? ["e1", "e8"] : ["e8", "e1"];
     let totalMoveScores:MovesScore[] = new Array();
-    for (let [move0, [board0, evaluation0]] of boardMap) { //generate all attacks
+    for (let [move0, [board0, evaluation0]] of boardMap) {
         let move0Scores:MovesScore[] = new Array();         //the worst possible outcome of each enemy move given best play
-        const kingKey = findKing(board0, "e1", nextColor);
+        const kingKey = findKing(board0, king1Key, color1);
         const king: Piece = board0.get(kingKey)!;
-        const [_newPieceMap1, newBoards1] = rules.populateValidMoves(board0, nextColor, king);
+        const [_newPieceMap1, newBoards1] = rules.populateValidMoves(board0, color1, king);
         for (let [move1, [board1, _evaluation1]] of newBoards1) { //generate all attacks
             let move1Scores:MovesScore[] = new Array();         //the worst possible outcome of each enemy move given best play
-            const kingKey = findKing(board1, "e1", color);
+            const kingKey = findKing(board1, king0Key, color0);
             const king: Piece = board1.get(kingKey)!;
-            const [_newPieceMap2, newBoards2] = rules.populateValidMoves(board1, color, king); //possible boards from the enemy
+            const [_newPieceMap2, newBoards2] = rules.populateValidMoves(board1, color0, king); //possible boards from the enemy
             for (let [move2, [board2, evaluation2]] of newBoards2) {
-                if (Math.abs(evaluation2 - worstCase(newBoards2, nextColor)) > tolerance * 20) continue;
+                if (Math.abs(evaluation2 - worstCase(newBoards2, color1)) > tolerance * 20) continue;
                 let move2Scores:MovesScore[] = new Array();
-                const kingKey = findKing(board2, "e1", nextColor);
+                const kingKey = findKing(board2, king1Key, color1);
                 const king: Piece = board2.get(kingKey)!;
-                const [_newPieceMap3, newBoards3] = rules.populateValidMoves(board2, nextColor, king);
+                const [_newPieceMap3, newBoards3] = rules.populateValidMoves(board2, color1, king);
                 //miniMax
-                let move3Scores: MovesScore[] = boardsToScores(newBoards3, color); //the first conversion
-                const scoreThird: number = miniMax(move3Scores, nextColor); //maximum branches, find the worst result possible if move2
+                let move3Scores: MovesScore[] = boardsToScores(newBoards3, color0); //the first conversion
+                const scoreThird: number = miniMax(move3Scores, color1); //maximum branches, find the worst result possible if move2
                 //now the bottom branch has its worst value stored
                 //move2Scores represents all the possible moves we could make defined by max danger
                 for (let [move3, [_board3, evaluation3]] of newBoards3) {
                     if (evaluation3 !== scoreThird) continue;
                     move2Scores.push([[move2, move3], scoreThird]); //defining move by the max strength response for second move
                 }
-                const scoreSecond: number = miniMax(move2Scores, color); //find our best response by minimizing the enemy advatage
+                const scoreSecond: number = miniMax(move2Scores, color0); //find our best response by minimizing the enemy advatage
                 move2Scores = move2Scores.map(moveScore => {
                     return [[move1, ...moveScore[0]], scoreSecond]
                 });
                 move1Scores.push(...move2Scores);
             }
-            const scoreFirst: number = miniMax(move1Scores, nextColor);
+            const scoreFirst: number = miniMax(move1Scores, color1);
             move1Scores = move1Scores.filter(
                 moveScore => moveScore[1] === scoreFirst).map(
                     moveScore => {
@@ -205,7 +205,7 @@ export function doubleMoves(boardMap: BoardMap, color: PieceColor) {
                 );
             move0Scores.push(...move1Scores);
         }
-        const scoreZero: number = miniMax(move0Scores, color);
+        const scoreZero: number = miniMax(move0Scores, color0);
         move0Scores = move0Scores.filter(
             moveScore => moveScore[1] === scoreZero).map(
                 moveScore => {
@@ -213,7 +213,7 @@ export function doubleMoves(boardMap: BoardMap, color: PieceColor) {
                 }
             );
         totalMoveScores.push(...move0Scores);
-        const finalScore: number = miniMax(totalMoveScores, color);
+        const finalScore: number = miniMax(totalMoveScores, color0);
         totalMoveScores = totalMoveScores.filter(moveScore => moveScore[1] === finalScore);
        
     } 
