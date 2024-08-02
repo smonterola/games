@@ -9,7 +9,7 @@ type MovesScore = [string[], number];
 
 export function worstCase(boardMap: BoardMap, color: PieceColor): number {
     let worstEval = -1000 * getPOV(color);
-    if (!boardMap) {
+    if (boardMap.size === 0) {
         return -worstEval;
     }
     for (let [_board, evaluation] of boardMap.values()) {
@@ -91,51 +91,93 @@ export function quadMoves(boardMap: BoardMap, color0: PieceColor) {
     let iterations = 0;
     //loop through enemy moves
     const worstZero = worstCase(boardMap, color0);
-    
     for (const [move0, [board0, evaluation0]] of boardMap) { //ENEMY BOARDS
         console.log(move0);
         //if they make a move that is not as punishing, stop and find how to respond to their real threats
-        if (pruneEarly(evaluation0, worstZero, 0)) continue; 
-        let move0Scores:MovesScore[] = []; 
+        
         const newBoards1 = deriveNewBoards(board0, color1, king1Key);
         //[alpha, beta] = alphaBetaMiniMax(newBoards1, color1, alpha, beta);
         //save the best case scenario
         const bestFirst: number = worstCase(newBoards1, color1);
-        if (Math.abs(bestFirst) > 100) finalMoveScores.push([[move0], 1000]);
+        let move0Scores:MovesScore[] = []; 
+        if (Math.abs(bestFirst) > 100) {
+            move0Scores.push([[move0], -POV*1000]);
+            console.log("mate found on", move0);
+            break;
+        }
+        if (pruneEarly(evaluation0, worstZero, 0)) continue; 
+       
         //loop through our response
         for (const [move1, [board1, evaluation1]] of newBoards1) { //OUR BOARDS
             //do not be overly optimistic. If the move is too good, assume route won't be taken
-            if (pruneEarly(evaluation1, bestFirst, 3)) continue;
-            let move1Scores:MovesScore[] = [];       
             const newBoards2 = deriveNewBoards(board1, color0, king0Key);
             //store worst case
+            let move1Scores:MovesScore[] = [];       
             const worstSecond: number = worstCase(newBoards2, color0);
+            if (Math.abs(worstSecond) > 100) {
+                move1Scores.push([[move0, move1], -POV*1000]);
+                //console.log("mate found on", move0, move1);
+                break;
+            }
+            if (pruneEarly(evaluation1, bestFirst, 1)) continue;
+            
             //loop through enemy moves
             for (let [move2, [board2, evaluation2]] of newBoards2) { //ENEMY BOARDS
                 //if the move is too good for us, stop searching. Notice each time the wiggle room decreases
-                if (pruneEarly(evaluation2, worstSecond, 6)) continue;
-                let move2Scores:MovesScore[] = [];
                 const newBoards3 = deriveNewBoards(board2, color1, king1Key);
                 const bestThird: number = worstCase(newBoards3, color1);
+                let move2Scores:MovesScore[] = [];
+                if (Math.abs(bestThird) > 100) {
+                    move1Scores.push([[move0, move1, move2], -POV*1000]);
+                    //console.log("mate found on", move0, move1, move2);
+                    break
+                }
+                
+                if (pruneEarly(evaluation2, worstSecond, 3)) continue;
                 const board2Size = board2.size;
                 for (const [move3, [board3, evaluation3]] of newBoards3) { //OUR BOARDS
+                    iterations++;
                     let move3Scores:MovesScore[] = [];       
-                    if (board3.size >= board2Size) {
-                        move3Scores.push([[move0, move1, move2, move3], bestThird]);
-                        continue;
-                    }
-                    //do not be overly optimistic. If the move is too good, assume route won't be taken
-                    if (pruneEarly(evaluation3, bestThird, 10)) continue;
+                    if (pruneEarly(evaluation3, bestThird, 3)) continue;
                     const newBoards4 = deriveNewBoards(board3, color0, king0Key);
                     const worstFourth: number = worstCase(newBoards4, color0);
+                    if (Math.abs(worstFourth) > 100) {
+                        move2Scores.push([[move0, move1, move2, move3], -POV*1000]);
+                        //console.log("mate found on", move0, move1, move2, move3);
+                        break;
+                    }
+                    if (board3.size >= board2Size) {
+                        move2Scores.push([[move0, move1, move2, move3], evaluation3]);
+                        continue;
+                    }
+                    const board3Size = board3.size;
                     for (let [move4, [board4, evaluation4]] of newBoards4) {
                     //the harshes pruning possible. If its not the best move, then stop
-                        iterations++;
-                        if (evaluation4 === worstFourth) {
-                            move3Scores.push([[move0, move1, move2, move3, move4], worstFourth]);
+                        if (pruneEarly(evaluation4, worstFourth, 3)) continue;
+                        if (board4.size >= board3Size) {
+                            move2Scores.push([[move0, move1, move2, move3, move4], evaluation4]);
+                            continue;
                         }
-                    }
-                    move2Scores.push(...move3Scores);
+                        continue;
+                        //let move4Scores:MovesScore[] = [];
+                        /*const newBoards5 = deriveNewBoards(board4, color1, king1Key);
+                        const bestFifth: number = worstCase(newBoards5, color1);
+                        const board4Size = board4.size;*
+                        for (let [move5, [board5, evaluation5]] of newBoards5) {
+                            continue
+                            if (pruneEarly(evaluation5, bestFifth, 15)) continue; 
+                            if (board5.size >= board4Size) {
+                                continue;
+                            }
+                            if (evaluation5 === bestFifth) {
+                                move4Scores.push([[move0, move1, move2, move3, move4, move5], bestFifth]);
+                            }
+                        }   */
+                        //move3Scores.push(...move4Scores);
+                    }/*
+                    const scoreThird: number = miniMax(move3Scores, color0);
+                    move2Scores = move1Scores.filter(moveScore => moveScore[1] === scoreThird);
+                    move2Scores.push(...move3Scores);*/
                 }
                 /*
                 //end of branching. The next for loop pushes in only the worst possible responses at the end of the tree
