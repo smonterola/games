@@ -93,6 +93,7 @@ export function quadMoves(boardMap: BoardMap, color0: PieceColor) {
     const worstZero = worstCase(boardMap, color0);
     
     for (const [move0, [board0, evaluation0]] of boardMap) { //ENEMY BOARDS
+        console.log(move0);
         //if they make a move that is not as punishing, stop and find how to respond to their real threats
         if (pruneEarly(evaluation0, worstZero, 0)) continue; 
         let move0Scores:MovesScore[] = []; 
@@ -104,7 +105,7 @@ export function quadMoves(boardMap: BoardMap, color0: PieceColor) {
         //loop through our response
         for (const [move1, [board1, evaluation1]] of newBoards1) { //OUR BOARDS
             //do not be overly optimistic. If the move is too good, assume route won't be taken
-            if (pruneEarly(evaluation1, bestFirst, 1)) continue;
+            if (pruneEarly(evaluation1, bestFirst, 3)) continue;
             let move1Scores:MovesScore[] = [];       
             const newBoards2 = deriveNewBoards(board1, color0, king0Key);
             //store worst case
@@ -112,25 +113,41 @@ export function quadMoves(boardMap: BoardMap, color0: PieceColor) {
             //loop through enemy moves
             for (let [move2, [board2, evaluation2]] of newBoards2) { //ENEMY BOARDS
                 //if the move is too good for us, stop searching. Notice each time the wiggle room decreases
-                if (pruneEarly(evaluation2, worstSecond, 2)) continue;
+                if (pruneEarly(evaluation2, worstSecond, 6)) continue;
                 let move2Scores:MovesScore[] = [];
                 const newBoards3 = deriveNewBoards(board2, color1, king1Key);
-
+                const bestThird: number = worstCase(newBoards3, color1);
+                const board2Size = board2.size;
+                for (const [move3, [board3, evaluation3]] of newBoards3) { //OUR BOARDS
+                    let move3Scores:MovesScore[] = [];       
+                    if (board3.size >= board2Size) {
+                        move3Scores.push([[move0, move1, move2, move3], bestThird]);
+                        continue;
+                    }
+                    //do not be overly optimistic. If the move is too good, assume route won't be taken
+                    if (pruneEarly(evaluation3, bestThird, 10)) continue;
+                    const newBoards4 = deriveNewBoards(board3, color0, king0Key);
+                    const worstFourth: number = worstCase(newBoards4, color0);
+                    for (let [move4, [board4, evaluation4]] of newBoards4) {
+                    //the harshes pruning possible. If its not the best move, then stop
+                        iterations++;
+                        if (evaluation4 === worstFourth) {
+                            move3Scores.push([[move0, move1, move2, move3, move4], worstFourth]);
+                        }
+                    }
+                    move2Scores.push(...move3Scores);
+                }
                 /*
                 //end of branching. The next for loop pushes in only the worst possible responses at the end of the tree
                 */
-                const bestThird: number = miniMax(boardsToScores(newBoards3, color1), color1); //this is only called once
+                //const bestThird: number = miniMax(boardsToScores(newBoards3, color1), color1); //this is only called once
                 //[alpha, beta] = alphaBetaBoard(newBoards3, color0, alpha, beta);
-                for (let [move3, [_board3, evaluation3]] of newBoards3) {
-                    //the harshes pruning possible. If its not the best move, then stop
-                    iterations++;
-                    if (evaluation3 === bestThird) {
-                        move2Scores.push([[move0, move1, move2, move3], bestThird]);
-                    }
-                }
+                
                 //  now go through all the new responses added and only save the best from the worst
                 //  evaluation will always be passed as the worst possible score. The function will avoid returning moves
                 //  that lead to worse evals willingly
+                const scoreSecond: number = miniMax(move2Scores, color1);
+                move2Scores = move2Scores.filter(moveScore => moveScore[1] === scoreSecond)
                 move1Scores.push(...move2Scores);
             }
             //the enemy will now choose from all the filtered moves and pick the worse one for us
