@@ -5,11 +5,13 @@ import Rules from "../rules/Rules";
 import { Deque } from "./Deque";
 
 type MovesScore = [string[], number];
-//type Moves = string[];
-//type MoveRec = [string, number, string[]]
+//type Moves = string[]; //type MoveRec = [string, number, string[]]
 
 export function worstCase(boardMap: BoardMap, color: PieceColor): number {
     let worstEval = -1000 * getPOV(color);
+    if (!boardMap) {
+        return -worstEval;
+    }
     for (let [_board, evaluation] of boardMap.values()) {
         if (color === PieceColor.BLACK && evaluation < worstEval) {
             worstEval = evaluation;
@@ -35,6 +37,37 @@ function miniMax(movesEval: MovesScore[], color: PieceColor): number {
     return worstEval; 
 } 
 
+function alphaBetaBoard(boardMap: BoardMap, color: PieceColor, alpha: number, beta: number): number[] {
+    for (const [_board, evaluation] of boardMap.values()) {
+        if (color === PieceColor.BLACK && evaluation < beta) {
+            beta = evaluation;
+        }
+        else if (color === PieceColor.WHITE && evaluation > alpha) {
+            alpha = evaluation;
+        }
+    }
+    if (boardMap.size === 0) {
+        return (color === PieceColor.WHITE) ? [1024, beta] : [alpha, -1024];
+    }
+    return [alpha, beta];
+}
+
+function alphaBetaMoves(movesEval: MovesScore[], color: PieceColor, alpha: number, beta: number): number[] {
+    movesEval.forEach(movesEval => {
+        const evaluation = movesEval[1];
+        if (color === PieceColor.BLACK && evaluation < beta) {
+            beta = evaluation;
+        }
+        else if (color === PieceColor.WHITE && evaluation > alpha) {
+            alpha = evaluation;
+        }
+    })
+    if (!movesEval) {
+        return (color === PieceColor.WHITE) ? [alpha, 1024] : [-1024, beta];
+    }
+    return [alpha, beta];
+}
+
 function boardsToScores(boardMap: BoardMap, color: PieceColor): MovesScore[] {
     const moveScore: MovesScore[] = [];
     for (const [move, [_board, evaluation]] of boardMap) {
@@ -43,168 +76,80 @@ function boardsToScores(boardMap: BoardMap, color: PieceColor): MovesScore[] {
     return moveScore;
 }
 
-export function createDeque(boardMap: BoardMap): Deque {
-    let deque = new Deque();
-    for (const [move, [_, evaluation]] of boardMap) {
-        deque.pushBack([[move], 0, evaluation]);
-    }
-    return deque;
-}
-
-export function createArray(boardMap: BoardMap): Array<[string[], number, number]> {
-    let array = new Array();
-    for (const [move, [_, evaluation]] of boardMap) {
-        array.push([[move], 0, evaluation]);
-    }
-    return array; 
-}
-
-export function scoreMoves(
-    lines: Deque,
-    boardMap: BoardMap, 
-    depth: number,
-    turn: PieceColor,
-    kingKey: string,
-    nextKey: string,
-): Deque {
-    const rules = new Rules();
-    if (depth <= 0) return lines;
-    while (1) {
-        const line = lines.popFront();
-        if (line === undefined) {
-            break;
-        }
-        const [moves, iteration, _score] = line;
-        if (iteration === depth) {
-            lines.pushFront(line);
-            break;
-        }
-        const move: string = moves[0];
-        if (!boardMap.has(move)) {
-            continue;
-        }
-        const board: PieceMap = boardMap.get(move)![0]; //making the next board
-        kingKey = findKing(board, kingKey, nextTurn(turn));
-        const king: Piece = board.get(kingKey)!;
-        const [_newPieceMap, nextBoardMap] = rules.populateValidMoves(board, nextTurn(turn), king);
-        const lines2: Deque = createDeque(nextBoardMap);
-        while(1) {
-            const line2 = lines2.popFront();
-            if (line2 === undefined) {
-                break;
-            }
-            const [moves2, iteration, score] = line2;
-            if (iteration === depth) {
-                lines2.pushFront(line2);
-                break;
-            }
-            const move2: string = moves2[0];
-            if (!nextBoardMap.has(move2)) {
-                continue;
-            }
-            const nextBoard: PieceMap = nextBoardMap.get(move2)![0]; //making the next board
-            kingKey = findKing(nextBoard, kingKey, turn);
-            const king: Piece = nextBoard.get(kingKey)!;
-            const [_newPieceMap, nextBoardMap3] = rules.populateValidMoves(nextBoard, turn, king);
-            const lines3: Deque = createDeque(nextBoardMap3);
-            while(1) {
-                const line3 = lines3.popFront();
-                //console.log(line3)
-                if (line3 === undefined) {
-                    break;
-                }
-                const [moves3, iteration, score] = line3;
-                if (iteration === depth) {
-                    lines3.pushFront(line3);
-                    console.log("breaking at depth")
-                    break;
-                }
-                const move3: string = moves3[0];
-                if (!nextBoardMap3.has(move3)) {
-                    continue;
-                } 
-                
-                lines.pushBack([[...moves, move2, move3], iteration+2, score]);
-                //console.log("push")
-            }
-        }
-    }
-    return lines;
-}
-
-/* 
-    if (depth <= 0) {
-        const score: number = worstCase(boardMap, turn);
-        lines.forEach(moveScore => {
-            moveScore = [moveScore[0], score] 
-        });
-        return lines;
-    }
-    for (let moveScore = lines.pop(); (moveScore); moveScore = lines.pop()) {
-        const move = moveScore[0].pop();
-    }
-    return lines;
-}*/
-
-export function doubleMoves(boardMap: BoardMap, color0: PieceColor) {
-    const tolerance: number = 0.4;
+export function quadMoves(boardMap: BoardMap, color0: PieceColor) {
+    const POV = getPOV(color0);
+    let alpha: number = -1024;
+    let beta:  number =  1024;
+    //set up
+    const patience: number = 10;
+    const tolerance: number = 0.626;
     const rules = new Rules();
     const color1 = nextTurn(color0);
     let [king0Key, king1Key] = (color0 === PieceColor.WHITE) ? ["e1", "e8"] : ["e8", "e1"];
-    let totalMoveScores:MovesScore[] = new Array();
-    for (let [move0, [board0, evaluation0]] of boardMap) {
-        let move0Scores:MovesScore[] = new Array(); 
-        const kingKey = findKing(board0, king1Key, color1);
-        const king: Piece = board0.get(kingKey)!;
-        const [_newPieceMap1, newBoards1] = rules.populateValidMoves(board0, color1, king);
-        for (let [move1, [board1, _evaluation1]] of newBoards1) {
-            let move1Scores:MovesScore[] = new Array();       
-            const kingKey = findKing(board1, king0Key, color0);
-            const king: Piece = board1.get(kingKey)!;
-            const [_newPieceMap2, newBoards2] = rules.populateValidMoves(board1, color0, king);
-            for (let [move2, [board2, evaluation2]] of newBoards2) {
-                if (Math.abs(evaluation2 - worstCase(newBoards2, color1)) > tolerance * 20) continue;
-                let move2Scores:MovesScore[] = new Array();
-                const kingKey = findKing(board2, king1Key, color1);
-                const king: Piece = board2.get(kingKey)!;
-                const [_newPieceMap3, newBoards3] = rules.populateValidMoves(board2, color1, king);
-                let move3Scores: MovesScore[] = boardsToScores(newBoards3, color0); 
-                const scoreThird: number = miniMax(move3Scores, color1); 
+
+    let finalMoveScores:MovesScore[] = [];
+    let iterations = 0;
+    //loop through enemy moves
+    const worstZero = worstCase(boardMap, color0);
+    
+    for (const [move0, [board0, evaluation0]] of boardMap) { //ENEMY BOARDS
+        //if they make a move that is not as punishing, stop and find how to respond to their real threats
+        if (pruneEarly(evaluation0, worstZero, 0)) continue; 
+        let move0Scores:MovesScore[] = []; 
+        const newBoards1 = deriveNewBoards(board0, color1, king1Key);
+        //[alpha, beta] = alphaBetaMiniMax(newBoards1, color1, alpha, beta);
+        //save the best case scenario
+        const bestFirst: number = worstCase(newBoards1, color1);
+        if (Math.abs(bestFirst) > 100) finalMoveScores.push([[move0], 1000]);
+        //loop through our response
+        for (const [move1, [board1, evaluation1]] of newBoards1) { //OUR BOARDS
+            //do not be overly optimistic. If the move is too good, assume route won't be taken
+            if (pruneEarly(evaluation1, bestFirst, 1)) continue;
+            let move1Scores:MovesScore[] = [];       
+            const newBoards2 = deriveNewBoards(board1, color0, king0Key);
+            //store worst case
+            const worstSecond: number = worstCase(newBoards2, color0);
+            //loop through enemy moves
+            for (let [move2, [board2, evaluation2]] of newBoards2) { //ENEMY BOARDS
+                //if the move is too good for us, stop searching. Notice each time the wiggle room decreases
+                if (pruneEarly(evaluation2, worstSecond, 2)) continue;
+                let move2Scores:MovesScore[] = [];
+                const newBoards3 = deriveNewBoards(board2, color1, king1Key);
+
+                /*
+                //end of branching. The next for loop pushes in only the worst possible responses at the end of the tree
+                */
+                const bestThird: number = miniMax(boardsToScores(newBoards3, color1), color1); //this is only called once
+                //[alpha, beta] = alphaBetaBoard(newBoards3, color0, alpha, beta);
                 for (let [move3, [_board3, evaluation3]] of newBoards3) {
-                    if (evaluation3 !== scoreThird) continue;
-                    move2Scores.push([[move2, move3], scoreThird]);
+                    //the harshes pruning possible. If its not the best move, then stop
+                    iterations++;
+                    if (evaluation3 === bestThird) {
+                        move2Scores.push([[move0, move1, move2, move3], bestThird]);
+                    }
                 }
-                const scoreSecond: number = miniMax(move2Scores, color0);
-                move2Scores = move2Scores.map(moveScore => {
-                    return [[move1, ...moveScore[0]], scoreSecond]
-                });
+                //  now go through all the new responses added and only save the best from the worst
+                //  evaluation will always be passed as the worst possible score. The function will avoid returning moves
+                //  that lead to worse evals willingly
                 move1Scores.push(...move2Scores);
             }
-            const scoreFirst: number = miniMax(move1Scores, color1);
-            move1Scores = move1Scores.filter(
-                moveScore => moveScore[1] === scoreFirst).map(
-                    moveScore => {
-                        return [[move0, ...moveScore[0]], scoreFirst];
-                    }
-                );
+            //the enemy will now choose from all the filtered moves and pick the worse one for us
+            const scoreFirst: number = miniMax(move1Scores, color0);
+            move1Scores = move1Scores.filter(moveScore => moveScore[1] === scoreFirst)
             move0Scores.push(...move1Scores);
         }
-        const scoreZero: number = miniMax(move0Scores, color0);
-        move0Scores = move0Scores.filter(
-            moveScore => moveScore[1] === scoreZero).map(
-                moveScore => {
-                    return [moveScore[0], scoreZero];
-                }
-            );
-        totalMoveScores.push(...move0Scores);
-        const finalScore: number = miniMax(totalMoveScores, color0);
-        totalMoveScores = totalMoveScores.filter(moveScore => moveScore[1] === finalScore);
-       
+        //final filter, pick the best move from what is remaining
+        const scoreZero: number = miniMax(move0Scores, color1);
+        move0Scores = move0Scores.filter(moveScore => moveScore[1] === scoreZero);
+        finalMoveScores.push(...move0Scores);
     } 
-    const size = totalMoveScores.length;
-    const option1 = totalMoveScores[Math.floor(Math.random() * size)];
-    const option2 = totalMoveScores[Math.floor(0.3 * size)];
-    const option3 = totalMoveScores[Math.floor(0.9 * size)];
+    const scoreFinal: number = miniMax(finalMoveScores, color0);
+    finalMoveScores = finalMoveScores.filter(moveScore => moveScore[1] === scoreFinal);
+
+    const size = finalMoveScores.length;
+    const option1 = finalMoveScores[Math.floor(0.9*Math.random() * size)];
+    const option2 = finalMoveScores[Math.floor(0.3 * size)];
+    const option3 = finalMoveScores[Math.floor(0.9 * size)];
     //const first = [option1[0][0], option1[0]];
     //const second = [option2[0][0], option2[0]];
     //const third = [option3[0][0], option3[0]];
@@ -217,5 +162,44 @@ export function doubleMoves(boardMap: BoardMap, color0: PieceColor) {
     //return [first, second, third];
     //return totalMoveScores;
     //return [option1, option2, option3];
-    return [one, two, three, "eval: ", option1[1], "options: ", size];
+    //console.log("alpha:", alpha, "beta:", beta)
+    console.log(option1, option2, option3);
+    console.log(iterations)
+    return [one, two, three, "eval:", option1[1], "options:", size];
 }
+
+function pruneEarly(evaluation: number, benchmark: number, exponent: number): boolean {
+    const tolerance = 10;
+    const scalar = 0.626;
+    return (Math.abs(evaluation - benchmark) > tolerance * scalar**exponent);
+}
+
+function deriveNewBoards(pieceMap: PieceMap, color: PieceColor, starterKey: string): BoardMap {
+    return new Rules().populateValidMoves(
+        pieceMap, color, pieceMap.get(
+            findKing(
+                pieceMap, starterKey, color
+            )
+        )!
+    )[1]; 
+}
+//[alpha, beta] = alphaBetaMoves(move2Scores, color1, alpha, beta);
+                /*move2Scores.forEach(moveScore => {
+                    const evaluation: number = moveScore[1];
+                    if ((evaluation < alpha && color0 === PieceColor.WHITE) ||
+                        (evaluation > beta && color0 === PieceColor.BLACK)
+                    ){ 
+                        //pass
+                    } else {
+                        totalMoveScores.push(moveScore);
+                    }
+                })*/
+                 //totalMoveScores.push(...move0Scores);
+        //const finalScore: number = miniMax(move0Scores, color1);
+        //finalMoveScores = move0Scores.filter(moveScore => moveScore[1] === scoreZero); 
+        /*if (
+                        (evaluation3 < alpha && color0 === PieceColor.WHITE) ||
+                        (evaluation3 > beta && color0 === PieceColor.BLACK)
+                    ){ 
+                        continue;
+                    }*/

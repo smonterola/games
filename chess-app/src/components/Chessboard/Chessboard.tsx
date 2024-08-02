@@ -6,7 +6,7 @@ import { Piece, Position, PieceMap, BoardMap } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor, GameState} from "../../Constants";
 import { nextTurn, findKing, pgnToString } from "../../rules";
 import { initialBoards, initialPieceMap } from "./initChessboard";
-import { createDeque, quadMoves, evaluate, scoreMoves, worstCase } from "../../engine";
+import { quadMoves, evaluate, worstCase } from "../../engine";
 import { deepClone } from "../../rules/History/Clone";
 
 let moveCounter = 1;
