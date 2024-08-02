@@ -8,6 +8,7 @@ import { nextTurn, findKing, pgnToString } from "../../rules";
 import { initialBoards, initialPieceMap } from "./initChessboard";
 import { quadMoves, evaluate, worstCase } from "../../engine";
 import { deepClone } from "../../rules/History/Clone";
+import { miniMaxAlphaBeta } from "../../engine/Engine";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -31,10 +32,13 @@ export default function Chessboard() {
             setTimeout(
                 function(){
                     const start = performance.now();
-                    const depthTwo = quadMoves(getBoards, turn); 
+                    const bestMoveScore = miniMaxAlphaBeta(pieceMap, 5, -9999, 9999, (turn), [], "e1", "e1");
+                    
+                    //const depthTwo = quadMoves(getBoards, turn); 
                     const end = performance.now();
+                    console.log(bestMoveScore);
                     console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
-                    console.log(depthTwo);
+                    //console.log(depthTwo);
                 }, 0
             );
             return;
