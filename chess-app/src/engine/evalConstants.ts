@@ -46,3 +46,30 @@ export const pairsEnd = new Map<PieceType, number>([
     [PieceType.ROOK,-0.2],
     [PieceType.QUEN, 0.0],
 ]);
+
+export const middleActivity = new Map<PieceType, number>([
+    [PieceType.PAWN, 0.0],
+    [PieceType.ROOK, 0.1],
+    [PieceType.NGHT, 1.0],
+    [PieceType.BSHP, 1.0],
+    [PieceType.QUEN, 0.0],
+    [PieceType.KING,-0.3],
+]);
+
+export const thresholdActivity = new Map<PieceType, number>([
+    [PieceType.PAWN, 0.2],
+    [PieceType.ROOK, 2.0],
+    [PieceType.NGHT, 1.0],
+    [PieceType.BSHP, 1.0],
+    [PieceType.QUEN, 1.0],
+    [PieceType.KING, 0.0],
+]);
+
+export const endgameActivity = new Map<PieceType, number>([
+    [PieceType.PAWN, 2.0],
+    [PieceType.ROOK, 1.5],
+    [PieceType.NGHT, 1.5],
+    [PieceType.BSHP, 1.5],
+    [PieceType.QUEN, 1.5],
+    [PieceType.KING, 2.0],
+]);

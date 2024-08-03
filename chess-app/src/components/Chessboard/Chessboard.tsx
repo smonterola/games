@@ -32,7 +32,7 @@ export default function Chessboard() {
             setTimeout(
                 function(){
                     const start = performance.now();
-                    const bestMoveScore = miniMaxAlphaBeta(pieceMap, 4, 2, -9999, 9999, (turn), [], "e1", "e1");
+                    const bestMoveScore = miniMaxAlphaBeta(pieceMap, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
                     
                     //const depthTwo = quadMoves(getBoards, turn); 
                     const end = performance.now();
@@ -93,7 +93,10 @@ export default function Chessboard() {
         if (!cursorP.checkBounds) {
             return;
         }
-        const validMove = rules.canMove(getBoards, getPosition, cursorP);
+        const getPiece: Piece = pieceMap.get(getPosition.string)!;
+        const capture: string = pieceMap.has(cursorP.string) ? "" : ""; //doesnt work for enpassant right now
+        const encoding = getPiece.type + getPosition.string + capture + cursorP.string;
+        const validMove = rules.canMove(getBoards, encoding);
         if (!validMove) {
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
@@ -102,7 +105,7 @@ export default function Chessboard() {
             return; 
         }
         positionHighlight = getPosition.copyPosition;
-        const nextBoard: PieceMap = getBoards.get(getPosition.string+cursorP.string)![0];
+        const nextBoard: PieceMap = getBoards.get(encoding)![0];
         const isCapture = pieceMap.has(cursorP.string);
         const movePiece = pieceMap.get(getPosition.string)!;
         setPieceMap(nextBoard);
@@ -127,7 +130,7 @@ export default function Chessboard() {
         if (status === GameState.CHECKMATE || status === GameState.STALEMATE) {
             return;
         }
-        //console.log(newBoards)
+        console.log(newBoards)
         setBoards(newBoards);
 
         //console.log(worstCase(newBoards, turn))
@@ -141,8 +144,13 @@ export default function Chessboard() {
     }
     //rendering board
     const board = [];
-    const highlightMap = (positionHighlight.samePosition(getPosition) && pieceMap.has(getPosition.string)) ?
-        pieceMap.get(getPosition.string)?.moveMap! : new Map();
+    const highlightMap = (
+        positionHighlight.samePosition(getPosition) && 
+        pieceMap.has(getPosition.string) &&
+        pieceMap.get(getPosition.string)?.color === turn
+    ) ?
+        pieceMap.get(getPosition.string)?.moveMap! : 
+        new Map();
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;

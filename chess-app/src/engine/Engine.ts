@@ -1,4 +1,4 @@
-import { PieceColor } from "../Constants";
+import { GameState, PieceColor } from "../Constants";
 import { Piece, PieceMap, getPOV } from "../models";
 import { findKing } from "../rules";
 import Rules from "../rules/Rules";
@@ -25,32 +25,43 @@ export function miniMaxAlphaBeta(
     }
     kingKey = findKing(pieceMap, kingKey, (color));
     const king: Piece = pieceMap.get(kingKey)!;
-    const [, nextBoards] = new Rules().populateValidMoves(pieceMap, (color), king);
-    if (nextBoards.size === 0) {
-        return [path, 1000 * getPOV(color)];
+    const rules = new Rules();
+    const [newPieceMap, nextBoards] = rules.populateValidMoves(pieceMap, (color), king);
+    const status = rules.getStatus(nextBoards, newPieceMap, king);
+    switch(status) {
+        case GameState.CHECKMATE:
+            return [path, 1000 * getPOV(color)];
+        case GameState.STALEMATE:
+            return [path, 0];
     }
-    const size = pieceMap.size;
-    const futility: number = (depth <= futile) ? 0.626 * (3 ** (futile - depth)) : 0; 
+    const size = newPieceMap.size;
+    const futility: boolean = (depth <= futile) ? true : false
+    let stop: number = 1;
     let bestPath: string[] = path;
     if (color === PieceColor.WHITE) {
         let maxEval = -4096;
         for (const [move, [board, dynamicEval]] of nextBoards) {
             //check for mate by finding the new king and checking if mate
-            /*let evaluation;
-            let moves: string[] = [...path, move];
-            if (beta - futility <= alpha) {
-                //evaluation = dynamicEval;
-            } else {*/
+            //let evaluation;
+            //let moves: string[] = [...path, move];
+            let stop = 1;
+            if (futility) {
+                if (board.size === size) {
+                    stop = 0;
+                } else {
+                    continue; //if theres a last min capture, then stop because we need to always let the opponent respond
+                }
+            }
             const [moves, evaluation] = miniMaxAlphaBeta(
-                board,            depth - 1,       futile,
+                board,            (depth-1)*stop,   futile,
                 alpha,            beta,
-                PieceColor.BLACK, [...path, move],
+                PieceColor.BLACK, path,
                 nextKing,         kingKey,
             );
             maxEval = Math.max(maxEval, evaluation);
-            if (evaluation >= alpha) {
-                alpha = evaluation;
-                bestPath = moves;
+            if (maxEval > alpha) {
+                alpha = maxEval;
+                bestPath = [move, ...moves];
             }
             if (beta <= alpha) {
                 break;
@@ -61,22 +72,25 @@ export function miniMaxAlphaBeta(
         let minEval = 4096;
         for (const [move, [board, dynamicEval]] of nextBoards) {
             //check for mate by finding the new king and checking if mate
-            /*let evaluation;
-            let moves: string[] = [...path, move];
-            if (beta - futility <= alpha) {
-                evaluation = dynamicEval;
-            } else {*/
+            let stop = 1;
+            if (futility) {
+                if (board.size === size) {
+                    stop = 0;
+                } else {
+                    continue; //if theres a last min capture, then stop because we need to always let the opponent respond
+                }
+            }
             const [moves, evaluation] = miniMaxAlphaBeta(
-                board,            depth - 1,        futile,
+                board,            (depth-1)*stop,   futile,
                 alpha,            beta,
-                PieceColor.WHITE, [...path, move],
+                PieceColor.WHITE, path,
                 nextKing,         kingKey,
             );
             //}
             minEval = Math.min(minEval, evaluation);
-            if (evaluation <= beta) {
-                beta = evaluation;
-                bestPath = moves;
+            if (minEval < beta) {
+                beta = minEval;
+                bestPath = [move, ...moves];
             }
             if (beta <= alpha) {
                 break;

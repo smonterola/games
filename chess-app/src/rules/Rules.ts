@@ -9,10 +9,9 @@ import { deepClone } from "./History/Clone";
 export default class Rules {
     canMove(
         nextBoards: BoardMap,
-        p0: Position,
-        p1: Position,
-    ): boolean {
-        return nextBoards.has(p0.string+p1.string);
+        encoding: string, //pass to here in case it is not a map anymore
+    ): boolean { //need to change this to encoding
+        return nextBoards.has(encoding);
     }
 
     populateValidMoves(
@@ -25,7 +24,7 @@ export default class Rules {
         for (let piece of pMap.values()) {
             let destinationBoards: BoardMap = new Map();
             if (piece.color !== color) {
-                piece.moveMap?.clear();
+                //piece.moveMap?.clear();
                 continue; //check if this should be cleared or not
             }
             if (piece.type === PieceType.PAWN) { 
@@ -38,7 +37,14 @@ export default class Rules {
             }
             [piece.moveMap, destinationBoards] = this.filterMoves(pMap, piece, king); //this is what needs to be fixed
             for (let [destination, [nextBoard, score]] of destinationBoards) {
-                longBoards.set(piece.position.string+destination, [(nextBoard), score]);
+                const capture = (pMap.size - nextBoard.size) ? "" : ""
+                longBoards.set(
+                    piece.type + 
+                    piece.position.string +
+                    capture +
+                    destination, 
+                    [(nextBoard), score]
+                );
             }
         }
         return [pMap, longBoards];
