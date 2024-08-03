@@ -27,8 +27,7 @@ for (let pieceColor of Object.values(PieceColor)) {
     }
 }
 
-const rules = new Rules();
-export const [initialPieceMap, initialBoards] = rules.populateValidMoves(
+export const [initialPieceMap, initialBoards] = new Rules().populateValidMoves(
     initialMap, 
     PieceColor.WHITE, 
     initialMap.get("e1")!
