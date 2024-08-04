@@ -32,7 +32,7 @@ export default function Chessboard() {
             setTimeout(
                 function(){
                     const start = performance.now();
-                    const bestMoveScore = miniMaxAlphaBeta(pieceMap, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
+                    const bestMoveScore = miniMaxAlphaBeta(pieceMap, 2, 0, -9999, 9999, (turn), [], "e1", "e1");
                     
                     //const depthTwo = quadMoves(getBoards, turn); 
                     const end = performance.now();

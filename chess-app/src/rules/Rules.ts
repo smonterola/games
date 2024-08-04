@@ -77,7 +77,7 @@ export default class Rules {
         piece: Piece,
         king: Piece,
     ): [PositionMap, BoardMap] {
-        const pMap: PieceMap = deepClone(pieceMap); //needs to stay to protect the rook
+        const pMap: PieceMap = deepClone(pieceMap); //needs to stay to protect the rook //tried many times to remove it but it has to stay
         const moveMap = (piece.moveMap!);
         const destinationBoards: BoardMap = new Map()
         for (const destination of moveMap.values()) {

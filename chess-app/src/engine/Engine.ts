@@ -1,5 +1,5 @@
 import { GameState, PieceColor } from "../Constants";
-import { Piece, PieceMap, getPOV } from "../models";
+import { BoardMap, Piece, PieceMap, getPOV } from "../models";
 import { findKing } from "../rules";
 import Rules from "../rules/Rules";
 import { evaluate } from "./EvaluateBoard";
@@ -99,3 +99,17 @@ export function miniMaxAlphaBeta(
         return [bestPath, minEval];
     }
 }
+
+function sortMoves(boardMap: BoardMap) {
+    let moves
+
+}
+/*
+
+find the best move at each depth
+one it is found let the next iteration use that key to find the 
+
+
+
+
+*/

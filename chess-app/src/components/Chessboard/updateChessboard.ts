@@ -10,7 +10,29 @@ export function updatePieceMap(
     piece: Piece,
 ){  
     const newPieceMap: PieceMap = deepClone(pieceMap);
-    let movePiece = piece.clone();
+    let movePiece: Piece = piece.clone();
+
+    // checks, captures, mate, en passant, castling, stalemate
+    // how to know if check, use the function I made, maybe pass king string to make it easier to find it
+        //if they are in check, then also check if it is mate.
+            //check if they have legal moves, use the status funciton. Have update piece map pass in strings to both kings
+    // find the old piece. If it does not exist then no capture
+        // dont forget to check en passant
+    // if there was a piece there, check what it was. Use a to be built function that compares the difference it material.
+        // the rating of the captures will be sorted by the result of the function
+    // if there are ever any ties, always check specific order of pieces
+        // look at king last, figure out and order of the other pieces too
+    //log if castling took place. that also needs to be returned for the encoding
+    // dont need flags, just return the longform encoding
+
+    const enPassant = false;
+    const shortCastle = false;
+    const longCastle = false;
+    const check = false;
+    const checkmate = false;
+    const stalemate = false;
+    const promotion = false;
+
     const doublePawn: boolean = movePiece.type === PieceType.PAWN && Math.abs(p1.y - p0.y) === 2;
     //DELETING WHERE PIECE WAS
     newPieceMap.delete(p0.string);
