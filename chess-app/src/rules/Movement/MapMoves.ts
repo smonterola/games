@@ -1,4 +1,3 @@
-import { PieceType } from "../../Constants";
 import { Piece, PieceMap, Position, PositionMap } from "../../models";
 import { pieceDirectons } from "../pieces/Directions";
 
@@ -6,9 +5,9 @@ export const mapMoves = (
     pieceMap: PieceMap,
     piece: Piece,
 ): PositionMap => {
-    let moveMap: PositionMap = new Map();
+    const moveMap: PositionMap = new Map();
     const [directions, once] = pieceDirectons.get(piece.type)!;
-    for (let direction of directions) {
+    for (const direction of directions) {
         let tempPosition: Position = piece.position.addPositions(direction);
         while (tempPosition.checkBounds) {
             if (!tempPosition.isOccupied(pieceMap)) {

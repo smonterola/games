@@ -23,7 +23,7 @@ export class Board {
         enPassant: number,
     ): void { //make this a bitset later
         this._attributes = [
-            (turn === PieceColor.WHITE) ? 1 : -1,
+            (turn === PieceColor.WHITE) ? 1 : 0,
             (shortCastle) ? 1 : 0,
             (longCastle)  ? 1 : 0,
             enPassant,

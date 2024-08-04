@@ -1,44 +1,28 @@
 import { PieceColor, PieceType } from "../../Constants";
-import { Piece, PieceMap, Position, PositionMap, getPOV } from "../../models";
+import { Board, Piece, PieceMap, Position, PositionMap, getPOV } from "../../models";
 import { pieceDirectons } from "./Directions";
-import { cloneMoves } from "../History/Clone";
+import { mapMoves } from "../Movement/MapMoves";
 
 export function castle(
-    pieceMap: PieceMap, 
+    board: Board, 
     king: Piece, 
-    kingMap: PositionMap,
 ): PositionMap {
-    const pMap = pieceMap;
-    const rank = king.color === PieceColor.WHITE ? 0 : 7;
-    if (
-        king.type !== PieceType.KING || 
-        king.hasMoved === true || 
-        isCheck(pMap, king.position, king.color) ||
-        !pMap.has(new Position(7, rank).string)
-    ){
+    const pMap = board.pieces;
+    const [_color, shortCastle, longCastle, _enPassant] = board.attributes;
+    const kingMap: PositionMap = mapMoves(pMap, king);
+    if (isCheck(pMap, king.position, king.color)){
         return kingMap;
     }
-    const newKingMap: PositionMap = cloneMoves(kingMap);
-    const shortCastle: boolean = (
-        pMap.get(new Position(7, rank).string)?.hasMoved === false && //kingside rook hasn't moved
-        canPass(pMap, new Position(5, rank), king.color) &&
-        canPass(pMap, new Position(6, rank), king.color)
-    );
-    const longCastle: boolean = (
-        pMap.get(new Position(0, rank).string)?.hasMoved === false && //queenside rook hasn't moved
-        !new Position(1, rank).isOccupied(pMap) &&
-        canPass(pMap, new Position(2, rank), king.color) &&
-        canPass(pMap, new Position(3, rank), king.color)
-    );
+    const rank = king.color === PieceColor.WHITE ? 0 : 7;
     if (shortCastle) {
         const shortKing = new Position(6, rank);
-        newKingMap.set(shortKing.string, shortKing);
+        kingMap.set(shortKing.string, shortKing);
     }
     if (longCastle) {
         const longKing = new Position(2, rank);
-        newKingMap.set(longKing.string, longKing);
+        kingMap.set(longKing.string, longKing);
     }
-    return newKingMap;
+    return kingMap;
 }
 
 export function isCheck(

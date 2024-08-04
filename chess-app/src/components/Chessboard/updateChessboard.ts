@@ -1,16 +1,17 @@
 import { PieceColor, PieceType } from "../../Constants";
-import { Piece, PieceMap, Position } from "../../models";
+import { Board, Piece, PieceMap, Position } from "../../models";
 import { deepClone } from "../../rules/History/Clone";
 
 //consider making this a class
-export function updatePieceMap(
-    pieceMap: PieceMap, 
+export function updateBoard(
+    board: Board, 
     p0: Position, 
     p1: Position, 
     piece: Piece,
-){  
-    const newPieceMap: PieceMap = deepClone(pieceMap);
-    let movePiece: Piece = piece.clone();
+): Board {  
+    const pieceMap: PieceMap = deepClone(board.pieces);
+    const [color, shortCastle, longCastle, enPassant] = board.attributes;
+    let movePiece: Piece = piece.clone;
 
     // checks, captures, mate, en passant, castling, stalemate
     // how to know if check, use the function I made, maybe pass king string to make it easier to find it
@@ -25,9 +26,6 @@ export function updatePieceMap(
     //log if castling took place. that also needs to be returned for the encoding
     // dont need flags, just return the longform encoding
 
-    const enPassant = false;
-    const shortCastle = false;
-    const longCastle = false;
     const check = false;
     const checkmate = false;
     const stalemate = false;
@@ -35,7 +33,7 @@ export function updatePieceMap(
 
     const doublePawn: boolean = movePiece.type === PieceType.PAWN && Math.abs(p1.y - p0.y) === 2;
     //DELETING WHERE PIECE WAS
-    newPieceMap.delete(p0.string);
+    pieceMap.delete(p0.string);
     //PAWN BEHAVIOR
     if (movePiece.type === PieceType.PAWN) {
         //CHECKING FOR PROMOTION

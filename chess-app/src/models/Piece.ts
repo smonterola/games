@@ -11,9 +11,7 @@ export class Piece {
     position: Position;
     type: PieceType;
     color: PieceColor;
-    moveMap?: PositionMap;
-    enPassant?: boolean = false;
-    hasMoved?: boolean = false; //for castling
+    moveMap?: PositionMap; //get rid of this later
     constructor(
         position: Position, 
         type: PieceType, 
@@ -26,7 +24,7 @@ export class Piece {
         this.color = color;
         this.moveMap = moveMap;
     } 
-    clone(): Piece {
+    get clone: Piece {
         return new Piece(
             this.position.clone,
             this.type,

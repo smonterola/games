@@ -2,9 +2,10 @@ import { BoardMap, Piece, PieceMap, Position, PositionMap } from "../models";
 import { PieceType, PieceColor, GameState } from "../Constants";
 import { mapMoves, movePawn } from "."
 import { castle, isCheck } from "./pieces/King";
-import { updatePieceMap } from "../components/Chessboard/updateChessboard";
+import { updateBoard } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine";
 import { deepClone } from "./History/Clone";
+import { Board } from "../models";
 
 export default class Rules {
     canMove(
@@ -15,27 +16,33 @@ export default class Rules {
     }
 
     populateValidMoves(
-        pieceMap: PieceMap,
+        board: Board,
         color: PieceColor,
         king: Piece,
     ): [PieceMap, BoardMap] {
-        const pMap: PieceMap = (pieceMap);
-        const longBoards: BoardMap = new Map();
+        const pMap: PieceMap = (board.pieces);
+        const nextBoards: BoardMap = new Map();
         for (let piece of pMap.values()) {
             let destinationBoards: BoardMap = new Map();
             if (piece.color !== color) {
-                //piece.moveMap?.clear();
                 continue; //check if this should be cleared or not
             }
-            if (piece.type === PieceType.PAWN) { 
-                piece.moveMap = movePawn(pMap, piece.position, color);
-            } else if (piece.type === PieceType.KING) {
-                piece.moveMap = mapMoves(pMap, piece);
-                piece.moveMap = castle(pMap, piece, piece.moveMap);
-            } else {
-                piece.moveMap = mapMoves(pMap, piece);
+            switch (piece.type) {
+                case PieceType.PAWN:
+                    piece.moveMap = movePawn(board, piece.position);
+                    break;
+                case PieceType.KING:
+                    piece.moveMap = castle(board, piece);
+                    break;
+                default:
+                    piece.moveMap = mapMoves(pMap, piece);
+                    break;
             }
-            [piece.moveMap, destinationBoards] = this.filterMoves(pMap, piece, king); //this is what needs to be fixed
+            [piece.moveMap, destinationBoards] = this.filterMoves(
+                new Board(pMap, board.attributes),
+                piece, 
+                king
+            );
             for (let [destination, [nextBoard, score]] of destinationBoards) {
                 const capture = (pMap.size - nextBoard.size) ? "" : ""
                 longBoards.set(
@@ -56,7 +63,7 @@ export default class Rules {
         destination: Position,
         king: Piece,
     ): [boolean, PieceMap, number] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
-        const nextPieceMap = updatePieceMap(
+        const nextPieceMap = updateBoard( //change the attributes here
             pieceMap, 
             piece.position, 
             destination,
@@ -73,11 +80,11 @@ export default class Rules {
     }
 
     filterMoves(
-        pieceMap: PieceMap,
+        board: Board,
         piece: Piece,
         king: Piece,
     ): [PositionMap, BoardMap] {
-        const pMap: PieceMap = deepClone(pieceMap); //needs to stay to protect the rook //tried many times to remove it but it has to stay
+        const pMap: PieceMap = deepClone(board.pieces); //needs to stay to protect the rook //tried many times to remove it but it has to stay
         const moveMap = (piece.moveMap!);
         const destinationBoards: BoardMap = new Map()
         for (const destination of moveMap.values()) {
