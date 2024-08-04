@@ -1,4 +1,4 @@
-import { Piece, Position } from "../../models";
+import { Board, Piece, Position } from "../../models";
 import { PieceType, PieceColor } from "../../Constants";
 import { PieceMap } from "../../models";
 import Rules from "../../rules/Rules";
@@ -26,7 +26,16 @@ for (let pieceColor of Object.values(PieceColor)) {
         initialMap.set(pPawn.string,  new Piece(pPawn, PieceType.PAWN, color));
     }
 }
+const initialAttributes = [
+     1, /* PieceColor.WHITE, this is the starting color */
+     1, /* true, start out with castling rights to short */
+     1, /* true, start out with castling rights to long */
+    15, /* make 15 the default value for en passant which means null for us as it is not a valid file */
+];
 
+export const initialBoard = new Board(initialMap, initialAttributes);
+
+/*
 let rules = new Rules();
 
 const [blackMoveMap, _basicBoards] = rules.populateValidMoves(
@@ -39,3 +48,4 @@ export const [initialPieceMap, initialBoards] = rules.populateValidMoves(
     PieceColor.WHITE, 
     initialMap.get("e1")!
 );
+*/

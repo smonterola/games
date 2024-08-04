@@ -2,10 +2,11 @@ import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
-import { Piece, Position, PieceMap, BoardMap } from "../../models";
+import { Piece, Position, PieceMap, BoardMap, Board } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor, GameState} from "../../Constants";
 import { nextTurn, findKing, pgnToString } from "../../rules";
-import { initialBoards, initialPieceMap } from "./initChessboard";
+//import { initialBoards, initialPieceMap } from "./initChessboard";
+import { initialBoard } from "./initChessboard";
 import { quadMoves, evaluate, worstCase } from "../../engine";
 import { deepClone } from "../../rules/History/Clone";
 import { miniMaxAlphaBeta } from "../../engine/Engine";
@@ -18,7 +19,8 @@ let positionHighlight: Position = new Position(-1, -1);
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
     const [getPosition, setPosition] = useState<Position>(new Position(-1, -1));
-    const [pieceMap, setPieceMap] = useState<PieceMap>(initialPieceMap);
+    const [board, setBoard] = useState<Board>(initialBoard);
+    const [pieceMap, setPieceMap] = useState<PieceMap>(board.pieces);
     const [getBoards, setBoards] = useState<BoardMap>(initialBoards);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();    
@@ -32,12 +34,12 @@ export default function Chessboard() {
             setTimeout(
                 function(){
                     const start = performance.now();
-                    const bestMoveScore = miniMaxAlphaBeta(pieceMap, 2, 0, -9999, 9999, (turn), [], "e1", "e1");
+                    //const bestMoveScore = miniMaxAlphaBeta(pieceMap, 2, 0, -9999, 9999, (turn), [], "e1", "e1");
                     
                     //const depthTwo = quadMoves(getBoards, turn); 
                     const end = performance.now();
-                    console.log(bestMoveScore);
-                    console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
+                    //console.log(bestMoveScore);
+                    //console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
                     //console.log(depthTwo);
                 }, 0
             );
@@ -143,7 +145,7 @@ export default function Chessboard() {
         //console.log(possibleBranches)
     }
     //rendering board
-    const board = [];
+    //const board = [];
     const highlightMap = (
         positionHighlight.samePosition(getPosition) && 
         pieceMap.has(getPosition.string) &&
@@ -157,7 +159,7 @@ export default function Chessboard() {
             const piece = pieceMap.get(new Position(i, j).string);
             let image = piece ? piece.image : undefined;
             const highlight = highlightMap.has(new Position(i, j).string) ? true : false;
-            board.push(<Tile key={`${i}${j}`} image={image} number={number} highlight={highlight}/>)
+            //board.push(<Tile key={`${i}${j}`} image={image} number={number} highlight={highlight}/>)
         }
     }
     return (

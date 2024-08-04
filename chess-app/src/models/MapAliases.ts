@@ -5,3 +5,6 @@ export type PieceMap = Map<string, Piece>;
 export type PositionMap = Map<string, Position>;
 export type BoardMap = Map<string, [PieceMap, number]>;
 export type PieceCount = Map<string, number>;
+//export type Board = [PieceMap, boolean[]];
+
+//export type MapBoard = Map<string, Board>;

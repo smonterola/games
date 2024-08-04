@@ -1,3 +1,5 @@
+import { PieceMap } from "./models";
+
 export const yAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
 export const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
@@ -24,6 +26,7 @@ export enum GameState {
     CHECK = "Check",
     PLAY = "Play",
 }
+
 //["", "B", "N", "R", "Q", "K", "+", "#", "$", "O-O", "O-O-O"]
 const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
