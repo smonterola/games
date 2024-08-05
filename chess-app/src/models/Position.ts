@@ -30,10 +30,17 @@ export class Position {
         return pieceMap.has(this.string);
     }
     canCapture(pieceMap: PieceMap, color: PieceColor): boolean {
+        if (this.isOccupied(pieceMap) && 
+            pieceMap.get(this.string)!.color !== color &&
+            pieceMap.get(this.string)!.type === PieceType.KING) {
+                //console.log("illegal move")
+                //console.log(this.x, this.y)
+                //console.log(pieceMap)
+            }
         return (
             this.isOccupied(pieceMap) && 
-            pieceMap.get(this.string)!.color !== color &&
-            pieceMap.get(this.string)!.type !== PieceType.KING
+            pieceMap.get(this.string)!.color !== color //&&
+            //pieceMap.get(this.string)!.type !== PieceType.KING
         );
     }
     get clone(): Position {

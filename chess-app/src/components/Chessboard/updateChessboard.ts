@@ -18,6 +18,7 @@ export function updateBoard(
         console.log(board)
     }
     let piece: Piece = pieceMap.get(p0.string)!.clone;
+    piece.position = p1;
     /*
     if (
         (piece.color === PieceColor.WHITE && turn0 !== 1) || 
@@ -35,6 +36,24 @@ export function updateBoard(
     let enPassant1 = 15;
     let [wS1, wL1, bS1, bL1] = [wS0, wL0, bS0, bL0];
 
+    if (pieceMap.has(p1.string)) {
+        const target = pieceMap.get(p1.string)!;
+        if (target.type === PieceType.ROOK) {
+            const topRight = new Position(7,7);
+            const topLeft = new Position(0,7);
+            const bottomRight = new Position(0,0);
+            const bottomLeft = new Position(7, 0);
+            if (target.position.samePosition(topRight)) {
+                bS1 = 0;
+            } else if (target.position.samePosition(topLeft)) {
+                bL1 = 0;
+            } else if (target.position.samePosition(bottomRight)) {
+                wS1 = 0;
+            } else if (target.position.samePosition(bottomLeft)) {
+                wL1 = 0;
+            }
+        }
+    }
     /* DELETING THE PIECE */
     pieceMap.delete(p0.string);
 
@@ -59,6 +78,7 @@ export function updateBoard(
         const rookX = shift === 1 ? 7 : 0; 
         /* moving the rook */
         const rook: Piece = pieceMap.get(new Position(rookX, p0.y).string)!;
+        if (rook) console.log(pieceMap)
         pieceMap.delete(rook.position.string);
         rook.position.x = p1.x - shift; //actual movement is here
         pieceMap.set(rook.position.string, rook); //moving its location in the dictionary

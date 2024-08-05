@@ -11,6 +11,7 @@ import { evaluate } from "../../engine";
 import { deepClone } from "../../rules/History/Clone";
 import { miniMaxAlphaBeta } from "../../engine/Engine";
 import { updateBoard } from "./updateChessboard";
+import { sumMoves } from "../../engine/verifyRules";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -21,7 +22,7 @@ export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
     const [getPosition, setPosition] = useState<Position>(new Position(-1, -1));
     const [board, setBoard] = useState<Board>(initialBoard);
-    const [pieceMap, setPieceMap] = useState<PieceMap>(board.pieces);
+    //const [pieceMap, setPieceMap] = useState<PieceMap>(board.pieces);
     const [boardMap, setBoards] = useState<BoardMap>(initialBoardMap);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();    
@@ -35,9 +36,11 @@ export default function Chessboard() {
             setTimeout(
                 function(){
                     const start = performance.now();
-                    const bestMoveScore = miniMaxAlphaBeta(board, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
+                    const moves = sumMoves(board, 5, (turn), [], "e1", "e1");
+                    //const bestMoveScore = miniMaxAlphaBeta(board, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
                     const end = performance.now();
-                    console.log(bestMoveScore);
+                    console.log(moves)
+                    //console.log(bestMoveScore);
                     console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
                     //console.log(depthTwo);
                 }, 0
@@ -101,6 +104,7 @@ export default function Chessboard() {
             positionHighlight = getPosition.copyPosition;
             return; 
         }
+        let pieceMap = board.pieces;
         let [whiteKingKey, blackKingKey] = [
             findKingKey(pieceMap, "e1", PieceColor.WHITE), 
             findKingKey(pieceMap, "e8", PieceColor.BLACK)
@@ -121,7 +125,7 @@ export default function Chessboard() {
         }
         positionHighlight = getPosition.copyPosition;
         const nextBoard: Board = boardMap.get(move)!;
-        setPieceMap(nextBoard.pieces);
+        pieceMap = (nextBoard.pieces);
         setBoard(nextBoard)
         const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
         pgn.set(Math.floor(moveCounter), move);
@@ -146,6 +150,7 @@ export default function Chessboard() {
     }
     //rendering board
     //console.log(board)
+    const pieceMap = board.pieces;
     const boardUI = [];
     const highlightMap = (
         positionHighlight.samePosition(getPosition) && 

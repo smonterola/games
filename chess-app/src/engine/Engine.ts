@@ -3,8 +3,7 @@ import { Board, BoardMap, Piece, PieceMap, getPOV } from "../models";
 import { findKingKey } from "../rules";
 import Rules from "../rules/Rules";
 import { evaluate } from "./EvaluateBoard";
-import { deepClone } from "../rules/History/Clone";
-import { nextTurn } from "../rules";
+
 
 type MovesScore = [string[], number];
 

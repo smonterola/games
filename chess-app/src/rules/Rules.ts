@@ -114,6 +114,7 @@ export default class Rules {
             2 : 3;
         const moves: number = futures.size === 0 ?
             5 : 7;
+        //return GameState.PLAY;
         switch(check * moves) {
             case 10: 
                 return GameState.CHECKMATE;

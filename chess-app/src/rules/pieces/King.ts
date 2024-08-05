@@ -26,7 +26,7 @@ export function castle(
     if (
         (((color) && wLong) || (!(color) && bLong)) &&
         canPass(pMap, new Position(2, rank), king.color) &&
-        canPass(pMap, new Position(3, rank), king.color) 
+        canPass(pMap, new Position(3, rank), king.color) //need to make sure the rook is here
     ){
         const longKing = new Position(2, rank);
         kingMap.set(longKing.string, longKing);  
