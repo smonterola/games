@@ -2,15 +2,13 @@ import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
-import { Piece, Position, PieceMap, BoardMap, Board } from "../../models";
-import { xAxis, yAxis, TILESIZE, PieceColor, GameState} from "../../Constants";
-import { nextTurn, findKingKey, pgnToString } from "../../rules";
-//import { initialBoards, initialPieceMap } from "./initChessboard";
+import { Piece, Position, BoardMap, Board } from "../../models";
+import { xAxis, yAxis, TILESIZE, PieceColor, GameState, nextTurn} from "../../Constants";
+import { findKingKey } from "../../rules";
 import { initialBoard, initialBoardMap } from "./initChessboard";
-import { evaluate } from "../../engine";
-import { miniMaxAlphaBeta } from "../../engine/Engine";
+import { evaluate, miniMaxAlphaBeta, sumMoves } from "../../engine";
 import { updateBoard } from "./updateChessboard";
-import { sumMoves } from "../../engine/verifyRules";
+import { boardToFen } from "../../rules/Fen";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -35,11 +33,11 @@ export default function Chessboard() {
             setTimeout(
                 function(){
                     const start = performance.now();
-                    const moves = sumMoves(board, 5, (turn), [], "e1", "e1");
-                    //const bestMoveScore = miniMaxAlphaBeta(board, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
+                    //const moves = sumMoves(board, 4, (turn), [], "e1", "e1");
+                    const bestMoveScore = miniMaxAlphaBeta(board, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
                     const end = performance.now();
-                    console.log(moves)
-                    //console.log(bestMoveScore);
+                    //console.log(moves)
+                    console.log(bestMoveScore);
                     console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
                     //console.log(depthTwo);
                 }, 0
@@ -145,6 +143,7 @@ export default function Chessboard() {
         }
         console.log(newBoards)
         console.log(board)
+        console.log(boardToFen(board))
         setBoards(newBoards);
     }
     //rendering board

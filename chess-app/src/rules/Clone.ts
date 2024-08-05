@@ -1,4 +1,4 @@
-import { Piece, PieceMap, PositionMap } from "../../models";
+import { Piece, PieceMap, PositionMap } from "../models";
 
 //DEEP CLONING
 export function deepClone(pieceMap: PieceMap): PieceMap {

@@ -1,9 +1,8 @@
 import { BoardMap, Piece, PieceMap, Position, PositionMap } from "../models";
-import { PieceType, PieceColor, GameState } from "../Constants";
-import { mapMoves, movePawn, nextTurn } from "."
+import { PieceType, nextTurn, GameState } from "../Constants";
+import { mapMoves, movePawn } from "."
 import { castle, findKingKey, isCheck } from "./pieces/King";
 import { updateBoard } from "../components/Chessboard/updateChessboard";
-import { evaluate } from "../engine";
 import { Board } from "../models";
 
 export default class Rules {

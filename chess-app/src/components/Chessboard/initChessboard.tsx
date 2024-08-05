@@ -2,6 +2,7 @@ import { Board, Piece, Position } from "../../models";
 import { PieceType, PieceColor } from "../../Constants";
 import { PieceMap } from "../../models";
 import Rules from "../../rules/Rules";
+import { boardToFen } from "../../rules/Fen";
 
 const rankOrder: PieceType[] = [
     PieceType.ROOK,
@@ -32,11 +33,14 @@ const initialAttributes = [
      1, /* true, start out with black castling rights to short */
      1, /* true, start out with black castling rights to long */ 
     15, /* make 15 the default value for en passant which means null for us as it is not a valid file */
+     0, // start out with 0 since last capture and pawn move
+     1, // move starts at 1
 ];
 
 const rudimentaryBoard = new Board(initialMap, initialAttributes); //eventually need to encode board as a string
 const wKing: Piece = rudimentaryBoard.pieces.get("e1")!
 export const [initialBoard, initialBoardMap] = new Rules().populateValidMoves(rudimentaryBoard, wKing, "e8");
+console.log(boardToFen(initialBoard))
 /*
 let rules = new Rules();
 
