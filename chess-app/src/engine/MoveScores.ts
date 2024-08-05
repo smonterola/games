@@ -1,9 +1,9 @@
 import { PieceColor } from "../Constants";
 import { Piece, BoardMap, PieceMap, getPOV } from "../models";
-import { findKing, nextTurn } from "../rules";
+import { findKingKey, nextTurn } from "../rules";
 import Rules from "../rules/Rules";
 import { Deque } from "./Deque";
-
+/*
 type MovesScore = [string[], number];
 //type Moves = string[]; //type MoveRec = [string, number, string[]]
 
@@ -87,7 +87,7 @@ export function quadMoves(boardMap: BoardMap, color0: PieceColor) {
     let [king0Key, king1Key] = (color0 === PieceColor.WHITE) ? ["e1", "e8"] : ["e8", "e1"];
     let iterations = 0;
     
-    /* STARTS HERE */
+    /* STARTS HERE */ /*
     const worstZero = worstCase(boardMap, color0);
     let finalMoveScores:MovesScore[] = [];
     // loop through our moves

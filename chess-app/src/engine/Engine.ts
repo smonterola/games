@@ -1,6 +1,6 @@
 import { GameState, PieceColor } from "../Constants";
-import { BoardMap, Piece, PieceMap, getPOV } from "../models";
-import { findKing } from "../rules";
+import { Board, BoardMap, Piece, PieceMap, getPOV } from "../models";
+import { findKingKey } from "../rules";
 import Rules from "../rules/Rules";
 import { evaluate } from "./EvaluateBoard";
 import { deepClone } from "../rules/History/Clone";
@@ -9,7 +9,7 @@ import { nextTurn } from "../rules";
 type MovesScore = [string[], number];
 
 export function miniMaxAlphaBeta(
-    pieceMap: PieceMap, 
+    board: Board, 
     depth: number,
     futile: number,
     alpha: number,
@@ -19,14 +19,16 @@ export function miniMaxAlphaBeta(
     kingKey: string,
     nextKing: string,
 ): MovesScore {
+    const pieceMap = board.pieces;
     const staticEvaluation = evaluate(pieceMap);
     if (depth <= 0) {
         return [path, staticEvaluation];
     }
-    kingKey = findKing(pieceMap, kingKey, (color));
+    kingKey = findKingKey(pieceMap, kingKey, (color));
     const king: Piece = pieceMap.get(kingKey)!;
     const rules = new Rules();
-    const [newPieceMap, nextBoards] = rules.populateValidMoves(pieceMap, (color), king);
+    const [newBoard, nextBoards] = rules.populateValidMoves(board, king, nextKing);
+    const newPieceMap = newBoard.pieces;
     const status = rules.getStatus(nextBoards, newPieceMap, king);
     switch(status) {
         case GameState.CHECKMATE:
@@ -40,20 +42,21 @@ export function miniMaxAlphaBeta(
     let bestPath: string[] = path;
     if (color === PieceColor.WHITE) {
         let maxEval = -4096;
-        for (const [move, [board, dynamicEval]] of nextBoards) {
+        for (const [move, branchBoard] of nextBoards) {
+            const branchMap = branchBoard.pieces
             //check for mate by finding the new king and checking if mate
             //let evaluation;
             //let moves: string[] = [...path, move];
             let stop = 1;
             if (futility) {
-                if (board.size === size) {
+                if (branchMap.size === size) {
                     stop = 0;
                 } else {
                     continue; //if theres a last min capture, then stop because we need to always let the opponent respond
                 }
             }
             const [moves, evaluation] = miniMaxAlphaBeta(
-                board,            (depth-1)*stop,   futile,
+                branchBoard,      (depth-1)*stop,   futile,
                 alpha,            beta,
                 PieceColor.BLACK, path,
                 nextKing,         kingKey,
@@ -70,18 +73,19 @@ export function miniMaxAlphaBeta(
         return [bestPath, maxEval];
     } else { /* color === PieceColor.BLACK */
         let minEval = 4096;
-        for (const [move, [board, dynamicEval]] of nextBoards) {
+        for (const [move, branchBoard] of nextBoards) {
+            const branchMap = branchBoard.pieces;
             //check for mate by finding the new king and checking if mate
             let stop = 1;
             if (futility) {
-                if (board.size === size) {
+                if (branchMap.size === size) {
                     stop = 0;
                 } else {
                     continue; //if theres a last min capture, then stop because we need to always let the opponent respond
                 }
             }
             const [moves, evaluation] = miniMaxAlphaBeta(
-                board,            (depth-1)*stop,   futile,
+                branchBoard,      (depth-1)*stop,   futile,
                 alpha,            beta,
                 PieceColor.WHITE, path,
                 nextKing,         kingKey,

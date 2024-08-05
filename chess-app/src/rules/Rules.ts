@@ -1,7 +1,7 @@
 import { BoardMap, Piece, PieceMap, Position, PositionMap } from "../models";
 import { PieceType, PieceColor, GameState } from "../Constants";
-import { mapMoves, movePawn } from "."
-import { castle, isCheck } from "./pieces/King";
+import { mapMoves, movePawn, nextTurn } from "."
+import { castle, findKingKey, isCheck } from "./pieces/King";
 import { updateBoard } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine";
 import { deepClone } from "./History/Clone";
@@ -17,14 +17,16 @@ export default class Rules {
 
     populateValidMoves(
         board: Board,
-        color: PieceColor,
         king: Piece,
-    ): [PieceMap, BoardMap] {
+        enemyKing: string,
+    ): [Board, BoardMap] {
         const pMap: PieceMap = (board.pieces);
+        const attributes = board.attributes;
         const nextBoards: BoardMap = new Map();
+        const enemyKingKey = findKingKey(pMap, enemyKing, nextTurn(king.color));
         for (let piece of pMap.values()) {
             let destinationBoards: BoardMap = new Map();
-            if (piece.color !== color) {
+            if (piece.color !== king.color) {
                 continue; //check if this should be cleared or not
             }
             switch (piece.type) {
@@ -39,65 +41,65 @@ export default class Rules {
                     break;
             }
             [piece.moveMap, destinationBoards] = this.filterMoves(
-                new Board(pMap, board.attributes),
+                new Board(pMap, attributes),
                 piece, 
-                king
+                king,
+                enemyKingKey,
             );
-            for (let [destination, [nextBoard, score]] of destinationBoards) {
-                const capture = (pMap.size - nextBoard.size) ? "" : ""
-                longBoards.set(
-                    piece.type + 
-                    piece.position.string +
-                    capture +
-                    destination, 
-                    [(nextBoard), score]
-                );
+            for (let [move, nextBoard] of destinationBoards) {
+                nextBoards.set(move, nextBoard);
             }
         }
-        return [pMap, longBoards];
+        board.setBoard(pMap);
+        return [board, nextBoards];
     }
 
     verifyMove(
-        pieceMap: PieceMap,
+        board: Board,
         piece: Piece,
         destination: Position,
         king: Piece,
-    ): [boolean, PieceMap, number] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
-        const nextPieceMap = updateBoard( //change the attributes here
-            pieceMap, 
+        enemyKingKey: string,
+    ): [boolean, string, Board] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
+        const [move, nextBoard] = updateBoard( //change the attributes here
+            board, 
             piece.position, 
             destination,
-            piece,
+            king.position.string,
+            enemyKingKey,
         );
+
         const pKing = (piece.type !== PieceType.KING) ? 
-            king.position : 
-            destination;
+            king.position : destination;
         
-        if (isCheck(nextPieceMap, pKing, piece.color)) {
-            return [false, new Map(), 0];
+        if (isCheck(nextBoard.pieces, pKing, piece.color)) {
+            return [false, "#hangingMate#", nextBoard];
         }
-        return [true, nextPieceMap, evaluate(nextPieceMap)];
+        return [true, move, nextBoard];
     }
 
     filterMoves(
         board: Board,
         piece: Piece,
         king: Piece,
+        enemyKing: string,
     ): [PositionMap, BoardMap] {
         const pMap: PieceMap = deepClone(board.pieces); //needs to stay to protect the rook //tried many times to remove it but it has to stay
-        const moveMap = (piece.moveMap!);
-        const destinationBoards: BoardMap = new Map()
+        const moveMap = piece.moveMap ? piece.moveMap : new Map();
+        const destinationBoards: BoardMap = new Map();
+        const enemyKingKey = findKingKey(pMap, enemyKing, nextTurn(piece.color));
         for (const destination of moveMap.values()) {
-            const [isLegal, nextPieceMap, evaluation] = this.verifyMove(
-                pMap, 
+            const [isLegal, move, nextBoard] = this.verifyMove(
+                board, 
                 piece, 
                 destination,
-                king
+                king,
+                enemyKingKey,
             );
             if (!isLegal) {
                 moveMap.delete(destination.string);
             } else {
-                destinationBoards.set(destination.string, [(nextPieceMap), evaluation]);
+                destinationBoards.set(move, nextBoard);
             }
         }
         return [moveMap, destinationBoards];

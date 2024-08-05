@@ -8,19 +8,28 @@ export function castle(
     king: Piece, 
 ): PositionMap {
     const pMap = board.pieces;
-    const [_color, shortCastle, longCastle, _enPassant] = board.attributes;
+    const [color, wShort, wLong, bShort, bLong, _enPassant] = board.attributes;
     const kingMap: PositionMap = mapMoves(pMap, king);
+    
     if (isCheck(pMap, king.position, king.color)){
         return kingMap;
     }
     const rank = king.color === PieceColor.WHITE ? 0 : 7;
-    if (shortCastle) {
+    if (
+        (((color) && wShort) || (!(color) && bShort)) &&
+        canPass(pMap, new Position(5, rank), king.color) &&
+        canPass(pMap, new Position(6, rank), king.color)
+    ){
         const shortKing = new Position(6, rank);
         kingMap.set(shortKing.string, shortKing);
     }
-    if (longCastle) {
+    if (
+        (((color) && wLong) || (!(color) && bLong)) &&
+        canPass(pMap, new Position(2, rank), king.color) &&
+        canPass(pMap, new Position(3, rank), king.color) 
+    ){
         const longKing = new Position(2, rank);
-        kingMap.set(longKing.string, longKing);
+        kingMap.set(longKing.string, longKing);  
     }
     return kingMap;
 }
@@ -71,7 +80,7 @@ export function canPass(
     return !p.isOccupied(pieceMap) && !isCheck(pieceMap, p, color);
 }
 
-export function findKing(
+export function findKingKey(
     pieceMap: PieceMap,
     prevKey: string,
     color: PieceColor,
@@ -88,8 +97,6 @@ export function findKing(
     if (!king) {
         console.log("king not found")
         console.log(pieceMap)
-    } else {
-        //console.log(king)
     }
     return king.position.string;
 }

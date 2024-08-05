@@ -1,9 +1,10 @@
 import { PieceColor } from "../Constants";
 import { Piece, BoardMap, PieceMap, getPOV } from "../models";
-import { findKing, nextTurn } from "../rules";
+import { findKingKey, nextTurn } from "../rules";
 import Rules from "../rules/Rules";
 import { Deque } from "./Deque";
 
+/*
 export function scoreMoves(
     lines: Deque,
     boardMap: BoardMap, 
@@ -91,4 +92,4 @@ export function createArray(boardMap: BoardMap): Array<[string[], number, number
         array.push([[move], 0, evaluation]);
     }
     return array; 
-}
+}*/

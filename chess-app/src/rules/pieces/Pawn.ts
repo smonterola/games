@@ -7,29 +7,29 @@ export function movePawn (
     p: Position,
 ): PositionMap {
     const pieceMap = board.pieces;
-    const [colorCode, _shortCastle, _longCastle, enPassantRank] = board.attributes;
+    const [colorCode, _wS, _wL, _bS, _bL, enPassantRank] = board.attributes;
     const color = colorCode ? PieceColor.WHITE : PieceColor.BLACK;
 
     const pawnMap: PositionMap = new Map();
-    const [OG, rank] = colorCode ? [1, 5] : [6, 4];
+    const [OG, rank] = colorCode ? [1, 4] : [6, 3];
     const POV = getPOV(color);
 
     const pawnDirections = rawPawnDirections.map(p => new Position(p.x*POV, p.y*POV))
     const pawnCanidates: Position[] = [];
+
     for (let i = 0; i < 6; i++) {
         pawnCanidates.push(p.addPositions(pawnDirections[i]));
     }
-
     const [upperLeft, upperRight, upOne, upTwo, left, right] = pawnCanidates;
-    if (
-        upperLeft.canCapture(pieceMap, color) || 
-        left.samePosition(new Position(enPassantRank, rank))
-    ){
+    const enPassantSquare = new Position(enPassantRank, rank);
+
+    if (upperLeft.canCapture(pieceMap, color) ||
+        left.samePosition(enPassantSquare)
+    ) {
         pawnMap.set(upperLeft.string, upperLeft);
     }
-    if (
-        upperRight.canCapture(pieceMap, color) ||
-        left.samePosition(new Position(enPassantRank, rank))
+    if (upperRight.canCapture(pieceMap, color) ||
+        right.samePosition(enPassantSquare)
     ) {
         pawnMap.set(upperRight.string, upperRight);
     }

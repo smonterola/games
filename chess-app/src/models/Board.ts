@@ -18,14 +18,18 @@ export class Board {
     }
     setAttributes(
         turn: PieceColor, 
-        shortCastle: boolean,
-        longCastle: boolean,
+        wShort: boolean,
+        wLong: boolean,
+        bShort: boolean,
+        bLong: boolean,
         enPassant: number,
     ): void { //make this a bitset later
         this._attributes = [
             (turn === PieceColor.WHITE) ? 1 : 0,
-            (shortCastle) ? 1 : 0,
-            (longCastle)  ? 1 : 0,
+            (wShort) ? 1 : 0,
+            (wLong)  ? 1 : 0,
+            (bShort) ? 1 : 0,
+            (bLong)  ? 1 : 0,
             enPassant,
         ];
     }

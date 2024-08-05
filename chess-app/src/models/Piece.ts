@@ -4,7 +4,7 @@ import { Position } from "./Position";
 
 const parent = "assets/images/";
 const pieceSet = "palmpals"
-const file = ".png"
+const extension = ".png"
 
 export class Piece {
     image: string;
@@ -18,13 +18,13 @@ export class Piece {
         color: PieceColor,
         moveMap: PositionMap = new Map(),
     ){
-        this.image = `${parent}${pieceSet}/${color}${type}${file}`;
+        this.image = `${parent}${pieceSet}/${color}${type}${extension}`;
         this.position = position;
         this.type = type;
         this.color = color;
         this.moveMap = moveMap;
     } 
-    get clone: Piece {
+    get clone(): Piece {
         return new Piece(
             this.position.clone,
             this.type,
