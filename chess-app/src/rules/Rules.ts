@@ -4,7 +4,6 @@ import { mapMoves, movePawn, nextTurn } from "."
 import { castle, findKingKey, isCheck } from "./pieces/King";
 import { updateBoard } from "../components/Chessboard/updateChessboard";
 import { evaluate } from "../engine";
-import { deepClone } from "./History/Clone";
 import { Board } from "../models";
 
 export default class Rules {
@@ -84,7 +83,7 @@ export default class Rules {
         king: Piece,
         enemyKing: string,
     ): [PositionMap, BoardMap] {
-        const pMap: PieceMap = deepClone(board.pieces); //needs to stay to protect the rook //tried many times to remove it but it has to stay
+        const pMap: PieceMap = board.pieces; //does NOT need deep clone
         const moveMap = piece.moveMap ? piece.moveMap : new Map();
         const destinationBoards: BoardMap = new Map();
         const enemyKingKey = findKingKey(pMap, enemyKing, nextTurn(piece.color));

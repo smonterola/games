@@ -19,7 +19,6 @@ export function updateBoard(
     }
     let piece: Piece = pieceMap.get(p0.string)!.clone;
     piece.position = p1;
-    /*
     if (
         (piece.color === PieceColor.WHITE && turn0 !== 1) || 
         (piece.color === PieceColor.BLACK && turn0 !== 0) 
@@ -27,7 +26,7 @@ export function updateBoard(
         console.clear();
         console.log("big error");
         return ["", new Board(new Map(), [])]; //this should never happen
-    } */
+    }
 
     /* prepare the constants to be returned to classify the move */
     let [capture, promotion] = ["", ""];

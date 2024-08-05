@@ -8,7 +8,6 @@ import { nextTurn, findKingKey, pgnToString } from "../../rules";
 //import { initialBoards, initialPieceMap } from "./initChessboard";
 import { initialBoard, initialBoardMap } from "./initChessboard";
 import { evaluate } from "../../engine";
-import { deepClone } from "../../rules/History/Clone";
 import { miniMaxAlphaBeta } from "../../engine/Engine";
 import { updateBoard } from "./updateChessboard";
 import { sumMoves } from "../../engine/verifyRules";
