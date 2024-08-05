@@ -2,13 +2,15 @@ import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
-import { Piece, Position, PieceMap, BoardMap } from "../../models";
+import { Piece, Position, PieceMap, BoardMap, Board } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor, GameState} from "../../Constants";
-import { nextTurn, findKing, pgnToString } from "../../rules";
-import { initialBoards, initialPieceMap } from "./initChessboard";
-import { quadMoves, evaluate, worstCase } from "../../engine";
+import { nextTurn, findKingKey, pgnToString } from "../../rules";
+//import { initialBoards, initialPieceMap } from "./initChessboard";
+import { initialBoard, initialBoardMap } from "./initChessboard";
+import { evaluate } from "../../engine";
 import { deepClone } from "../../rules/History/Clone";
 import { miniMaxAlphaBeta } from "../../engine/Engine";
+import { updateBoard } from "./updateChessboard";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -18,8 +20,9 @@ let positionHighlight: Position = new Position(-1, -1);
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
     const [getPosition, setPosition] = useState<Position>(new Position(-1, -1));
-    const [pieceMap, setPieceMap] = useState<PieceMap>(initialPieceMap);
-    const [getBoards, setBoards] = useState<BoardMap>(initialBoards);
+    const [board, setBoard] = useState<Board>(initialBoard);
+    const [pieceMap, setPieceMap] = useState<PieceMap>(board.pieces);
+    const [boardMap, setBoards] = useState<BoardMap>(initialBoardMap);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();    
 
@@ -27,14 +30,12 @@ export default function Chessboard() {
         const chessboard = chessboardRef.current;
         const element = e.target as HTMLElement;
         if (!chessboard || !element.classList.contains("chess-piece")) {
-            console.log("finding moves that are good for", turn)
+            console.log("finding moves that are good for", turn);
             
             setTimeout(
                 function(){
                     const start = performance.now();
-                    const bestMoveScore = miniMaxAlphaBeta(pieceMap, 2, 0, -9999, 9999, (turn), [], "e1", "e1");
-                    
-                    //const depthTwo = quadMoves(getBoards, turn); 
+                    const bestMoveScore = miniMaxAlphaBeta(board, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
                     const end = performance.now();
                     console.log(bestMoveScore);
                     console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
@@ -93,10 +94,24 @@ export default function Chessboard() {
         if (!cursorP.checkBounds) {
             return;
         }
-        const getPiece: Piece = pieceMap.get(getPosition.string)!;
-        const capture: string = pieceMap.has(cursorP.string) ? "" : ""; //doesnt work for enpassant right now
-        const encoding = getPiece.type + getPosition.string + capture + cursorP.string;
-        const validMove = rules.canMove(getBoards, encoding);
+        if (cursorP.samePosition(getPosition)) {
+            activePiece.style.position = "relative";
+            activePiece.style.removeProperty("top");
+            activePiece.style.removeProperty("left");
+            positionHighlight = getPosition.copyPosition;
+            return; 
+        }
+        let [whiteKingKey, blackKingKey] = [
+            findKingKey(pieceMap, "e1", PieceColor.WHITE), 
+            findKingKey(pieceMap, "e8", PieceColor.BLACK)
+        ];
+        const [move, _board] = updateBoard(board, getPosition, cursorP, whiteKingKey, blackKingKey);
+        const validMove = rules.canMove(boardMap, move);
+
+        //const getPiece: Piece = pieceMap.get(getPosition.string)!;
+        //const capture: string = pieceMap.has(cursorP.string) ? "" : ""; //doesnt work for enpassant right now
+        //const encoding = getPiece.type + getPosition.string + capture + cursorP.string;
+        //const validMove = rules.canMove(getBoards, encoding);
         if (!validMove) {
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
@@ -105,59 +120,46 @@ export default function Chessboard() {
             return; 
         }
         positionHighlight = getPosition.copyPosition;
-        const nextBoard: PieceMap = getBoards.get(encoding)![0];
-        const isCapture = pieceMap.has(cursorP.string);
-        const movePiece = pieceMap.get(getPosition.string)!;
-        setPieceMap(nextBoard);
+        const nextBoard: Board = boardMap.get(move)!;
+        setPieceMap(nextBoard.pieces);
+        setBoard(nextBoard)
         const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
-        pgn.set(moveCounter, pgnToString(movePiece, getPosition, cursorP, append, isCapture));
-        moveCounter += movePiece.color === PieceColor.WHITE ? 0 : 1; //WHITE = 0, BLACK = 1
+        pgn.set(Math.floor(moveCounter), move);
+        moveCounter += 0.5; //WHITE = 0, BLACK = 1
         console.log(pgn);
         turn = nextTurn(turn);
         
-        const [whiteKingKey, blackKingKey] = [
-            findKing(pieceMap, "e1", PieceColor.WHITE), 
-            findKing(pieceMap, "e8", PieceColor.BLACK)
+        [whiteKingKey, blackKingKey] = [
+            findKingKey(pieceMap, whiteKingKey, PieceColor.WHITE), 
+            findKingKey(pieceMap, blackKingKey, PieceColor.BLACK)
         ];
-        const kingKey = turn === PieceColor.WHITE ? whiteKingKey : blackKingKey;
+        const [kingKey, otherKey] = turn === PieceColor.WHITE ? [whiteKingKey, blackKingKey] : [blackKingKey, whiteKingKey];
         const king: Piece = pieceMap.get(kingKey)!;
-        const [newPieceMap, newBoards] = rules.populateValidMoves((nextBoard), turn, king);
-        const status: GameState = rules.getStatus(newBoards, newPieceMap, king);
-        setTimeout(function(){
-            console.log(status, evaluate((newPieceMap)));
-            console.log(newPieceMap);
-            }, 0);
+        const [newPieceMap, newBoards] = rules.populateValidMoves((nextBoard), king, otherKey);
+        const status: GameState = rules.getStatus(newBoards, newPieceMap.pieces, king);
         if (status === GameState.CHECKMATE || status === GameState.STALEMATE) {
             return;
         }
         console.log(newBoards)
+        console.log(board)
         setBoards(newBoards);
-
-        //console.log(worstCase(newBoards, turn))
-        //const depthTwo = doubleMoves(newBoards, turn); 
-        //console.log(depthTwo);
-        //let lines = (createDeque(newBoards));
-        //const newLines = scoreMoves(lines, newBoards, 1, turn, whiteKingKey, blackKingKey);
-        //console.log(newLines)
-        //const possibleBranches = countMoves(newBoards, 3, 0, turn, whiteKingKey, blackKingKey);
-        //console.log(possibleBranches)
     }
     //rendering board
-    const board = [];
+    //console.log(board)
+    const boardUI = [];
     const highlightMap = (
         positionHighlight.samePosition(getPosition) && 
         pieceMap.has(getPosition.string) &&
         pieceMap.get(getPosition.string)?.color === turn
     ) ?
-        pieceMap.get(getPosition.string)?.moveMap! : 
-        new Map();
+        pieceMap.get(getPosition.string)?.moveMap! : new Map();
     for (let j = yAxis.length - 1; j >= 0; j--) {
         for (let i = 0; i < xAxis.length; i++) {
             const number = i+j;
             const piece = pieceMap.get(new Position(i, j).string);
             let image = piece ? piece.image : undefined;
             const highlight = highlightMap.has(new Position(i, j).string) ? true : false;
-            board.push(<Tile key={`${i}${j}`} image={image} number={number} highlight={highlight}/>)
+            boardUI.push(<Tile key={`${i}${j}`} image={image} number={number} highlight={highlight}/>)
         }
     }
     return (
@@ -168,7 +170,7 @@ export default function Chessboard() {
             id="chessboard"
             ref={chessboardRef}
         >   
-            {board}
+            {boardUI}
         </div>
     );
 }

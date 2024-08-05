@@ -1,9 +1,7 @@
-import { Piece, Position } from "../../models";
+import { Board, Piece, Position } from "../../models";
 import { PieceType, PieceColor } from "../../Constants";
 import { PieceMap } from "../../models";
 import Rules from "../../rules/Rules";
-
-const initialMap: PieceMap = new Map();
 
 const rankOrder: PieceType[] = [
     PieceType.ROOK,
@@ -16,6 +14,7 @@ const rankOrder: PieceType[] = [
     PieceType.ROOK,
 ];
 
+const initialMap: PieceMap = new Map();
 for (let pieceColor of Object.values(PieceColor)) {
     const [color, y, POV] = pieceColor === PieceColor.BLACK ? 
         [PieceColor.BLACK, 7, -1] : [PieceColor.WHITE, 0, 1];
@@ -26,7 +25,19 @@ for (let pieceColor of Object.values(PieceColor)) {
         initialMap.set(pPawn.string,  new Piece(pPawn, PieceType.PAWN, color));
     }
 }
+const initialAttributes = [
+     1, /* PieceColor.WHITE, this is the starting color */
+     1, /* true, start out with white castling rights to short */
+     1, /* true, start out with white castling rights to long */
+     1, /* true, start out with black castling rights to short */
+     1, /* true, start out with black castling rights to long */ 
+    15, /* make 15 the default value for en passant which means null for us as it is not a valid file */
+];
 
+const rudimentaryBoard = new Board(initialMap, initialAttributes); //eventually need to encode board as a string
+const wKing: Piece = rudimentaryBoard.pieces.get("e1")!
+export const [initialBoard, initialBoardMap] = new Rules().populateValidMoves(rudimentaryBoard, wKing, "e8");
+/*
 let rules = new Rules();
 
 const [blackMoveMap, _basicBoards] = rules.populateValidMoves(
@@ -39,3 +50,4 @@ export const [initialPieceMap, initialBoards] = rules.populateValidMoves(
     PieceColor.WHITE, 
     initialMap.get("e1")!
 );
+*/

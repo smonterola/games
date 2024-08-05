@@ -4,29 +4,27 @@ import { Position } from "./Position";
 
 const parent = "assets/images/";
 const pieceSet = "palmpals"
-const file = ".png"
+const extension = ".png"
 
 export class Piece {
     image: string;
     position: Position;
     type: PieceType;
     color: PieceColor;
-    moveMap?: PositionMap;
-    enPassant?: boolean = false;
-    hasMoved?: boolean = false; //for castling
+    moveMap?: PositionMap; //get rid of this later
     constructor(
         position: Position, 
         type: PieceType, 
         color: PieceColor,
         moveMap: PositionMap = new Map(),
     ){
-        this.image = `${parent}${pieceSet}/${color}${type}${file}`;
+        this.image = `${parent}${pieceSet}/${color}${type}${extension}`;
         this.position = position;
         this.type = type;
         this.color = color;
         this.moveMap = moveMap;
     } 
-    clone(): Piece {
+    get clone(): Piece {
         return new Piece(
             this.position.clone,
             this.type,
