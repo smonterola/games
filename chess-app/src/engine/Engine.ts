@@ -4,7 +4,6 @@ import { findKingKey } from "../rules";
 import Rules from "../rules/Rules";
 import { evaluate } from "./EvaluateBoard";
 
-
 type MovesScore = [string[], number];
 
 export function miniMaxAlphaBeta(
@@ -19,16 +18,22 @@ export function miniMaxAlphaBeta(
     nextKing: string,
 ): MovesScore {
     const pieceMap = board.pieces;
-    const staticEvaluation = evaluate(pieceMap);
+    /* base case */
     if (depth <= 0) {
-        return [path, staticEvaluation];
+        return [path, evaluate(pieceMap)];
     }
+    const fiftyMoveDraw: boolean = board.attributes[6] >= 50;
+    if (fiftyMoveDraw) {
+        return [path, 0];
+    }
+    /* recursion */
     kingKey = findKingKey(pieceMap, kingKey, (color));
     const king: Piece = pieceMap.get(kingKey)!;
     const rules = new Rules();
     const [newBoard, nextBoards] = rules.populateValidMoves(board, king, nextKing);
     const newPieceMap = newBoard.pieces;
     const status = rules.getStatus(nextBoards, newPieceMap, king);
+    /* end if the game is over */
     switch(status) {
         case GameState.CHECKMATE:
             return [path, 1000 * getPOV(color)];
@@ -89,7 +94,6 @@ export function miniMaxAlphaBeta(
                 PieceColor.WHITE, path,
                 nextKing,         kingKey,
             );
-            //}
             minEval = Math.min(minEval, evaluation);
             if (minEval < beta) {
                 beta = minEval;

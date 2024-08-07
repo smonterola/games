@@ -42,32 +42,62 @@ export function boardToFen(board: Board): string {
         const rank: number = (color !== "w") ? 3 : 6;
         enPassant = xAxis[enPassantFile] + `${rank}`;
     }
-    fen += " " + color + " " + castling + " " + enPassant + " " + `${attributes[6]} ${attributes[7]}`;
+    fen += " " + color + " " + castling + " " + enPassant + ` ${attributes[6]} ${attributes[7]}`;
     return fen;
 }
 
-export function fenToBoard(fen: string) {
+export function fenToBoard(fen: string): Board {
     const [pieces, color, castling, enPassant, halfMoves, moveCount] = fen.split(" ", 6);
-    const ranks = pieces.split("/", 8);
+    const ranks: string[] = pieces.split("/", 8);
 
     const pieceMap: PieceMap = new Map();
-    for (let rank = 7; rank >= 0; rank--) {
+    let y = 7;
+    for (const rank of ranks) {
         let x = 0;
-        const pieceRow: string = ranks[rank];
-        while(x < 8) {
-            //pieceRow[]
+        for (const char of rank) {
+            const increment: number = (char.match(/^[1-8]$/)) ? Number(char) : 0;
+            if (increment) {
+                x += increment;
+            } else {
+                const p: Position = new Position(x, y);
+                pieceMap.set(p.string, fenPiece(char, p));
+                x++;
+            }
         }
+        y--;
     }
+    const attributes: number[] = [
+        (color === "w" ? 1 : 0),
+        castling.match('K') ? 1 : 0,
+        castling.match('Q') ? 1 : 0,
+        castling.match('k') ? 1 : 0,
+        castling.match('q') ? 1 : 0,
+        (enPassant === "-") ? 15 : xAxis.indexOf(enPassant[0]),
+        Number(halfMoves), 
+        Number(moveCount),
+    ];
+
+    return new Board(pieceMap, attributes);
 }
 
 function pieceFen(type: PieceType, color: PieceColor): string {
     const char: string = type === PieceType.PAWN ? "P" : `${type}`;
-    if (color === PieceColor.WHITE) {
-        return char;
-    }
-    return char.toLowerCase();
+    return color === PieceColor.WHITE ? char : char.toLowerCase()
 }
-/*
-function fenPiece(char: string, p: Position): Piece {
 
-}*/
+function fenPiece(char: string, position: Position): Piece {
+    const typeCode: Map<string, PieceType> = new Map([
+        ["P", PieceType.PAWN],
+        ["N", PieceType.NGHT],
+        ["B", PieceType.BSHP],
+        ["R", PieceType.ROOK],
+        ["Q", PieceType.QUEN],
+        ["K", PieceType.KING],
+    ]); 
+    return new Piece(
+        position, 
+        typeCode.get(char.toUpperCase())!, 
+        (char.toUpperCase() === char) ? 
+            PieceColor.WHITE : PieceColor.BLACK
+    );
+}

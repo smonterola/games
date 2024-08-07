@@ -4,11 +4,10 @@ import "./Chessboard.css";
 import Rules from "../../rules/Rules";
 import { Piece, Position, BoardMap, Board } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor, GameState, nextTurn} from "../../Constants";
-import { findKingKey } from "../../rules";
+import { findKingKey, boardToFen } from "../../rules";
 import { initialBoard, initialBoardMap } from "./initChessboard";
 import { evaluate, miniMaxAlphaBeta, sumMoves } from "../../engine";
 import { updateBoard } from "./updateChessboard";
-import { boardToFen } from "../../rules/Fen";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
