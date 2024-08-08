@@ -135,7 +135,7 @@ export function updateBoard(
         action = "O-O-O";
     }
 
-    const newAttributes: number[] = [turn1, wS1, wL1, bS1, bL1, enPassant1, halfMoves+1, moveCount+turn1]
+    const newAttributes: number[] = [turn1, wS1, wL1, bS1, bL1, enPassant1, halfMoves+1, moveCount+turn0]
     const updatedBoard = new Board(pieceMap, newAttributes);
 
     //console.log(action)

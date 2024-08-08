@@ -108,10 +108,6 @@ export default function Chessboard() {
         const [move, _board] = updateBoard(board, getPosition, cursorP, whiteKingKey, blackKingKey);
         const validMove = rules.canMove(boardMap, move);
 
-        //const getPiece: Piece = pieceMap.get(getPosition.string)!;
-        //const capture: string = pieceMap.has(cursorP.string) ? "" : ""; //doesnt work for enpassant right now
-        //const encoding = getPiece.type + getPosition.string + capture + cursorP.string;
-        //const validMove = rules.canMove(getBoards, encoding);
         if (!validMove) {
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
@@ -123,9 +119,9 @@ export default function Chessboard() {
         const nextBoard: Board = boardMap.get(move)!;
         pieceMap = (nextBoard.pieces);
         setBoard(nextBoard)
-        const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
-        pgn.set(Math.floor(moveCounter), move);
-        moveCounter += 0.5; //WHITE = 0, BLACK = 1
+        const moveCount = nextBoard.attributes[7];
+        const append: string = (pgn.has(moveCount)) ? pgn.get(moveCount)!: `${moveCounter}.`;
+        pgn.set(moveCount, append + " " + move);
         console.log(pgn);
         turn = nextTurn(turn);
         
@@ -145,8 +141,6 @@ export default function Chessboard() {
         console.log(boardToFen(board))
         setBoards(newBoards);
     }
-    //rendering board
-    //console.log(board)
     const pieceMap = board.pieces;
     const boardUI = [];
     const highlightMap = (

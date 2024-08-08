@@ -2,7 +2,6 @@ import { PieceColor, PieceType, xAxis } from "../Constants";
 import { Board, PieceMap, Position } from "../models";
 import { Piece } from "../models";
 
-
 export function boardToFen(board: Board): string {
     const pieceMap = board.pieces;
     let fen: string = "";
@@ -14,7 +13,7 @@ export function boardToFen(board: Board): string {
                 emptySpaces++;
             } else {
                 if (emptySpaces > 0) {
-                    fen += `${emptySpaces}`
+                    fen += `${emptySpaces}`;
                     emptySpaces = 0;
                 }
                 const piece: Piece = pieceMap.get(p.string)!;
@@ -42,14 +41,12 @@ export function boardToFen(board: Board): string {
         const rank: number = (color !== "w") ? 3 : 6;
         enPassant = xAxis[enPassantFile] + `${rank}`;
     }
-    fen += " " + color + " " + castling + " " + enPassant + ` ${attributes[6]} ${attributes[7]}`;
-    return fen;
+    return fen + " " + color + " " + castling + " " + enPassant + ` ${attributes[6]} ${attributes[7]}`;
 }
 
 export function fenToBoard(fen: string): Board {
     const [pieces, color, castling, enPassant, halfMoves, moveCount] = fen.split(" ", 6);
     const ranks: string[] = pieces.split("/", 8);
-
     const pieceMap: PieceMap = new Map();
     let y = 7;
     for (const rank of ranks) {
@@ -67,22 +64,21 @@ export function fenToBoard(fen: string): Board {
         y--;
     }
     const attributes: number[] = [
-        (color === "w" ? 1 : 0),
+        color === "w" ? 1 : 0,
         castling.match('K') ? 1 : 0,
         castling.match('Q') ? 1 : 0,
         castling.match('k') ? 1 : 0,
         castling.match('q') ? 1 : 0,
-        (enPassant === "-") ? 15 : xAxis.indexOf(enPassant[0]),
+        enPassant === "-" ? 15 : xAxis.indexOf(enPassant[0]),
         Number(halfMoves), 
         Number(moveCount),
     ];
-
     return new Board(pieceMap, attributes);
 }
 
 function pieceFen(type: PieceType, color: PieceColor): string {
     const char: string = type === PieceType.PAWN ? "P" : `${type}`;
-    return color === PieceColor.WHITE ? char : char.toLowerCase()
+    return color === PieceColor.WHITE ? char : char.toLowerCase();
 }
 
 function fenPiece(char: string, position: Position): Piece {
