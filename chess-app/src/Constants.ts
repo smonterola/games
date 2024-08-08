@@ -1,5 +1,3 @@
-import { PieceMap } from "./models";
-
 export const yAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
 export const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
@@ -27,7 +25,10 @@ export enum GameState {
     PLAY = "Play",
 }
 
-//["", "B", "N", "R", "Q", "K", "+", "#", "$", "O-O", "O-O-O"]
+export function nextTurn(pieceColor: PieceColor): PieceColor {
+    return (pieceColor === PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
+}
+
 const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
 const minDimPx = (vw < vh) ? vw : vh;

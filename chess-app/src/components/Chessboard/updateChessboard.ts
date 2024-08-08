@@ -1,7 +1,7 @@
 import { PieceColor, PieceType } from "../../Constants";
 import { Board, Piece, PieceMap, Position } from "../../models";
 import { findKingKey, isCheck } from "../../rules";
-import { deepClone } from "../../rules/History/Clone";
+import { deepClone } from "../../rules/Clone";
 
 //consider making this a class
 export function updateBoard(
@@ -12,7 +12,7 @@ export function updateBoard(
     kB: string,
 ): [string, Board] {  //return if a capture or promotion happened and the board. Cannot check if mate/stalemate/check just yet
     const pieceMap: PieceMap = deepClone(board.pieces);
-    const [turn0, wS0, wL0, bS0, bL0, enPassant0] = board.attributes;
+    const [turn0, wS0, wL0, bS0, bL0, enPassant0, prevHalfMoves, prevMoveCount] = board.attributes;
     if (!pieceMap.has(p0.string)) {
         console.log(pieceMap)
         console.log(board)
@@ -33,9 +33,11 @@ export function updateBoard(
     let shift: number = 0; //this defaults to no castling took place. 1 means short castle, -1 means long castle
     let turn1 = turn0 ^ 1;
     let enPassant1 = 15;
-    let [wS1, wL1, bS1, bL1] = [wS0, wL0, bS0, bL0];
+    let [wS1, wL1, bS1, bL1, halfMoves, moveCount] = [wS0, wL0, bS0, bL0, prevHalfMoves, prevMoveCount];
 
     if (pieceMap.has(p1.string)) {
+        capture = pieceMap.has(p1.string) ? "x" : capture;
+        halfMoves = -1;
         const target = pieceMap.get(p1.string)!;
         if (target.type === PieceType.ROOK) {
             const topRight = new Position(7,7);
@@ -58,6 +60,7 @@ export function updateBoard(
 
     /* PAWN LOGIC - Promotion, setting enPassant, and taking enPassant */
     if (piece.type === PieceType.PAWN) {
+        halfMoves = -1;
         if (canPromote(piece)) {
             const promotionType: PieceType = PieceType.QUEN;
             piece = promotePawn(piece, promotionType);
@@ -77,7 +80,6 @@ export function updateBoard(
         const rookX = shift === 1 ? 7 : 0; 
         /* moving the rook */
         const rook: Piece = pieceMap.get(new Position(rookX, p0.y).string)!;
-        if (rook) console.log(pieceMap)
         pieceMap.delete(rook.position.string);
         rook.position.x = p1.x - shift; //actual movement is here
         pieceMap.set(rook.position.string, rook); //moving its location in the dictionary
@@ -106,7 +108,6 @@ export function updateBoard(
     }
 
     /* FINALLY MOVING THE PIECE AFTER ALL THE LOGIC HAS BEEN COMPLETE */
-    capture = pieceMap.has(p1.string) ? "x" : capture;
     piece.position = p1.clone;
     pieceMap.set(p1.string, piece);
 
@@ -134,7 +135,7 @@ export function updateBoard(
         action = "O-O-O";
     }
 
-    const newAttributes: number[] = [turn1, wS1, wL1, bS1, bL1, enPassant1]
+    const newAttributes: number[] = [turn1, wS1, wL1, bS1, bL1, enPassant1, halfMoves+1, moveCount+turn0]
     const updatedBoard = new Board(pieceMap, newAttributes);
 
     //console.log(action)

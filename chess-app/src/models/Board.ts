@@ -23,6 +23,8 @@ export class Board {
         bShort: boolean,
         bLong: boolean,
         enPassant: number,
+        halfMoves: number,
+        moveCount: number,
     ): void { //make this a bitset later
         this._attributes = [
             (turn === PieceColor.WHITE) ? 1 : 0,
@@ -31,6 +33,8 @@ export class Board {
             (bShort) ? 1 : 0,
             (bLong)  ? 1 : 0,
             enPassant,
+            halfMoves,
+            moveCount,
         ];
     }
     get pieces(): PieceMap {

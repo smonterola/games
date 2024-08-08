@@ -2,15 +2,12 @@ import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
-import { Piece, Position, PieceMap, BoardMap, Board } from "../../models";
-import { xAxis, yAxis, TILESIZE, PieceColor, GameState} from "../../Constants";
-import { nextTurn, findKingKey, pgnToString } from "../../rules";
-//import { initialBoards, initialPieceMap } from "./initChessboard";
+import { Piece, Position, BoardMap, Board } from "../../models";
+import { xAxis, yAxis, TILESIZE, PieceColor, GameState, nextTurn} from "../../Constants";
+import { findKingKey, boardToFen } from "../../rules";
 import { initialBoard, initialBoardMap } from "./initChessboard";
-import { evaluate } from "../../engine";
-import { miniMaxAlphaBeta } from "../../engine/Engine";
+import { evaluate, miniMaxAlphaBeta, sumMoves } from "../../engine";
 import { updateBoard } from "./updateChessboard";
-import { sumMoves } from "../../engine/verifyRules";
 
 let moveCounter = 1;
 const pgn = new Map<number, string>();
@@ -35,11 +32,11 @@ export default function Chessboard() {
             setTimeout(
                 function(){
                     const start = performance.now();
-                    const moves = sumMoves(board, 5, (turn), [], "e1", "e1");
-                    //const bestMoveScore = miniMaxAlphaBeta(board, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
+                    //const moves = sumMoves(board, 4, (turn), [], "e1", "e1");
+                    const bestMoveScore = miniMaxAlphaBeta(board, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
                     const end = performance.now();
-                    console.log(moves)
-                    //console.log(bestMoveScore);
+                    //console.log(moves)
+                    console.log(bestMoveScore);
                     console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
                     //console.log(depthTwo);
                 }, 0
@@ -111,10 +108,6 @@ export default function Chessboard() {
         const [move, _board] = updateBoard(board, getPosition, cursorP, whiteKingKey, blackKingKey);
         const validMove = rules.canMove(boardMap, move);
 
-        //const getPiece: Piece = pieceMap.get(getPosition.string)!;
-        //const capture: string = pieceMap.has(cursorP.string) ? "" : ""; //doesnt work for enpassant right now
-        //const encoding = getPiece.type + getPosition.string + capture + cursorP.string;
-        //const validMove = rules.canMove(getBoards, encoding);
         if (!validMove) {
             activePiece.style.position = "relative";
             activePiece.style.removeProperty("top");
@@ -126,9 +119,9 @@ export default function Chessboard() {
         const nextBoard: Board = boardMap.get(move)!;
         pieceMap = (nextBoard.pieces);
         setBoard(nextBoard)
-        const append: string = (pgn.has(moveCounter)) ? pgn.get(moveCounter)!: `${moveCounter}.`;
-        pgn.set(Math.floor(moveCounter), move);
-        moveCounter += 0.5; //WHITE = 0, BLACK = 1
+        const moveCount = nextBoard.attributes[7];
+        const append: string = (pgn.has(moveCount)) ? pgn.get(moveCount)!: `${moveCounter}.`;
+        pgn.set(moveCount, append + " " + move);
         console.log(pgn);
         turn = nextTurn(turn);
         
@@ -145,10 +138,9 @@ export default function Chessboard() {
         }
         console.log(newBoards)
         console.log(board)
+        console.log(boardToFen(board))
         setBoards(newBoards);
     }
-    //rendering board
-    //console.log(board)
     const pieceMap = board.pieces;
     const boardUI = [];
     const highlightMap = (
