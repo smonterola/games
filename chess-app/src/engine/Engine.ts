@@ -46,17 +46,14 @@ export function miniMaxAlphaBeta(
     let bestPath: string[] = path;
     if (color === PieceColor.WHITE) {
         let maxEval = -4096;
-        for (const [move, branchBoard] of nextBoards) {
+        for (const [move, branchBoard] of sortMoves(nextBoards)) {
             const branchMap = branchBoard.pieces
-            //check for mate by finding the new king and checking if mate
-            //let evaluation;
-            //let moves: string[] = [...path, move];
             let stop = 1;
             if (futility) {
-                if (branchMap.size === size) {
+                if (branchMap.size - 0 === size) {
                     stop = 0;
                 } else {
-                    continue; //if theres a last min capture, then stop because we need to always let the opponent respond
+                     //if theres a last min capture, then stop because we need to always let the opponent respond
                 }
             }
             const [moves, evaluation] = miniMaxAlphaBeta(
@@ -77,15 +74,14 @@ export function miniMaxAlphaBeta(
         return [bestPath, maxEval];
     } else { /* color === PieceColor.BLACK */
         let minEval = 4096;
-        for (const [move, branchBoard] of nextBoards) {
+        for (const [move, branchBoard] of sortMoves(nextBoards)) {
             const branchMap = branchBoard.pieces;
-            //check for mate by finding the new king and checking if mate
             let stop = 1;
             if (futility) {
-                if (branchMap.size === size) {
+                if (branchMap.size - 0 === size) {
                     stop = 0;
                 } else {
-                    continue; //if theres a last min capture, then stop because we need to always let the opponent respond
+                     //if theres a last min capture, then stop because we need to always let the opponent respond
                 }
             }
             const [moves, evaluation] = miniMaxAlphaBeta(
@@ -107,9 +103,40 @@ export function miniMaxAlphaBeta(
     }
 }
 
-function sortMoves(boardMap: BoardMap) {
-    let moves
-
+export function sortMoves(boardMap: BoardMap) {
+    let moveNBoard: [string, Board][] = [...boardMap.entries()];
+    const priority: [string, number][] = [
+        ["f",-1], ["a", 1], ["h", 1], 
+        //the edges and moving the pawn in front of the king is the worst
+        ["1", 1], ["8", 1], ["7", 1], ["2", 1], 
+        //these ranks are on the end, they can be considered last
+        ["g", 1], ["b", 1], ["c", 1], 
+        //these files are not that good, but not the worst
+        ["R", 1], ["Q", 1], ["B", 1], ["N", 1], 
+        //these prioritize pieces over pawns
+        ["d", 1], ["e", 1], ["O", 1], 
+        //favor movement in the center files and castling
+        ["4", 1], ["5", 1], 
+        //look for moving into the center ranks
+        ["K",-1], 
+        //make king moves last
+        ["+", 1], 
+        //make checks second most important
+        ["x", 1], 
+        //prioritize captures
+    ]
+    for (const [char, weight] of priority) {
+        moveNBoard = moveNBoard.sort((a,b) => sortByChar(a[0], b[0], char, weight));
+    }
+    return moveNBoard;
+}
+function sortByChar(a: string, b: string, char: string, direction: number) {
+    if ((a.includes(char)) && !(b.includes(char))) {
+        return -1*direction;
+    } else if (!(a.includes(char)) && (b.includes(char))) {
+        return 1*direction;
+    }
+    return 0;
 }
 /*
 

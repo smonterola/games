@@ -1,7 +1,7 @@
 import { BoardMap, Piece, PieceMap, Position, PositionMap } from "../models";
 import { PieceType, nextTurn, GameState } from "../Constants";
 import { mapMoves, movePawn } from "."
-import { castle, findKingKey, isCheck } from "./pieces/King";
+import { castle, findKingKey, findPins, isCheck } from "./pieces/King";
 import { updateBoard } from "../components/Chessboard/updateChessboard";
 import { Board } from "../models";
 
@@ -22,10 +22,14 @@ export default class Rules {
         const attributes = board.attributes;
         const nextBoards: BoardMap = new Map();
         const enemyKingKey = findKingKey(pMap, enemyKing, nextTurn(king.color));
+
+        const check: boolean = isCheck(pMap, king.position, king.color);
+        const pinMap: PositionMap = check ? new Map() : findPins(pMap, king);
+
         for (let piece of pMap.values()) {
-            let destinationBoards: BoardMap = new Map();
+            let destinationBoards: BoardMap = new Map(); //need to make extra for the pawn
             if (piece.color !== king.color) {
-                continue; //check if this should be cleared or not
+                continue;
             }
             switch (piece.type) {
                 case PieceType.PAWN:
@@ -43,6 +47,8 @@ export default class Rules {
                 piece, 
                 king,
                 enemyKingKey,
+                check,
+                pinMap,
             );
             for (let [move, nextBoard] of destinationBoards) {
                 nextBoards.set(move, nextBoard);
@@ -58,19 +64,28 @@ export default class Rules {
         destination: Position,
         king: Piece,
         enemyKingKey: string,
+        check: boolean,
+        pinMap: PositionMap,
     ): [boolean, string, Board] { //return legal moves. Also return the would be newPieceMap and the would be evaluation
-        const [move, nextBoard] = updateBoard( //change the attributes here
+        const startingPosition = piece.position.clone;
+        const [move, nextBoard, didEnPassant] = updateBoard( //change the attributes here
             board, 
             piece.position, 
             destination,
             king.position.string,
             enemyKingKey,
         );
-
         const pKing = (piece.type !== PieceType.KING) ? 
             king.position : destination;
-        
-        if (isCheck(nextBoard.pieces, pKing, piece.color)) {
+        if (
+            (
+                check || 
+                didEnPassant || 
+                piece.type === PieceType.KING || 
+                pinMap.has(startingPosition.string)
+            ) && 
+            isCheck(nextBoard.pieces, pKing, piece.color)
+        ) {
             return [false, "#hangingMate#", nextBoard];
         }
         return [true, move, nextBoard];
@@ -81,6 +96,8 @@ export default class Rules {
         piece: Piece,
         king: Piece,
         enemyKing: string,
+        check: boolean,
+        pinMap: PositionMap,
     ): [PositionMap, BoardMap] {
         const pMap: PieceMap = board.pieces; //does NOT need deep clone
         const moveMap = piece.moveMap ? piece.moveMap : new Map();
@@ -93,11 +110,13 @@ export default class Rules {
                 destination,
                 king,
                 enemyKingKey,
+                check,
+                pinMap,
             );
             if (!isLegal) {
                 moveMap.delete(destination.string);
             } else {
-                destinationBoards.set(move, nextBoard);
+                destinationBoards.set(move, nextBoard); //here is where the extra promotions are put
             }
         }
         return [moveMap, destinationBoards];

@@ -10,14 +10,14 @@ export const rawPawnDirections: Position[] = [
     new Position( 1, 0),
 ];
 
-const rookDirections: Position[] = [
+export const rookDirections: Position[] = [
     new Position( 1, 0), // 0pi/2
     new Position( 0, 1), // 1pi/2
     new Position(-1, 0), // 2pi/2
     new Position( 0,-1), // 3pi/2
 ];
 
-const bishopDirections: Position[] = [
+export const bishopDirections: Position[] = [
     new Position( 1, 1), //  pi/4
     new Position( 1,-1), // 3pi/4
     new Position(-1,-1), // 5pi/4

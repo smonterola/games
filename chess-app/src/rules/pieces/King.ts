@@ -1,6 +1,6 @@
 import { PieceColor, PieceType } from "../../Constants";
 import { Board, Piece, PieceMap, Position, PositionMap, getPOV } from "../../models";
-import { pieceDirectons } from "./Directions";
+import { rookDirections, bishopDirections, pieceDirectons } from "./Directions";
 import { mapMoves } from "../Movement/MapMoves";
 
 export function castle(
@@ -99,4 +99,45 @@ export function findKingKey(
         console.log(pieceMap)
     }
     return king.position.string;
+}
+
+export function findPins(
+    pieceMap: PieceMap,
+    king: Piece,
+): PositionMap {
+    const pinnedPositions: PositionMap = new Map();
+    const pieceDirections: Position[][] = [bishopDirections, rookDirections];
+    const pieceTypes:       PieceType[] = [PieceType.BSHP,   PieceType.ROOK];
+    for (let i = 0; i < 2; i++) {
+        for (const direction of pieceDirections[i]) {
+            let tempPosition: Position = king.position.addPositions(direction);
+            let pinPosition: Position = tempPosition.clone;
+            let friendlyFound: boolean = false;
+            while (tempPosition.checkBounds) {
+                if (!tempPosition.isOccupied(pieceMap)) {
+                    tempPosition = tempPosition.addPositions(direction);
+                    continue;
+                } 
+                const piece: Piece = pieceMap.get(tempPosition.string)!;
+                if (piece.color === king.color) {
+                    if (!friendlyFound) {
+                        pinPosition = tempPosition.clone;
+                        friendlyFound = true;
+                        tempPosition = tempPosition.addPositions(direction);
+                    } else {
+                        break; //this means there are two friendlies in the way and the king is safe
+                    }
+                } else {
+                    if (
+                        friendlyFound && 
+                        (piece.type === pieceTypes[i] || piece.type === PieceType.QUEN)
+                    ) {
+                        pinnedPositions.set(pinPosition.string, pinPosition.clone);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    return pinnedPositions;
 }
