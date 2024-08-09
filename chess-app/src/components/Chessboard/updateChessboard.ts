@@ -10,7 +10,7 @@ export function updateBoard(
     p1: Position, 
     kW: string,
     kB: string,
-): [string, Board] {  //return if a capture or promotion happened and the board. Cannot check if mate/stalemate/check just yet
+): [string, Board, boolean] {  //return if a capture or promotion happened and the board. Cannot check if mate/stalemate/check just yet
     const pieceMap: PieceMap = deepClone(board.pieces);
     const [turn0, wS0, wL0, bS0, bL0, enPassant0, prevHalfMoves, prevMoveCount] = board.attributes;
     if (!pieceMap.has(p0.string)) {
@@ -25,10 +25,11 @@ export function updateBoard(
     ){
         console.clear();
         console.log("big error");
-        return ["", new Board(new Map(), [])]; //this should never happen
+        return ["", new Board(new Map(), []), false]; //this should never happen
     }
 
     /* prepare the constants to be returned to classify the move */
+    let didEnPassant: boolean = false;
     let [capture, promotion] = ["", ""];
     let shift: number = 0; //this defaults to no castling took place. 1 means short castle, -1 means long castle
     let turn1 = turn0 ^ 1;
@@ -74,6 +75,7 @@ export function updateBoard(
         else if (!p1.isOccupied(pieceMap)) {
             pieceMap.delete(new Position(enPassant0, p0.y).string);
             capture = "x";
+            didEnPassant = true;
         }
     } else if (piece.type === PieceType.KING && Math.abs(p1.x - p0.x) === 2) {
         shift = Math.sign(p1.x - p0.x);
@@ -138,8 +140,7 @@ export function updateBoard(
     const newAttributes: number[] = [turn1, wS1, wL1, bS1, bL1, enPassant1, halfMoves+1, moveCount+turn0]
     const updatedBoard = new Board(pieceMap, newAttributes);
 
-    //console.log(action)
-    return [action + checkMove, updatedBoard];
+    return [action + checkMove, updatedBoard, didEnPassant];
 }
 
 export function canPromote(piece: Piece) {

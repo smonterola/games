@@ -4,9 +4,9 @@ import "./Chessboard.css";
 import Rules from "../../rules/Rules";
 import { Piece, Position, BoardMap, Board } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor, GameState, nextTurn} from "../../Constants";
-import { findKingKey, boardToFen } from "../../rules";
+import { findKingKey, boardToFen, findPins } from "../../rules";
 import { initialBoard, initialBoardMap } from "./initChessboard";
-import { evaluate, miniMaxAlphaBeta, sumMoves } from "../../engine";
+import { evaluate, miniMaxAlphaBeta, sortMoves, sumMoves } from "../../engine";
 import { updateBoard } from "./updateChessboard";
 
 let moveCounter = 1;
@@ -32,8 +32,8 @@ export default function Chessboard() {
             setTimeout(
                 function(){
                     const start = performance.now();
-                    //const moves = sumMoves(board, 4, (turn), [], "e1", "e1");
-                    const bestMoveScore = miniMaxAlphaBeta(board, 4, 0, -9999, 9999, (turn), [], "e1", "e1");
+                    //const moves = sumMoves(board, 5, (turn), [], "e1", "e1");
+                    const bestMoveScore = miniMaxAlphaBeta(board, 8, 4, -9999, 9999, (turn), [], "e1", "e1");
                     const end = performance.now();
                     //console.log(moves)
                     console.log(bestMoveScore);
@@ -136,9 +136,10 @@ export default function Chessboard() {
         if (status === GameState.CHECKMATE || status === GameState.STALEMATE) {
             return;
         }
-        console.log(newBoards)
-        console.log(board)
-        console.log(boardToFen(board))
+        //console.log(newBoards)
+        //console.log(board)
+        //console.log(boardToFen(board))
+        console.log(sortMoves(newBoards))
         setBoards(newBoards);
     }
     const pieceMap = board.pieces;
