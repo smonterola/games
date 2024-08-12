@@ -6,12 +6,12 @@ import { Piece, Position, BoardMap, Board } from "../../models";
 import { xAxis, yAxis, TILESIZE, PieceColor, GameState, nextTurn} from "../../Constants";
 import { findKingKey, boardToFen, findPins } from "../../rules";
 import { initialBoard, initialBoardMap } from "./initChessboard";
-import { evaluate, miniMaxAlphaBeta, sortMoves, sumMoves } from "../../engine";
+import { miniMaxAlphaBeta } from "../../engine/miniMax";
 import { updateBoard } from "./updateChessboard";
+import { botPlay } from "../../engine/bestMove";
 
-let moveCounter = 1;
 const pgn = new Map<number, string>();
-let turn: PieceColor = PieceColor.WHITE;
+//let turn: PieceColor = PieceColor.WHITE;
 let positionHighlight: Position = new Position(-1, -1);
 
 export default function Chessboard() {
@@ -27,22 +27,11 @@ export default function Chessboard() {
         const chessboard = chessboardRef.current;
         const element = e.target as HTMLElement;
         if (!chessboard || !element.classList.contains("chess-piece")) {
-            console.log("finding moves that are good for", turn);
-            
-            setTimeout(
-                function(){
-                    const start = performance.now();
-                    //const moves = sumMoves(board, 5, (turn), [], "e1", "e1");
-                    const bestMoveScore = miniMaxAlphaBeta(board, 6, 2, -9999, 9999, (turn), [], "e1", "e1");
-                    const end = performance.now();
-                    //console.log(moves)
-                    console.log(bestMoveScore);
-                    console.log(bestMoveScore[0][0])
-                    console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
-                    
-                    //console.log(depthTwo);
-                }, 0
-            );
+            //setTimeout(function(){
+                const [newBoard, newBoardMap] = botPlay(board, boardMap);
+                setBoard(newBoard);
+                setBoards(newBoardMap);
+            //}, 0)
             return;
         }
         const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE));
@@ -125,7 +114,7 @@ export default function Chessboard() {
         const append: string = (pgn.has(moveCount)) ? pgn.get(moveCount)!: `${moveCount}.`;
         pgn.set(moveCount, append + " " + move);
         console.log(pgn);
-        turn = nextTurn(turn);
+        const turn = (board.attributes[0]) ? PieceColor.BLACK : PieceColor.WHITE;
         
         [whiteKingKey, blackKingKey] = [
             findKingKey(pieceMap, whiteKingKey, PieceColor.WHITE), 
@@ -138,12 +127,10 @@ export default function Chessboard() {
         if (status === GameState.CHECKMATE || status === GameState.STALEMATE) {
             return;
         }
-        //console.log(newBoards)
-        //console.log(board)
-        //console.log(boardToFen(board))
         setBoards(newBoards);
     }
     const pieceMap = board.pieces;
+    const turn = (board.attributes[0]) ? PieceColor.WHITE : PieceColor.BLACK;
     const boardUI = [];
     const highlightMap = (
         positionHighlight.samePosition(getPosition) && 
