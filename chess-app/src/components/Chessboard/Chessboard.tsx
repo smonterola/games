@@ -39,6 +39,7 @@ export default function Chessboard() {
                     console.log(bestMoveScore);
                     console.log(bestMoveScore[0][0])
                     console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
+                    
                     //console.log(depthTwo);
                 }, 0
             );
