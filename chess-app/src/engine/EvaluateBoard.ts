@@ -34,12 +34,14 @@ export function evaluate(pieceMap: PieceMap): number {
         }
         evalutation += pieceScore * POV;
     }
+    /*
     let activity = 0;
     for (let piece of pieceMap.values()) { //rudimentary way to score "piece activity"
         let moves = (piece.moveMap ? piece.moveMap.size : 0) * piece.POV * 0.01 * activityValues.get(piece.type)!;
         activity += moves
     }
     evalutation += activity;
+    */
     return Math.round(evalutation * 100) / 100;
 }
 

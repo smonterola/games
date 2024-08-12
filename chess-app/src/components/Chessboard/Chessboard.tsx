@@ -33,10 +33,11 @@ export default function Chessboard() {
                 function(){
                     const start = performance.now();
                     //const moves = sumMoves(board, 5, (turn), [], "e1", "e1");
-                    const bestMoveScore = miniMaxAlphaBeta(board, 8, 4, -9999, 9999, (turn), [], "e1", "e1");
+                    const bestMoveScore = miniMaxAlphaBeta(board, 6, 2, -9999, 9999, (turn), [], "e1", "e1");
                     const end = performance.now();
                     //console.log(moves)
                     console.log(bestMoveScore);
+                    console.log(bestMoveScore[0][0])
                     console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
                     //console.log(depthTwo);
                 }, 0
@@ -119,8 +120,8 @@ export default function Chessboard() {
         const nextBoard: Board = boardMap.get(move)!;
         pieceMap = (nextBoard.pieces);
         setBoard(nextBoard)
-        const moveCount = nextBoard.attributes[7];
-        const append: string = (pgn.has(moveCount)) ? pgn.get(moveCount)!: `${moveCounter}.`;
+        const moveCount = nextBoard.attributes[7] - 1;
+        const append: string = (pgn.has(moveCount)) ? pgn.get(moveCount)!: `${moveCount}.`;
         pgn.set(moveCount, append + " " + move);
         console.log(pgn);
         turn = nextTurn(turn);
@@ -139,7 +140,6 @@ export default function Chessboard() {
         //console.log(newBoards)
         //console.log(board)
         //console.log(boardToFen(board))
-        console.log(sortMoves(newBoards))
         setBoards(newBoards);
     }
     const pieceMap = board.pieces;

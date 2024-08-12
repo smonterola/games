@@ -36,7 +36,7 @@ export function miniMaxAlphaBeta(
     /* end if the game is over */
     switch(status) {
         case GameState.CHECKMATE:
-            return [path, 1000 * getPOV(color)];
+            return [path, -1000 * getPOV(color)];
         case GameState.STALEMATE:
             return [path, 0];
     }
@@ -106,13 +106,13 @@ export function miniMaxAlphaBeta(
 export function sortMoves(boardMap: BoardMap) {
     let moveNBoard: [string, Board][] = [...boardMap.entries()];
     const priority: [string, number][] = [
-        ["f",-1], ["a", 1], ["h", 1], 
+        ["h",-1], ["a",-1], ["f",-1], 
         //the edges and moving the pawn in front of the king is the worst
         ["1", 1], ["8", 1], ["7", 1], ["2", 1], 
         //these ranks are on the end, they can be considered last
         ["g", 1], ["b", 1], ["c", 1], 
         //these files are not that good, but not the worst
-        ["R", 1], ["Q", 1], ["B", 1], ["N", 1], 
+        ["Q", 1], ["R", 1], ["B", 1], ["N", 1], 
         //these prioritize pieces over pawns
         ["d", 1], ["e", 1], ["O", 1], 
         //favor movement in the center files and castling
@@ -122,8 +122,8 @@ export function sortMoves(boardMap: BoardMap) {
         //make king moves last
         ["+", 1], 
         //make checks second most important
-        ["x", 1], 
-        //prioritize captures
+        ["x", 1], ["=", 1],
+        //prioritize captures and promotion
     ]
     for (const [char, weight] of priority) {
         moveNBoard = moveNBoard.sort((a,b) => sortByChar(a[0], b[0], char, weight));
