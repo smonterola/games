@@ -1,7 +1,7 @@
-import { GameState, PieceColor } from "../Constants";
-import { Board, BoardMap, Piece, PieceMap, getPOV } from "../models";
-import { findKingKey } from "../rules";
-import Rules from "../rules/Rules";
+import { GameState, PieceColor } from "../../Constants";
+import { Board, BoardMap, Piece, getPOV } from "../../models";
+import { findKingKey } from "../../rules";
+import Rules from "../../rules/Rules";
 import { evaluate } from "./EvaluateBoard";
 
 type MovesScore = [string[], number];
