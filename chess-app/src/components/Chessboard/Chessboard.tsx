@@ -31,7 +31,11 @@ export default function Chessboard() {
                 GAMEOVER = true;
                 return;
             }
-            const [newBoard, newBoardMap] = botPlay(board, boardMap);
+            const [move, newBoard, newBoardMap] = botPlay(board, boardMap);
+            const moveCount = newBoard.attributes[7] - 1;
+            const append: string = (pgn.has(moveCount)) ? pgn.get(moveCount)!: `${moveCount}.`;
+            pgn.set(moveCount, append + " " + move);
+            console.log(pgn);
             setBoard(newBoard);
             setBoards(newBoardMap);
             const pieceFen = boardToFen(board).split(" ")[0];
@@ -129,7 +133,6 @@ export default function Chessboard() {
         const [newPieceMap, newBoards] = rules.populateValidMoves((nextBoard), king, otherKey);
         const status: GameState = rules.getStatus(newBoards, newPieceMap.pieces, king);
         const pieceFen = boardToFen(nextBoard).split(" ")[0];
-        console.log(history)
         history.set(pieceFen, history.has(pieceFen) ? history.get(pieceFen)! + 1 : 1)
         if (
             status === GameState.CHECKMATE || 
