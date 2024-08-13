@@ -27,19 +27,22 @@ export default function Chessboard() {
         const chessboard = chessboardRef.current;
         const element = e.target as HTMLElement;
         if (!chessboard || !element.classList.contains("chess-piece")) {
-            if (boardMap.size === 0 || board.attributes[6] >= 50) {
-                GAMEOVER = true;
-                return;
-            }
-            const [move, newBoard, newBoardMap] = botPlay(board, boardMap);
-            const moveCount = newBoard.attributes[7] - 1;
-            const append: string = (pgn.has(moveCount)) ? pgn.get(moveCount)!: `${moveCount}.`;
-            pgn.set(moveCount, append + " " + move);
-            console.log(pgn);
-            setBoard(newBoard);
-            setBoards(newBoardMap);
-            const pieceFen = boardToFen(board).split(" ")[0];
-            history.set(pieceFen, history.has(pieceFen) ? history.get(pieceFen)! + 1 : 1);
+            console.log("finding moves that are good for", turn);
+            
+            setTimeout(
+                function(){
+                    const start = performance.now();
+                    //const moves = sumMoves(board, 5, (turn), [], "e1", "e1");
+                    const bestMoveScore = miniMaxAlphaBeta(board, 6, 2, -9999, 9999, (turn), [], "e1", "e1");
+                    const end = performance.now();
+                    //console.log(moves)
+                    console.log(bestMoveScore);
+                    console.log(bestMoveScore[0][0])
+                    console.log("time taken:", Math.round((end - start)/10)/100, "seconds");
+                    
+                    //console.log(depthTwo);
+                }, 0
+            );
             return;
         }
         const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE));
