@@ -1,5 +1,5 @@
-import { PieceCount, PieceMap } from "../models";
-import { PieceColor, PieceType } from "../Constants";
+import { PieceCount, PieceMap } from "../../models";
+import { PieceColor, PieceType } from "../../Constants";
 import { 
     endgame, middleGame, threshold, 
     pairsMiddle, pairsEnd, pairsThres ,
@@ -41,7 +41,7 @@ export function evaluate(pieceMap: PieceMap): number {
         activity += moves
     }
     evalutation += activity;
-    */
+    //*/
     return Math.round(evalutation * 100) / 100;
 }
 
