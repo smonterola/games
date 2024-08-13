@@ -1,8 +1,9 @@
 import { GameState, PieceColor } from "../../Constants";
 import { Board, BoardMap, Piece, getPOV } from "../../models";
-import { findKingKey } from "../../rules";
+import { boardToFen, findKingKey } from "../../rules";
 import Rules from "../../rules/Rules";
 import { evaluate } from "./EvaluateBoard";
+import { history } from "../../components/Chessboard/Chessboard";
 
 type MovesScore = [string[], number];
 
@@ -22,9 +23,11 @@ export function miniMaxAlphaBeta(
     if (depth <= 0) {
         return [path, evaluate(pieceMap)];
     }
-    const fiftyMoveDraw: boolean = board.attributes[6] >= 50;
-    if (fiftyMoveDraw) {
-        return [path, 0];
+    const drawPenalty = -0.1*getPOV(color);
+    const pieceFen = boardToFen(board).split(" ")[0];
+    const fiftyMoveDraw: boolean = board.attributes[6] >= 49;
+    if (fiftyMoveDraw || history.get(pieceFen) === 2) {
+        return [path, drawPenalty];
     }
     /* recursion */
     kingKey = findKingKey(pieceMap, kingKey, (color));
@@ -38,11 +41,10 @@ export function miniMaxAlphaBeta(
         case GameState.CHECKMATE:
             return [path, -1000 * getPOV(color)];
         case GameState.STALEMATE:
-            return [path, 0];
+            return [path, drawPenalty];
     }
     const size = newPieceMap.size;
     const futility: boolean = (depth <= futile) ? true : false
-    let stop: number = 1;
     let bestPath: string[] = path;
     if (color === PieceColor.WHITE) {
         let maxEval = -4096;
@@ -52,8 +54,8 @@ export function miniMaxAlphaBeta(
             if (futility) {
                 if (branchMap.size - 0 === size) {
                     stop = 0;
-                } else {
-                     //if theres a last min capture, then stop because we need to always let the opponent respond
+                } else if (depth === 1){
+                    //continue// [[...bestPath, move], evaluate(branchBoard.pieces)]
                 }
             }
             const [moves, evaluation] = miniMaxAlphaBeta(
@@ -80,8 +82,8 @@ export function miniMaxAlphaBeta(
             if (futility) {
                 if (branchMap.size - 0 === size) {
                     stop = 0;
-                } else {
-                     //if theres a last min capture, then stop because we need to always let the opponent respond
+                } else if (depth === 1) {
+                    //continue; //return [[...bestPath, move], evaluate(branchBoard.pieces)]
                 }
             }
             const [moves, evaluation] = miniMaxAlphaBeta(

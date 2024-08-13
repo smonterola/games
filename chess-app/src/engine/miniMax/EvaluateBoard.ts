@@ -41,7 +41,7 @@ export function evaluate(pieceMap: PieceMap): number {
         activity += moves
     }
     evalutation += activity;
-    */
+    //*/
     return Math.round(evalutation * 100) / 100;
 }
 

@@ -3,35 +3,39 @@ import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 import Rules from "../../rules/Rules";
 import { Piece, Position, BoardMap, Board } from "../../models";
-import { xAxis, yAxis, TILESIZE, PieceColor, GameState, nextTurn} from "../../Constants";
-import { findKingKey, boardToFen, findPins } from "../../rules";
+import { xAxis, yAxis, TILESIZE, PieceColor, GameState} from "../../Constants";
+import { boardToFen, findKingKey } from "../../rules";
 import { initialBoard, initialBoardMap } from "./initChessboard";
-import { miniMaxAlphaBeta } from "../../engine/miniMax";
 import { updateBoard } from "./updateChessboard";
 import { botPlay } from "../../engine/bestMove";
 
 const pgn = new Map<number, string>();
-//let turn: PieceColor = PieceColor.WHITE;
+export const history = new Map<string, number>();
 let positionHighlight: Position = new Position(-1, -1);
+let GAMEOVER = false;
 
 export default function Chessboard() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
     const [getPosition, setPosition] = useState<Position>(new Position(-1, -1));
     const [board, setBoard] = useState<Board>(initialBoard);
-    //const [pieceMap, setPieceMap] = useState<PieceMap>(board.pieces);
     const [boardMap, setBoards] = useState<BoardMap>(initialBoardMap);
     const chessboardRef = useRef<HTMLDivElement>(null);
     const rules = new Rules();    
 
     function grabPiece(e: React.MouseEvent) {
+        if (GAMEOVER) return;
         const chessboard = chessboardRef.current;
         const element = e.target as HTMLElement;
         if (!chessboard || !element.classList.contains("chess-piece")) {
-            //setTimeout(function(){
-                const [newBoard, newBoardMap] = botPlay(board, boardMap);
-                setBoard(newBoard);
-                setBoards(newBoardMap);
-            //}, 0)
+            if (boardMap.size === 0 || board.attributes[6] >= 50) {
+                GAMEOVER = true;
+                return;
+            }
+            const [newBoard, newBoardMap] = botPlay(board, boardMap);
+            setBoard(newBoard);
+            setBoards(newBoardMap);
+            const pieceFen = boardToFen(board).split(" ")[0];
+            history.set(pieceFen, history.has(pieceFen) ? history.get(pieceFen)! + 1 : 1);
             return;
         }
         const getX = (Math.floor((e.clientX - chessboard.offsetLeft) / TILESIZE));
@@ -47,7 +51,7 @@ export default function Chessboard() {
     
     function movePiece(e: React.MouseEvent) {
         const chessboard = chessboardRef.current;
-        if (!chessboard || !activePiece) {
+        if (!chessboard || !activePiece || GAMEOVER) {
             return;
         }
         const [minX, minY, maxX, maxY] = [
@@ -74,7 +78,7 @@ export default function Chessboard() {
 
     function dropPiece(e: React.MouseEvent) {
         const chessboard = chessboardRef.current;
-        if (!chessboard || !activePiece) {
+        if (!chessboard || !activePiece || GAMEOVER) {
             return;
         }
         setActivePiece(null); 
@@ -124,7 +128,17 @@ export default function Chessboard() {
         const king: Piece = pieceMap.get(kingKey)!;
         const [newPieceMap, newBoards] = rules.populateValidMoves((nextBoard), king, otherKey);
         const status: GameState = rules.getStatus(newBoards, newPieceMap.pieces, king);
-        if (status === GameState.CHECKMATE || status === GameState.STALEMATE) {
+        const pieceFen = boardToFen(nextBoard).split(" ")[0];
+        console.log(history)
+        history.set(pieceFen, history.has(pieceFen) ? history.get(pieceFen)! + 1 : 1)
+        if (
+            status === GameState.CHECKMATE || 
+            status === GameState.STALEMATE || 
+            history.get(pieceFen) === 3 || 
+            nextBoard.attributes[6] >= 50
+        ) {
+            console.log("GAME OVER")
+            GAMEOVER = true;
             return;
         }
         setBoards(newBoards);
@@ -133,6 +147,7 @@ export default function Chessboard() {
     const turn = (board.attributes[0]) ? PieceColor.WHITE : PieceColor.BLACK;
     const boardUI = [];
     const highlightMap = (
+        !GAMEOVER &&
         positionHighlight.samePosition(getPosition) && 
         pieceMap.has(getPosition.string) &&
         pieceMap.get(getPosition.string)?.color === turn
